@@ -32,6 +32,7 @@
       overflow: hidden;
     }
 
+    /* Header */
     .header {
       position: fixed;
       top: 0;
@@ -97,12 +98,14 @@
       50% { opacity: 0.5; }
     }
 
+    /* Main Container */
     .main-container {
       display: flex;
       height: 100vh;
       padding-top: 60px;
     }
 
+    /* 3D Scene */
     .scene-container {
       flex: 1;
       position: relative;
@@ -138,6 +141,7 @@
       font-size: 14px;
     }
 
+    /* Chat Container */
     .chat-container {
       width: 450px;
       display: flex;
@@ -162,6 +166,7 @@
       font-size: 13px;
     }
 
+    /* Messages */
     .messages-container {
       flex: 1;
       overflow-y: auto;
@@ -241,6 +246,7 @@
       border-radius: 16px 16px 4px 16px;
     }
 
+    /* Typing Indicator */
     .typing-indicator {
       display: flex;
       gap: 4px;
@@ -264,6 +270,7 @@
       40% { transform: translateY(-8px); }
     }
 
+    /* Input Area */
     .input-area {
       padding: 20px;
       border-top: 1px solid rgba(255, 255, 255, 0.05);
@@ -328,6 +335,7 @@
       fill: white;
     }
 
+    /* Welcome Message */
     .welcome-message {
       text-align: center;
       padding: 40px 20px;
@@ -348,6 +356,7 @@
       line-height: 1.6;
     }
 
+    /* Floating Particles */
     .particles {
       position: absolute;
       top: 0;
@@ -375,6 +384,7 @@
       50% { transform: translateY(-100px) translateX(30px); }
     }
 
+    /* Responsive */
     @media (max-width: 900px) {
       .main-container {
         flex-direction: column;
@@ -400,6 +410,7 @@
   </style>
 </head>
 <body>
+  <!-- Header -->
   <header class="header">
     <div class="logo">
       <div class="logo-icon">N</div>
@@ -411,16 +422,23 @@
     </div>
   </header>
 
+  <!-- Main Container -->
   <div class="main-container">
+    <!-- 3D Scene -->
     <div class="scene-container">
       <div id="canvas-container"></div>
+      
+      <!-- Particles -->
       <div class="particles" id="particles"></div>
+      
+      <!-- Character Name -->
       <div class="character-name">
         <h2>Nova</h2>
         <p>Your AI Assistant</p>
       </div>
     </div>
 
+    <!-- Chat -->
     <div class="chat-container">
       <div class="chat-header">
         <h3>Chat with Nova</h3>
@@ -452,6 +470,7 @@
     </div>
   </div>
 
+  <!-- Three.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   
   <script>
@@ -666,6 +685,7 @@
       messageDiv.appendChild(avatar);
       messageDiv.appendChild(contentDiv);
       
+      // Remove welcome message if exists
       const welcome = messagesContainer.querySelector('.welcome-message');
       if (welcome) welcome.remove();
       
@@ -699,7 +719,7 @@
       if (typing) typing.remove();
     }
 
-    // Simple AI responses (client-side)
+    // Simple AI responses (client-side fallback)
     const responses = [
       "That's a great question! I'd be happy to help you with that.",
       "Interesting! Let me think about that for a moment...",
@@ -712,24 +732,29 @@
     ];
 
     async function sendMessage(content) {
+      // Add user message
       addMessage('user', content);
       messages.push({ role: 'user', content });
 
+      // Show typing indicator
       showTyping();
       isThinking = true;
 
+      // Simulate AI thinking
       await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1500));
 
       isThinking = false;
       isSpeaking = true;
       removeTyping();
 
+      // Generate response
       const response = responses[Math.floor(Math.random() * responses.length)] + 
         ` You said: "${content.substring(0, 50)}${content.length > 50 ? '...' : ''}"`;
 
-      addMessage('assistant', response);
+      const contentDiv = addMessage('assistant', response);
       messages.push({ role: 'assistant', content: response });
 
+      // Stop speaking after a delay
       setTimeout(() => {
         isSpeaking = false;
       }, 2000);
@@ -749,6 +774,7 @@
       messageInput.focus();
     });
 
+    // Focus input on load
     messageInput.focus();
   </script>
 </body>
