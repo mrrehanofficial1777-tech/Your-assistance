@@ -1058,18 +1058,16 @@ function copyToClipboard(btn, index) {
   if (!chat || !chat.messages[index]) return;
   
   const text = chat.messages[index].content;
-  const tempTextarea = document.createElement("textarea");
-  tempTextarea.value = text;
-  document.body.appendChild(tempTextarea);
-  tempTextarea.select();
-  try {
-    document.execCommand('copy');
+  navigator.clipboard.writeText(text).then(() => {
     btn.innerHTML = `<i class="fas fa-check text-emerald-400"></i> <span>Copied!</span>`;
     setTimeout(() => {
       btn.innerHTML = `<i class="fas fa-clone text-xs"></i> <span>Copy Text</span>`;
     }, 2000);
-  } catch (err) {
+  }).catch(() => {
     triggerToast("Buffer Error", "Failed to access workspace clipboard.", "text-red-400");
+  });
+}
+
 /* ---------- Dynamic Persona Popover Menu Controllers ---------- */
 function togglePersonaMenu(event) {
   if (event) event.stopPropagation();
@@ -1330,8 +1328,26 @@ function init3DSpace() {
 
   renderLoop();
 }
+
+/* ---------- Custom Notification Alert Popups ---------- */
+function triggerToast(title, message = "", iconClass = "text-emerald-400") {
+  const toast = document.getElementById("toast");
+  const toastIcon = document.getElementById("toast-icon");
+  const toastMsg = document.getElementById("toast-msg");
+  if (!toast) return;
+
+  toastIcon.className = iconClass;
+  toastMsg.innerHTML = `<strong>${title}</strong> ${message ? '· ' + message : ''}`;
+
+  toast.classList.remove("opacity-0", "scale-95", "pointer-events-none");
+  toast.classList.add("opacity-100", "scale-100");
+
+  setTimeout(() => {
+    toast.classList.add("opacity-0", "scale-95", "pointer-events-none");
+    toast.classList.remove("opacity-100", "scale-100");
+  }, 3000);
+}
 </script>
 </body>
 </html>
-
 
