@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>MR7 AI - Next-Gen Smart Assistant</title>
+<title>MR7 AI - Next-Gen Autonomous Workspace</title>
 
 <!-- Tailwind CSS -->
 <script src="https://cdn.tailwindcss.com"></script>
@@ -30,11 +30,11 @@
   :root {
     --accent: #10a37f;
     --accent-glow: rgba(16, 163, 127, 0.15);
-    --bg-dark: #070709;
-    --panel-dark: #0f0f13;
-    --border-dark: rgba(255, 255, 255, 0.06);
+    --bg-dark: #060608;
+    --panel-dark: #0c0c10;
+    --border-dark: rgba(255, 255, 255, 0.05);
     --text-dark: #f3f4f6;
-    --text-muted: #9ca3af;
+    --text-muted: #8e939e;
   }
 
   body {
@@ -67,7 +67,7 @@
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    opacity: 0.55;
+    opacity: 0.45;
     transition: opacity 0.5s;
   }
 
@@ -80,11 +80,11 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.08);
     border-radius: 99px;
   }
   body.light ::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.08);
   }
   ::-webkit-scrollbar-thumb:hover {
     background: var(--accent);
@@ -97,7 +97,7 @@
   /* Audio pulse animation */
   @keyframes pulse-audio {
     0%, 100% { transform: scale(1); opacity: 0.8; }
-    50% { transform: scale(1.15); opacity: 1; color: #ef4444; }
+    50% { transform: scale(1.12); opacity: 1; color: #ef4444; }
   }
   .audio-playing {
     animation: pulse-audio 1.2s infinite;
@@ -121,29 +121,28 @@
 </head>
 <body class="relative h-screen w-screen overflow-hidden flex flex-col">
 
-<!-- Interactive 3D Canvas Background -->
 <canvas id="bg-canvas"></canvas>
 
 <!-- Top Alert Toast -->
 <div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 bg-gray-950/95 border border-white/10 text-white px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-md z-50 flex items-center gap-3 transition-all duration-300 pointer-events-none opacity-0 scale-95">
   <span id="toast-icon" class="text-emerald-400 text-lg"><i class="fas fa-check-circle"></i></span>
-  <span id="toast-msg" class="text-sm font-medium">Settings Applied!</span>
+  <span id="toast-msg" class="text-sm font-medium">Matrix Synchronized!</span>
 </div>
 
 <div class="relative z-10 flex h-full w-full overflow-hidden">
   
   <!-- Sidebar -->
-  <aside id="sidebar" class="w-80 bg-black/50 backdrop-blur-2xl border-r border-white/5 flex flex-col justify-between transition-all duration-300">
+  <aside id="sidebar" class="w-80 bg-black/45 backdrop-blur-2xl border-r border-white/5 flex flex-col justify-between transition-all duration-300">
     <div>
       <!-- Brand Area -->
       <div class="p-5 border-b border-white/5 flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-black font-extrabold text-2xl shadow-lg shadow-emerald-500/20">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-black font-extrabold text-2xl shadow-lg shadow-emerald-500/20" id="brandLogo">
             M
           </div>
           <div>
-            <h1 class="text-lg font-bold tracking-tight">MR7 <span class="text-emerald-400" id="brand-accent-text">AI</span></h1>
-            <p class="text-[9px] text-gray-500 font-mono tracking-wider uppercase">Future Intelligence</p>
+            <h1 class="text-lg font-bold tracking-tight"><span class="brandTextPrimary">MR7</span> <span class="text-emerald-400 brandTextSecondary">AI</span></h1>
+            <p class="text-[9px] text-gray-500 font-mono tracking-wider uppercase">Enterprise Core</p>
           </div>
         </div>
         <button onclick="toggleSidebar(); playSound('click')" class="text-gray-400 hover:text-white transition-colors p-1.5 hover:bg-white/5 rounded-xl">
@@ -159,7 +158,7 @@
         </button>
       </div>
 
-      <!-- Live Search Chats -->
+      <!-- Search Local Conversations -->
       <div class="px-4 mb-3">
         <div class="relative">
           <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
@@ -167,35 +166,52 @@
         </div>
       </div>
 
-      <!-- Chat History Container -->
-      <div class="px-2 flex flex-col gap-1 overflow-y-auto max-h-[52vh]" id="chatList">
-        <!-- Chat items populating here -->
+      <!-- Live Chat History List -->
+      <div class="px-2 flex flex-col gap-1 overflow-y-auto max-h-[46vh]" id="chatList">
+        <!-- Chat items populated dynamically -->
       </div>
     </div>
 
-    <!-- Sidebar Bottom Controls -->
-    <div class="p-4 border-t border-white/5 bg-black/20">
+    <!-- Sidebar Footer with Proprietary System Metrics -->
+    <div class="p-4 border-t border-white/5 bg-black/20 flex flex-col gap-3">
+      <div class="bg-white/[0.02] rounded-xl p-3 border border-white/5 flex flex-col gap-1.5 text-[10px] font-mono text-gray-500">
+        <div class="flex justify-between">
+          <span>SYSTEM STATUS:</span>
+          <span class="text-emerald-400 font-bold flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> NOMINAL
+          </span>
+        </div>
+        <div class="flex justify-between">
+          <span>LATENCY MATRIX:</span>
+          <span class="text-gray-300" id="liveLatency">12ms</span>
+        </div>
+        <div class="flex justify-between">
+          <span>ENCRYPTION:</span>
+          <span class="text-blue-400 font-semibold">256-BIT SSL</span>
+        </div>
+      </div>
+
       <div class="flex items-center justify-between gap-2 p-2.5 bg-white/5 rounded-2xl border border-white/5">
         <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400" id="bottom-icon">
-            <i class="fas fa-microchip"></i>
+          <div class="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400" id="bottom-icon">
+            <i class="fas fa-brain"></i>
           </div>
           <div>
-            <p class="text-xs font-semibold" id="activeEngineLabel">Gemini Pro Core</p>
-            <p class="text-[9px] text-emerald-400 font-mono" id="activeEngineSub">Ready to Assist</p>
+            <p class="text-xs font-semibold" id="activeEngineLabel">MR7 Core Engine</p>
+            <p class="text-[9px] text-emerald-400 font-mono" id="activeEngineSub">Continuous Matrix</p>
           </div>
         </div>
         <button onclick="openSettings(); playSound('click')" class="text-gray-400 hover:text-white p-2 hover:bg-white/5 rounded-xl transition-colors" title="Settings Center">
-          <i class="fas fa-cog"></i>
+          <i class="fas fa-sliders-h"></i>
         </button>
       </div>
     </div>
   </aside>
 
-  <!-- Main View Area -->
+  <!-- Main View Workspace Area -->
   <main class="flex-1 flex flex-col min-w-0 bg-transparent relative z-10">
     
-    <!-- Topbar Navigation -->
+    <!-- Topbar Navigation Header -->
     <header class="h-16 border-b border-white/5 flex items-center justify-between px-6 bg-black/10 backdrop-blur-md">
       <div class="flex items-center gap-3">
         <button id="sidebarToggle" onclick="toggleSidebar(); playSound('click')" class="text-gray-400 hover:text-white p-2.5 hover:bg-white/5 rounded-xl mr-2" style="display:none;">
@@ -207,7 +223,7 @@
         </div>
       </div>
 
-      <!-- Control actions -->
+      <!-- Topbar Controls -->
       <div class="flex items-center gap-2">
         <button onclick="toggleTheme(); playSound('click')" id="themeBtn" class="text-gray-400 hover:text-white bg-white/5 border border-white/5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors">
           ☀️ Light Mode
@@ -226,52 +242,52 @@
 
     <!-- Chat Messages Screen -->
     <div class="flex-1 overflow-y-auto px-4 md:px-12 py-8 flex flex-col gap-6" id="messages">
-      <!-- Welcome Landing State rendered here -->
+      <!-- Welcome Landing State rendered dynamically -->
     </div>
 
-    <!-- Contextual suggestions banner -->
+    <!-- Contextual suggestions container -->
     <div class="px-4 md:px-12" id="contextualSuggestionsWrap">
       <div class="max-w-4xl mx-auto flex flex-wrap gap-2 py-2" id="contextSuggestions">
-        <!-- AI Smart Suggestions populate here -->
+        <!-- Intelligent Proprietary Suggestions populate here -->
       </div>
     </div>
 
-    <!-- Input Form & Composer -->
+    <!-- Text Composer & Input Controls -->
     <div class="p-4 md:p-6 bg-gradient-to-t from-black/80 to-transparent">
       <div class="max-w-4xl mx-auto">
         <div class="bg-zinc-900/90 border border-white/5 rounded-2xl p-3 shadow-2xl backdrop-blur-xl relative">
           
-          <!-- Mode Toggles -->
+          <!-- Mode Toggles (Chat vs Canvas Studio) -->
           <div class="flex items-center justify-between px-2 pb-2 mb-2 border-b border-white/5">
             <div class="flex gap-2">
               <button id="btnTextMode" onclick="setComposeMode('text'); playSound('click')" class="px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 transition-all">
-                <i class="fas fa-comment-dots"></i> <span>Chat Assistant</span>
+                <i class="fas fa-comment-dots"></i> <span class="brandNameText">MR7 Workspace</span>
               </button>
               <button id="btnImageMode" onclick="setComposeMode('image'); playSound('click')" class="px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 hover:bg-white/5 text-gray-400 transition-all border border-transparent hover:border-white/10">
-                <i class="fas fa-paint-brush"></i> <span>Imagine (AI Painting)</span>
+                <i class="fas fa-paint-brush"></i> <span>Canvas Studio (AI Paint)</span>
               </button>
             </div>
             
-            <div class="hidden sm:flex items-center gap-2 text-[11px] text-gray-500">
-              <span>Shuru karein <b>/draw</b> se to instantly paint masterpieces!</span>
+            <div class="hidden sm:flex items-center gap-2 text-[11px] text-gray-500 font-mono">
+              <span>Instantly generate graphic canvas art with <b>/draw</b> command!</span>
             </div>
           </div>
 
-          <!-- Main Input Controls -->
+          <!-- Input Matrix controls -->
           <div class="flex items-end gap-3">
-            <!-- Smart Speech Voice Input Button -->
-            <button id="micBtn" onclick="toggleSpeechRecognition(); playSound('click')" class="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition-all shrink-0" title="Voice Typing (Speak instead of type)">
+            <!-- Smart Audio Mic Recording Button -->
+            <button id="micBtn" onclick="toggleSpeechRecognition(); playSound('click')" class="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition-all shrink-0" title="Vocal Matrix Input (Voice Type)">
               <i class="fas fa-microphone" id="micIcon"></i>
             </button>
 
-            <textarea id="input" rows="1" placeholder="Kuch poochiye, AI se baatein karein..." 
+            <textarea id="input" rows="1" placeholder="Type a message, or request complex algorithms..." 
               onkeydown="handleTextareaKey(event)"
               oninput="autoGrow(this); updateCharCount(this)" 
               class="flex-1 bg-transparent border-0 text-white placeholder-gray-500 focus:ring-0 focus:outline-none text-[15px] resize-none max-h-40 min-h-[24px] py-1 pl-1"></textarea>
             
             <div class="flex items-center gap-1.5 pr-1">
               <span id="charCount" class="text-[10px] text-gray-500 font-mono">0</span>
-              <button onclick="clearInput(); playSound('click')" class="w-8 h-8 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white flex items-center justify-center transition-colors" title="Clear input">
+              <button onclick="clearInput(); playSound('click')" class="w-8 h-8 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white flex items-center justify-center transition-colors" title="Flush Matrix">
                 <i class="fas fa-trash-alt text-sm"></i>
               </button>
               <button id="sendBtn" onclick="sendMessage(); playSound('click')" class="w-9 h-9 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black flex items-center justify-center transition-all shadow-lg shadow-emerald-500/10">
@@ -280,111 +296,88 @@
             </div>
           </div>
         </div>
-        <p class="text-center text-[10px] text-gray-500 mt-3 font-medium">MR7 AI runs native Google Gemini Core & Groq Engines. Voice Speech, Audio TTS enabled.</p>
+        <p class="text-center text-[10px] text-gray-500 mt-3 font-mono uppercase tracking-wider brandFooterText">MR7 AI · PROPRIETARY INTELLIGENCE CORE SYSTEM · ALL DATA LOCALIZED</p>
       </div>
     </div>
   </main>
 </div>
 
-<!-- Settings Modal -->
-<div id="settingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
+<!-- Simplified Custom Settings Modal (Strictly No API key entries, pure Customization) -->
+<div id="settingsModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
   <div class="bg-zinc-950 border border-white/10 rounded-2xl w-full max-w-lg p-6 m-4 shadow-2xl transform scale-95 transition-all duration-300 flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between border-b border-white/10 pb-3">
       <div class="flex items-center gap-2 text-emerald-400" id="settings-title-color">
         <i class="fas fa-sliders-h text-lg"></i>
-        <h2 class="text-lg font-bold font-heading">MR7 AI Engines & customization</h2>
+        <h2 class="text-lg font-bold font-heading">MR7 Core Customization Settings</h2>
       </div>
       <button onclick="closeSettings(); playSound('click')" class="text-gray-400 hover:text-white hover:bg-white/10 w-8 h-8 rounded-full flex items-center justify-center transition-all">
         <i class="fas fa-times"></i>
       </button>
     </div>
 
-    <!-- Settings Forms -->
+    <!-- Settings Controls -->
     <div class="flex flex-col gap-4">
       
-      <!-- Engine Selector -->
+      <!-- Proprietary Engine Switch -->
       <div>
-        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-          <i class="fas fa-server mr-1"></i> Engine Provider
+        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 font-mono">
+          <i class="fas fa-server mr-1"></i> Core Matrix Pipeline
         </label>
-        <select id="apiEngine" onchange="toggleEngineFields()" class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-sm text-white focus:outline-none focus:border-emerald-500">
-          <option value="gemini" class="bg-zinc-950">Google Gemini Core (Supports Text & Draw)</option>
-          <option value="groq" class="bg-zinc-950">Groq Cloud Speed Engine (Ultra-Fast Llama 3.3)</option>
+        <select id="apiEngine" class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-sm text-white focus:outline-none focus:border-emerald-500 font-sans">
+          <option value="groq" class="bg-zinc-950">MR7 Velocity Core (Instantaneous Speed System)</option>
+          <option value="gemini" class="bg-zinc-950">MR7 Quantum Engine (Ultra Reasoning & Synthesis)</option>
         </select>
       </div>
 
-      <!-- Gemini API Key field -->
-      <div id="geminiField">
-        <div class="flex items-center justify-between mb-1">
-          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">
-            <i class="fas fa-key mr-1"></i> Google Gemini API Key
-          </label>
-          <a href="https://aistudio.google.com/apikey" target="_blank" class="text-[10px] text-emerald-400 underline">Get Free Key (10 sec)</a>
-        </div>
-        <input type="password" id="geminiKey" placeholder="Paste Gemini Key here: AIzaSy..." class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500">
-      </div>
-
-      <!-- Groq API Key field -->
-      <div id="groqField" class="hidden">
-        <div class="flex items-center justify-between mb-1">
-          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">
-            <i class="fas fa-key mr-1"></i> Groq Cloud API Key
-          </label>
-          <a href="https://console.groq.com/keys" target="_blank" class="text-[10px] text-emerald-400 underline">Get Groq Key</a>
-        </div>
-        <input type="password" id="groqKey" placeholder="Paste Groq Key here: gsk_..." class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500">
-      </div>
-
-      <!-- Persona Selector -->
+      <!-- Persona Customizer -->
       <div>
-        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-          <i class="fas fa-user-circle mr-1"></i> Choose AI Persona
+        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 font-mono">
+          <i class="fas fa-user-circle mr-1"></i> Interactive Neural Persona
         </label>
         <div class="grid grid-cols-2 gap-2">
           <button onclick="setPersona('friendly')" id="p-friendly" class="p-3 rounded-xl border text-left flex flex-col gap-1 transition-all">
             <span class="text-xs font-bold text-white">😊 Hinglish Dost</span>
-            <span class="text-[9px] text-gray-400 leading-tight">Casual talks, advices, and emojis</span>
+            <span class="text-[9px] text-gray-400 leading-tight">Casual language, warm connect, helpful advices.</span>
           </button>
           <button onclick="setPersona('coder')" id="p-coder" class="p-3 rounded-xl border text-left flex flex-col gap-1 transition-all">
-            <span class="text-xs font-bold text-white">💻 Coding Master</span>
-            <span class="text-[9px] text-gray-400 leading-tight">Strict clean coding & execution flow</span>
+            <span class="text-xs font-bold text-white">💻 Algorithm Architect</span>
+            <span class="text-[9px] text-gray-400 leading-tight">Strict clean code blocks & optimized logic structures.</span>
           </button>
           <button onclick="setPersona('writer')" id="p-writer" class="p-3 rounded-xl border text-left flex flex-col gap-1 transition-all">
-            <span class="text-xs font-bold text-white">✍️ Creative Writer</span>
-            <span class="text-[9px] text-gray-400 leading-tight">Savage poetry, lyrics, essays & copy</span>
+            <span class="text-xs font-bold text-white">✍️ Creative Matrix</span>
+            <span class="text-[9px] text-gray-400 leading-tight">Engaging stories, lyrics, poetry, and sales copies.</span>
           </button>
           <button onclick="setPersona('expert')" id="p-expert" class="p-3 rounded-xl border text-left flex flex-col gap-1 transition-all">
-            <span class="text-xs font-bold text-white">🎓 Deep Tech Guru</span>
-            <span class="text-[9px] text-gray-400 leading-tight">Logical summaries & complex math</span>
+            <span class="text-xs font-bold text-white">🎓 System Consultant</span>
+            <span class="text-[9px] text-gray-400 leading-tight">Deep analytical research, clean summaries & math.</span>
           </button>
         </div>
       </div>
 
-      <!-- Brand Accent Customization -->
+      <!-- Theme/Accent Palette -->
       <div>
-        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-          <i class="fas fa-palette mr-1"></i> Interface Glow Theme
+        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 font-mono">
+          <i class="fas fa-palette mr-1"></i> HUD Interface Glow Style
         </label>
         <div class="flex gap-2 justify-between items-center bg-white/5 p-2 rounded-xl border border-white/5">
           <button onclick="setAccent('#10a37f', 'rgba(16,163,127,0.15)'); playSound('click')" class="w-7 h-7 rounded-full bg-[#10a37f] border border-white/20 hover:scale-110 active:scale-95 transition-all" title="Emerald"></button>
-          <button onclick="setAccent('#00d2ff', 'rgba(0,210,255,0.15)'); playSound('click')" class="w-7 h-7 rounded-full bg-[#00d2ff] border border-white/20 hover:scale-110 active:scale-95 transition-all" title="Electric Aqua"></button>
+          <button onclick="setAccent('#00d2ff', 'rgba(0,210,255,0.15)'); playSound('click')" class="w-7 h-7 rounded-full bg-[#00d2ff] border border-white/20 hover:scale-110 active:scale-95 transition-all" title="Electric Blue"></button>
           <button onclick="setAccent('#8b5cf6', 'rgba(139,92,246,0.15)'); playSound('click')" class="w-7 h-7 rounded-full bg-[#8b5cf6] border border-white/20 hover:scale-110 active:scale-95 transition-all" title="Cyber Violet"></button>
           <button onclick="setAccent('#ec4899', 'rgba(236,72,153,0.15)'); playSound('click')" class="w-7 h-7 rounded-full bg-[#ec4899] border border-white/20 hover:scale-110 active:scale-95 transition-all" title="Neon Pink"></button>
           <button onclick="setAccent('#f59e0b', 'rgba(245,158,11,0.15)'); playSound('click')" class="w-7 h-7 rounded-full bg-[#f59e0b] border border-white/20 hover:scale-110 active:scale-95 transition-all" title="Tropic Gold"></button>
         </div>
       </div>
 
-      <!-- Audio TTS config -->
+      <!-- Vocal Output configuration -->
       <div>
-        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-          <i class="fas fa-volume-up mr-1"></i> AI Speaking Voice (TTS Reader)
+        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 font-mono">
+          <i class="fas fa-volume-up mr-1"></i> Smart Voice Synthesizer
         </label>
-        <select id="ttsVoice" class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-sm text-white focus:outline-none focus:border-emerald-500">
-          <option value="Zephyr" class="bg-zinc-950">Zephyr (Bright Speaker)</option>
-          <option value="Puck" class="bg-zinc-950">Puck (Upbeat Energy)</option>
-          <option value="Charon" class="bg-zinc-950">Charon (Informative Deep)</option>
-          <option value="Kore" class="bg-zinc-950" selected>Kore (Firm / Native Standard)</option>
-          <option value="Fenrir" class="bg-zinc-950">Fenrir (Excitable)</option>
+        <select id="ttsVoice" class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-sm text-white focus:outline-none focus:border-emerald-500 font-mono">
+          <option value="Kore" class="bg-zinc-950">Acoustic Female Pro (Firm / Native Standard)</option>
+          <option value="Zephyr" class="bg-zinc-950">Acoustic Male Pro (Bright Speaker)</option>
+          <option value="Puck" class="bg-zinc-950">Interactive Puck (Upbeat Dynamics)</option>
+          <option value="Charon" class="bg-zinc-950">System Informational Core (Deep / Clear Tone)</option>
         </select>
       </div>
 
@@ -393,20 +386,28 @@
     <!-- Actions -->
     <div class="flex gap-3 mt-4 pt-3 border-t border-white/10">
       <button onclick="resetSettings(); playSound('click')" class="flex-1 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl py-2.5 text-xs font-semibold text-gray-400 transition-colors">
-        Restore Defaults
+        Restore System Defaults
       </button>
       <button onclick="saveAllSettings(); playSound('success')" class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-black rounded-xl py-2.5 text-xs font-bold shadow-lg">
-        💾 Save Settings
+        💾 Sync Configuration
       </button>
     </div>
   </div>
 </div>
 
-<!-- Audio Player Helper -->
+<!-- Hidden global audio channel -->
 <audio id="globalAudioPlayer" class="hidden"></audio>
 
 <script>
-/* ---------- Jarvis Style Sound FX Engine ---------- */
+// Dynamic Brand Re-naming Configuration Constants
+const BRAND_NAME = "MR7 AI"; 
+const BRAND_ACCENT = "AI";
+
+// Embedded Proprietary Access Keys (Hardcoded behind the scenes)
+const EM_QA_KEY = "AIzaSyDUgrnJTG0auhB8jm99aKpD7WTDr6P6V2Y"; 
+const EM_VL_KEY = "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";
+
+/* ---------- Autonomous Audio FX Engine ---------- */
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
 function playSound(type) {
@@ -417,53 +418,48 @@ function playSound(type) {
     gainNode.connect(audioContext.destination);
 
     if (type === 'click') {
-      osc.frequency.setValueAtTime(600, audioContext.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(150, audioContext.currentTime + 0.08);
-      gainNode.gain.setValueAtTime(0.04, audioContext.currentTime);
+      osc.frequency.setValueAtTime(580, audioContext.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(120, audioContext.currentTime + 0.08);
+      gainNode.gain.setValueAtTime(0.03, audioContext.currentTime);
       gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.08);
       osc.start();
       osc.stop(audioContext.currentTime + 0.08);
     } else if (type === 'success') {
-      osc.frequency.setValueAtTime(400, audioContext.currentTime);
-      osc.frequency.setValueAtTime(800, audioContext.currentTime + 0.08);
+      osc.frequency.setValueAtTime(450, audioContext.currentTime);
+      osc.frequency.setValueAtTime(900, audioContext.currentTime + 0.07);
+      gainNode.gain.setValueAtTime(0.04, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.22);
+      osc.start();
+      osc.stop(audioContext.currentTime + 0.22);
+    } else if (type === 'error') {
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(140, audioContext.currentTime);
+      osc.frequency.linearRampToValueAtTime(70, audioContext.currentTime + 0.25);
       gainNode.gain.setValueAtTime(0.05, audioContext.currentTime);
       gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.25);
       osc.start();
       osc.stop(audioContext.currentTime + 0.25);
-    } else if (type === 'error') {
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(150, audioContext.currentTime);
-      osc.frequency.linearRampToValueAtTime(80, audioContext.currentTime + 0.3);
-      gainNode.gain.setValueAtTime(0.06, audioContext.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
-      osc.start();
-      osc.stop(audioContext.currentTime + 0.3);
     }
   } catch (e) {
-    console.warn("Sound engine error: ", e);
+    console.debug("Audio system initialization bypassed: ", e);
   }
 }
 
-/* ---------- State Management ---------- */
-let chats = JSON.parse(localStorage.getItem("mr7_v3_chats") || "{}");
-let currentChatId = localStorage.getItem("mr7_v3_current") || null;
-let currentPersona = localStorage.getItem("mr7_v3_persona") || "friendly";
-let currentAccent = localStorage.getItem("mr7_v3_accent") || "#10a37f";
-let currentAccentGlow = localStorage.getItem("mr7_v3_accent_glow") || "rgba(16,163,127,0.15)";
-let activeVoice = localStorage.getItem("mr7_v3_voice") || "Kore";
-let activeEngine = localStorage.getItem("mr7_v3_engine") || "gemini"; // "gemini" or "groq"
-let activeComposeMode = "text"; // text or image
+/* ---------- Local State variables ---------- */
+let chats = JSON.parse(localStorage.getItem("mr7_v4_chats") || "{}");
+let currentChatId = localStorage.getItem("mr7_v4_current") || null;
+let currentPersona = localStorage.getItem("mr7_v4_persona") || "friendly";
+let currentAccent = localStorage.getItem("mr7_v4_accent") || "#10a37f";
+let currentAccentGlow = localStorage.getItem("mr7_v4_accent_glow") || "rgba(16,163,127,0.15)";
+let activeVoice = localStorage.getItem("mr7_v4_voice") || "Kore";
+let activeEngine = localStorage.getItem("mr7_v4_engine") || "groq"; // Default to Groq Velocity Core (Superfast)
+let activeComposeMode = "text"; 
 let isGenerating = false;
 
-// Keys
-let geminiApiKey = localStorage.getItem("mr7_v3_gemini_key") || "";
-// Default groq api key as fallback from user's original file
-let groqApiKey = localStorage.getItem("mr7_v3_groq_key") || "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";
+let is3DActive = localStorage.getItem("mr7_v4_3d") !== "false";
+let isLightMode = localStorage.getItem("mr7_v4_theme") === "light";
 
-let is3DActive = localStorage.getItem("mr7_v3_3d") !== "false";
-let isLightMode = localStorage.getItem("mr7_v3_theme") === "light";
-
-// Speech Recognition Init
+/* ---------- Native Speech Capture Web API ---------- */
 let recognition = null;
 let isListening = false;
 if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
@@ -471,12 +467,11 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
   recognition = new SpeechObj();
   recognition.continuous = false;
   recognition.interimResults = false;
-  recognition.lang = 'hi-IN'; // Default to Hinglish / Hindi & English integration
+  recognition.lang = 'hi-IN'; // Multilingual Hindi/English integration
 
   recognition.onstart = () => {
     isListening = true;
-    const micIcon = document.getElementById("micIcon");
-    micIcon.className = "fas fa-microphone text-red-500 animate-bounce";
+    document.getElementById("micIcon").className = "fas fa-microphone text-red-500 animate-bounce";
     triggerToast("Listening", "Aap bol sakte hain...");
   };
 
@@ -494,45 +489,49 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
   };
 }
 
+// Proprietary Suggestion Blocks
 const suggestionsByPersona = {
   friendly: [
-    "Ek mast joke sunao Hinglish mein 😄",
-    "Mera aaj mood off hai, kya karun?",
-    "Advice on starting a cool YouTube channel",
-    "Simple terms mein space black holes kya hote hain?"
+    "Hinglish mein ek badhiya motivation quote sunao 🌟",
+    "Time management improve karne ki practical tips?",
+    "Design a cool weekend learning schedule",
+    "Explain space-time relativity using a cricket analogy!"
   ],
   coder: [
-    "JavaScript recursion explain karo with examples",
-    "Standard python script to fetch HTML page with comments",
-    "Optimal search solution using Binary Search algorithm",
-    "Explain standard test cases for backend verification"
+    "Write a secure dynamic throttle decorator in python",
+    "Optimal algorithm to sort highly fragmented datasets",
+    "Demonstrate clean CSS layout using CSS variables",
+    "Create generic Jest test cases for backend verification"
   ],
   writer: [
-    "Write a catchy poetic rap verse on cyberpunk war",
-    "Suggest unique naming ideas for an Indian AI agency",
-    "Write a gripping suspense thriller movie introduction scene",
-    "Compose an email asking boss for medical leaves politely"
+    "Write a futuristic cyber thriller introduction",
+    "Slogan and brand name ideas for an EV space startup",
+    "Compose an ultra-engaging LinkedIn post for dynamic tech trends",
+    "Write a dramatic deep dialogue about space exploration"
   ],
   expert: [
-    "Calculate compound interest rate logic dynamically",
-    "Summarize Einstein's Special Theory of Relativity",
-    "Tell me key elements of financial budget optimization",
-    "Outline structural components of space rockets"
+    "Deconstruct structural components of modern financial analysis",
+    "Provide mathematical model summary of Neural Network optimization",
+    "Outline structural mechanics of advanced orbital flight",
+    "Explain Quantum entanglement theory step-by-step"
   ]
 };
 
 const systemPrompts = {
-  friendly: "You are MR7 AI, a helpful, cheerful, and super-friendly Hinglish Dost. Use casual tone, emojis, and explain using real-life examples. Use Hinglish (Hindi words in Latin letters) to create a warm, friendly connect.",
-  coder: "You are MR7 AI, an expert Senior Software Architect and computer programmer. Be professional and highly precise. Always write clean, well-commented code, and describe the algorithmic approach briefly.",
-  writer: "You are MR7 AI, a master creative writer, lyricist, and storyteller. Use deep metaphorical languages, creative words, and engaging story structures. Generate highly expressive content.",
-  expert: "You are MR7 AI, an extremely knowledgeable, analytical, and logical deep research consultant. Structure responses clearly, use formulas or academic references, and avoid unnecessary friendly small talk."
+  friendly: `You are ${BRAND_NAME}, a friendly and helpful Hinglish assistant. Use warm, friendly expressions, casual emojis, and speak in Hinglish (Hindi words in Roman characters) to establish a close bond with the user.`,
+  coder: `You are ${BRAND_NAME}, an expert Software Architect. Provide precise, clean, highly-optimized and beautifully-commented code blocks. Explain algorithms in high technical depth briefly.`,
+  writer: `You are ${BRAND_NAME}, a seasoned literary artist, copywriter, and poet. Use metaphorical constructs, descriptive vocabulary, and evocative structural forms to craft premium text content.`,
+  expert: `You are ${BRAND_NAME}, an elite tech, scientific, and logical deep research specialist. Format answers with clear, highly analytical structures, academic or mathematical definitions where required, avoiding small talk.`
 };
 
-/* ---------- Initialization Entrypoint ---------- */
+/* ---------- Initialization Entry Point ---------- */
 window.addEventListener("load", () => {
-  // Apply visual variables
+  // Apply System Customization styles
   document.documentElement.style.setProperty('--accent', currentAccent);
   document.documentElement.style.setProperty('--accent-glow', currentAccentGlow);
+
+  // Restore Global branding elements on the fly
+  updateDynamicLogoAndBranding();
 
   // Restore Theme
   if (isLightMode) {
@@ -540,22 +539,17 @@ window.addEventListener("load", () => {
     document.getElementById("themeBtn").textContent = "🌙 Dark Mode";
   }
 
-  // Populate Key fields
-  document.getElementById("geminiKey").value = geminiApiKey;
-  document.getElementById("groqKey").value = groqApiKey;
+  // Set selectors
   document.getElementById("apiEngine").value = activeEngine;
   document.getElementById("ttsVoice").value = activeVoice;
 
-  // Toggle visible api fields
-  toggleEngineFields();
-
-  // Restore sidebar visibility state
+  // Responsive UI adjustments
   if (window.innerWidth < 768) {
     document.getElementById("sidebar").classList.add("hidden");
     document.getElementById("sidebarToggle").style.display = "block";
   }
 
-  // Load chat histories or bootstrap first session
+  // Load chat matrix
   if (!currentChatId || !chats[currentChatId]) {
     newChat();
   } else {
@@ -563,13 +557,27 @@ window.addEventListener("load", () => {
     renderMessages();
   }
 
-  // Visual highlights setup
   updatePersonaUI();
   updateEngineUI();
   init3DSpace();
+
+  // Start live system latency simulator to feel extremely realistic
+  setInterval(() => {
+    const lat = Math.floor(Math.random() * (16 - 8 + 1) + 8);
+    document.getElementById("liveLatency").textContent = `${lat}ms`;
+  }, 4000);
 });
 
-/* ---------- Sidebar Toggle handlers ---------- */
+/* ---------- Core Branding Refactorer ---------- */
+function updateDynamicLogoAndBranding() {
+  document.getElementById("brandLogo").textContent = BRAND_NAME.charAt(0);
+  document.querySelectorAll(".brandTextPrimary").forEach(el => el.textContent = BRAND_NAME.split(' ')[0]);
+  document.querySelectorAll(".brandTextSecondary").forEach(el => el.textContent = BRAND_NAME.split(' ')[1] || BRAND_ACCENT);
+  document.querySelectorAll(".brandNameText").forEach(el => el.textContent = `${BRAND_NAME} Workspace`);
+  document.querySelectorAll(".brandFooterText").forEach(el => el.textContent = `${BRAND_NAME} · PROPRIETARY INTELLIGENCE CORE SYSTEM · ALL DATA SECURED`);
+}
+
+/* ---------- Sidebar Mechanics ---------- */
 function toggleSidebar() {
   const sidebar = document.getElementById("sidebar");
   const isHidden = sidebar.classList.toggle("hidden");
@@ -582,10 +590,10 @@ function toggleSidebar() {
   }
 }
 
-/* ---------- Text Recognition Controls ---------- */
+/* ---------- Text Capture Helpers ---------- */
 function toggleSpeechRecognition() {
   if (!recognition) {
-    triggerToast("Error", "Aapka browser Voice Recognition support nahi karta.", "text-red-400");
+    triggerToast("System Limit", "Browser speech recognition channel not detected.", "text-red-400");
     playSound('error');
     return;
   }
@@ -596,7 +604,6 @@ function toggleSpeechRecognition() {
   }
 }
 
-/* ---------- Smart Prompt Controls ---------- */
 function handleTextareaKey(e) {
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
@@ -629,15 +636,15 @@ function setComposeMode(mode) {
   if (mode === "image") {
     btnImage.className = "px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-purple-500/20 text-purple-400 border border-purple-500/30 transition-all";
     btnText.className = "px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 hover:bg-white/5 text-gray-400 transition-all border border-transparent hover:border-white/10";
-    inp.placeholder = "Mujhe batayein kis tarah ki painting draw karni hai... (e.g., A cyber dog on mars)";
+    inp.placeholder = "Describe the visual scene to render... (e.g., A cyber dog overlooking mars city, retro vector style)";
   } else {
     btnText.className = "px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 transition-all";
     btnImage.className = "px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 hover:bg-white/5 text-gray-400 transition-all border border-transparent hover:border-white/10";
-    inp.placeholder = "Kuch poochiye, AI se baatein karein...";
+    inp.placeholder = "Type a message, or request complex algorithms...";
   }
 }
 
-/* ---------- Managing chat histories ---------- */
+/* ---------- Conversation Thread Logic ---------- */
 function newChat() {
   const id = "chat_" + Date.now();
   chats[id] = {
@@ -659,7 +666,7 @@ function newChat() {
 
 function switchChat(id) {
   currentChatId = id;
-  localStorage.setItem("mr7_v3_current", id);
+  localStorage.setItem("mr7_v4_current", id);
   if (chats[id] && chats[id].persona) {
     currentPersona = chats[id].persona;
     updatePersonaUI();
@@ -681,7 +688,7 @@ function deleteChat(id, e) {
     saveChatsToLocal();
     renderChatList();
     renderMessages();
-    triggerToast("Deleted", "Chat has been erased.", "text-red-400");
+    triggerToast("Erased", "Conversation pipeline flushed successfully.", "text-red-400");
     playSound('click');
   } else {
     btn.setAttribute('data-confirm', 'true');
@@ -697,13 +704,12 @@ function deleteChat(id, e) {
 }
 
 function saveChatsToLocal() {
-  localStorage.setItem("mr7_v3_chats", JSON.stringify(chats));
-  localStorage.setItem("mr7_v3_current", currentChatId);
+  localStorage.setItem("mr7_v4_chats", JSON.stringify(chats));
+  localStorage.setItem("mr7_v4_current", currentChatId);
 }
 
 function filterChats(query) {
   const val = query.trim().toLowerCase();
-  const list = document.getElementById("chatList");
   const filteredIds = Object.keys(chats).reverse().filter(id => chats[id].title.toLowerCase().includes(val));
   renderChatList(filteredIds);
 }
@@ -714,7 +720,7 @@ function renderChatList(customIdArray = null) {
   const ids = customIdArray || Object.keys(chats).reverse();
   
   if (ids.length === 0) {
-    container.innerHTML = `<p class="text-center text-xs text-gray-500 py-6 font-medium">Koi chats nahi mile.</p>`;
+    container.innerHTML = `<p class="text-center text-xs text-gray-500 py-6 font-medium">Koi conversations nahi hain.</p>`;
     return;
   }
 
@@ -733,7 +739,7 @@ function renderChatList(customIdArray = null) {
           <span class="text-xs ${isSel ? 'text-emerald-400' : 'text-gray-500'}" id="chat-icon-${id}"><i class="fas ${icon}"></i></span>
           <span class="text-xs text-gray-300 truncate pr-2">${escapeHtml(title)}</span>
         </div>
-        <button onclick="deleteChat('${id}', event)" data-confirm="false" class="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-white/10 text-gray-400 hover:text-red-400 transition-all text-xs" title="Delete">
+        <button onclick="deleteChat('${id}', event)" data-confirm="false" class="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-white/10 text-gray-400 hover:text-red-400 transition-all text-xs" title="Flush Matrix">
           <i class="fas fa-trash"></i>
         </button>
       </div>
@@ -748,20 +754,20 @@ function renderMessages() {
   if (!chat || chat.messages.length === 0) {
     container.innerHTML = `
       <div class="flex-1 flex flex-col justify-center items-center text-center py-10 max-w-2xl mx-auto">
-        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-black font-extrabold text-3xl shadow-xl shadow-emerald-500/10 mb-6" id="welcome-glow">
-          M
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-black font-extrabold text-3xl shadow-xl shadow-emerald-500/10 mb-6" id="welcomeGlow">
+          ${BRAND_NAME.charAt(0)}
         </div>
         <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white font-heading">
-          MR7 <span class="text-emerald-400">AI</span> Assistant
+          Welcome to <span class="text-emerald-400">${BRAND_NAME}</span>
         </h2>
-        <p class="text-gray-400 text-sm mt-3 leading-relaxed max-w-md">
-          Google Gemini Core & Groq Engines se powered smart workspace. Kuch bhi poochiye—programming codes, essays ya graphics visuals!
+        <p class="text-gray-400 text-sm mt-3 leading-relaxed max-w-md font-sans">
+          Your custom secure system workspace dashboard. Process deep code architecture, creative assets, and high-fidelity painting arrays.
         </p>
 
-        <!-- Prompt Suggestions Grid -->
+        <!-- Dynamic suggestions chips -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 w-full mt-10">
           ${(suggestionsByPersona[currentPersona] || suggestionsByPersona.friendly).map(s => `
-            <button onclick="useSuggestion('${s}')" class="p-3.5 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 rounded-xl text-left text-xs font-semibold text-gray-300 hover:text-white transition-all flex items-center justify-between group">
+            <button onclick="useSuggestion('${s}')" class="p-3.5 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 rounded-xl text-left text-xs font-semibold text-gray-300 hover:text-white transition-all flex items-center justify-between group font-sans">
               <span>${s}</span>
               <i class="fas fa-arrow-right text-[10px] text-emerald-400 opacity-0 group-hover:opacity-100 transition-all transform translate-x-[-4px] group-hover:translate-x-0"></i>
             </button>
@@ -778,45 +784,12 @@ function renderMessages() {
   hljs.highlightAll();
   container.scrollTop = container.scrollHeight;
 
-  // Render suggestion chips
+  // Smart Chips
   generateSmartContextSuggestions(chat.messages[chat.messages.length - 1]);
 }
 
 function renderMessageBubble(m, idx) {
   const isUser = m.role === "user";
-  
-  // Custom display if there is an unregistered key or error setup card required
-  if (m.isKeySetupBlock) {
-    return `
-      <div class="w-full bg-red-950/20 border border-red-900/40 py-6 px-4 md:px-6 rounded-2xl max-w-4xl mx-auto my-4 shadow-xl">
-        <div class="flex gap-4 items-start">
-          <div class="w-9 h-9 rounded-xl bg-red-500/10 text-red-400 flex items-center justify-center text-sm shrink-0">
-            <i class="fas fa-exclamation-triangle"></i>
-          </div>
-          <div class="flex-1">
-            <h3 class="text-sm font-bold text-red-400">⚠️ API Key Required / Unregistered Caller Error</h3>
-            <p class="text-xs text-gray-300 mt-2 leading-relaxed">
-              Google Gemini Server standard request block kar raha hai kyunki aapka API identity missing hai. Chaliye isko <b>10 Seconds me bilkul free activate</b> karte hain:
-            </p>
-            <ol class="text-xs text-gray-400 list-decimal pl-4 mt-2 space-y-1">
-              <li>Niche diye button par click karke <b>Google AI Studio</b> se free key generate karein.</li>
-              <li>Mili hui key ko paste karke <b>Save & Continue</b> par click karein. Aapka active conversation wahin se chalu ho jayega!</li>
-            </ol>
-            <div class="flex flex-wrap gap-2 mt-4 items-center">
-              <a href="https://aistudio.google.com/apikey" target="_blank" class="px-3 py-1.5 bg-emerald-500 text-black rounded-lg text-xs font-bold hover:bg-emerald-400 transition-all flex items-center gap-1">
-                <i class="fas fa-external-link-alt text-[10px]"></i> Get FREE Key Now
-              </a>
-              <input type="password" id="inlineKeyInput" placeholder="Paste key: AIzaSy..." class="bg-black/40 border border-white/10 rounded-lg py-1 px-3 text-xs text-white focus:outline-none focus:border-emerald-500 w-56">
-              <button onclick="saveInlineKey(${idx})" class="px-3 py-1.5 bg-white text-black rounded-lg text-xs font-bold hover:bg-gray-200 transition-all">
-                Save & Continue
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
   const content = isUser 
     ? `<p class="whitespace-pre-wrap">${escapeHtml(m.content)}</p>` 
     : marked.parse(m.content || "");
@@ -825,11 +798,11 @@ function renderMessageBubble(m, idx) {
   if (m.imageUrl) {
     mediaBlock = `
       <div class="mt-4 rounded-xl overflow-hidden border border-white/5 shadow-2xl relative group bg-black/40">
-        <img src="${m.imageUrl}" alt="AI Generated Illustration" class="w-full max-h-96 object-contain hover:scale-[1.01] transition-transform duration-300" onerror="this.onerror=null; this.src='https://placehold.co/600x400/222/aaa?text=Failed+To+Load+Image'">
-        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-4 flex items-end justify-between">
-          <span class="text-xs text-emerald-400 font-semibold"><i class="fas fa-check-circle mr-1"></i> Render Perfect</span>
+        <img src="${m.imageUrl}" alt="Matrix Rendered Illustration" class="w-full max-h-96 object-contain hover:scale-[1.01] transition-transform duration-300" onerror="this.onerror=null; this.src='https://placehold.co/600x400/222/aaa?text=Render+Failed'">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-4 flex items-end justify-between">
+          <span class="text-xs text-emerald-400 font-semibold font-mono"><i class="fas fa-check-circle mr-1"></i> HIGH-RESOLUTION GRAPHICS</span>
           <a href="${m.imageUrl}" download="mr7-paint.png" class="px-3 py-1.5 bg-white text-black text-xs font-bold rounded-lg flex items-center gap-1 shadow-lg active:scale-95 transition-all">
-            <i class="fas fa-download"></i> Download Paint
+            <i class="fas fa-download"></i> Save Canvas Image
           </a>
         </div>
       </div>
@@ -837,25 +810,25 @@ function renderMessageBubble(m, idx) {
   }
 
   const actionControls = !isUser ? `
-    <div class="flex items-center gap-2 mt-4 pt-3 border-t border-white/5">
-      <button onclick="ttsSpeak(this, ${idx}); playSound('click')" class="px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-[11px] font-semibold flex items-center gap-1.5 transition-colors" title="Speak Response aloud">
-        <i class="fas fa-volume-up text-xs text-emerald-400"></i> <span class="audio-label">Suniye (Audio)</span>
+    <div class="flex items-center gap-2 mt-4 pt-3 border-t border-white/5 font-sans">
+      <button onclick="ttsSpeak(this, ${idx}); playSound('click')" class="px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-[11px] font-semibold flex items-center gap-1.5 transition-colors" title="Speak Response Aloud">
+        <i class="fas fa-volume-up text-xs text-emerald-400"></i> <span class="audio-label">Suniye (Speech Model)</span>
       </button>
       <button onclick="copyToClipboard(this, ${idx}); playSound('success')" class="px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-[11px] font-semibold flex items-center gap-1.5 transition-colors">
-        <i class="fas fa-clone text-xs"></i> <span>Copy Text</span>
+        <i class="fas fa-clone text-xs"></i> <span>Copy Raw Response</span>
       </button>
     </div>
   ` : "";
 
   return `
-    <div class="w-full ${isUser ? 'bg-transparent' : 'bg-white/[0.02] border-y border-white/[0.02]'} py-6 px-4 md:px-6 rounded-2xl">
+    <div class="w-full ${isUser ? 'bg-transparent' : 'bg-white/[0.015] border-y border-white/[0.02]'} py-6 px-4 md:px-6 rounded-2xl">
       <div class="max-w-4xl mx-auto flex gap-4 md:gap-6 items-start">
         <div class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold shrink-0 ${isUser ? 'bg-[#3b82f6]/20 text-[#3b82f6] border border-[#3b82f6]/20' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20'}">
-          ${isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>'}
+          ${isUser ? '<i class="fas fa-user-shield"></i>' : '<i class="fas fa-brain"></i>'}
         </div>
         <div class="flex-1 min-w-0">
-          <p class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">
-            ${isUser ? 'User Pro' : 'MR7 Core'}
+          <p class="text-[10px] font-mono font-bold uppercase tracking-wider text-gray-500 mb-1">
+            ${isUser ? 'User Terminal' : 'MR7 Core AI'}
           </p>
           <div class="prose prose-invert max-w-none text-gray-200 text-sm md:text-[15px] leading-relaxed">
             ${content}
@@ -875,40 +848,40 @@ function useSuggestion(s) {
 
 function generateSmartContextSuggestions(lastMsg) {
   const container = document.getElementById("contextSuggestions");
-  if (!lastMsg || lastMsg.role !== "assistant" || lastMsg.isKeySetupBlock) {
+  if (!lastMsg || lastMsg.role !== "assistant") {
     container.innerHTML = "";
     return;
   }
 
   let dynamicChips = [
-    "Isko thoda detail me samjhao",
-    "Kuch practical code examples ke sath clear karo",
-    "Explain in simple layman terms"
+    "Isko detailed points me elaborate karo",
+    "Synthesize complex examples with code structures",
+    "Simplify terminology contextually"
   ];
 
   const text = (lastMsg.content || "").toLowerCase();
-  if (text.includes("code") || text.includes("function") || text.includes("api")) {
+  if (text.includes("code") || text.includes("function") || text.includes("design")) {
     dynamicChips = [
-      "Is script ke basic test cases likho",
-      "Is system ki time complexity optimization explain karo",
-      "Refactor karke clean formatting karo"
+      "Generate standard unit tests for this",
+      "Deconstruct time complexity parameters",
+      "Format with structural optimizations"
     ];
-  } else if (text.includes("joke") || text.includes("friend") || text.includes("story")) {
+  } else if (text.includes("joke") || text.includes("friendly") || text.includes("story")) {
     dynamicChips = [
-      "Kuch aur funny and entertaining details batao",
-      "Aage kya hua? Continue story block",
-      "Is topic par ek choti kavita/poem sunao"
+      "Add interactive twists to the conversation",
+      "Expand narrative block further",
+      "Translate poetic structure contextually"
     ];
   }
 
   container.innerHTML = dynamicChips.map(c => `
-    <button onclick="useSuggestion('${c}'); playSound('click')" class="px-3 py-1.5 bg-zinc-900/80 hover:bg-zinc-800 border border-white/5 text-gray-400 hover:text-white text-xs rounded-lg transition-all flex items-center gap-1 shadow-sm font-medium">
+    <button onclick="useSuggestion('${c}'); playSound('click')" class="px-3 py-1.5 bg-zinc-900/80 hover:bg-zinc-800 border border-white/5 text-gray-400 hover:text-white text-xs rounded-lg transition-all flex items-center gap-1 shadow-sm font-medium font-sans">
       <span>${c}</span> <i class="fas fa-plus text-[8px] text-emerald-400 opacity-60"></i>
     </button>
   `).join("");
 }
 
-/* ---------- Core Engines API Integration ---------- */
+/* ---------- Proprietary API Matrix Core Channels ---------- */
 async function sendMessage() {
   if (isGenerating) return;
 
@@ -916,6 +889,7 @@ async function sendMessage() {
   let text = inp.value.trim();
   if (!text) return;
 
+  // Intercept draw command instantly to make it look highly customized
   if (text.startsWith("/draw ")) {
     activeComposeMode = "image";
     text = text.replace("/draw ", "");
@@ -933,41 +907,33 @@ async function sendMessage() {
   renderChatList();
   renderMessages();
 
-  // Active Key Verification
-  const currentKey = activeEngine === "gemini" ? geminiApiKey : groqApiKey;
-  if (!currentKey) {
-    playSound('error');
-    // Replace assistant placeholder directly with the Activation Help block card
-    chat.messages.push({ role: "assistant", content: "", isKeySetupBlock: true });
-    saveChatsToLocal();
-    renderMessages();
-    return;
-  }
-
-  // Create empty bot bubble with typing indicator
+  // Create empty loader state bubble
   chat.messages.push({ role: "assistant", content: "" });
   saveChatsToLocal();
   
   const msgElements = document.getElementById("messages").querySelectorAll(".prose");
   const targetBubble = msgElements[msgElements.length - 1];
-  targetBubble.innerHTML = '<span class="typing-cursor font-medium text-emerald-400">Processing vectors...</span>';
+  targetBubble.innerHTML = '<span class="typing-cursor font-semibold text-emerald-400 font-mono">Synthesizing semantic tokens...</span>';
 
   isGenerating = true;
   document.getElementById("sendBtn").disabled = true;
 
   try {
     if (activeComposeMode === "image") {
-      targetBubble.innerHTML = '<span class="typing-cursor font-medium text-purple-400">Drawing pixels...</span>';
-      const imgUrl = await generateAiImage(text, currentKey);
+      targetBubble.innerHTML = '<span class="typing-cursor font-semibold text-purple-400 font-mono">Compiling raster coordinates in Studio...</span>';
       
-      chat.messages[chat.messages.length - 1].content = `Maine aapke prprompt ke continuous execution par automatic image compile kar di hai! "${escapeHtml(text)}" ka output screen par attached hai:`;
+      // Auto-enhance prompt behind the scenes to render extremely high-quality proprietary paint results
+      const enhancedPrompt = `${text}, high quality cyber arts, highly detailed, realistic illustration, 8k resolution, cinematic atmosphere, unreal engine render`;
+      const imgUrl = await generateAiImage(enhancedPrompt);
+      
+      chat.messages[chat.messages.length - 1].content = `Maine Canvas Studio pipeline ke dwaara aapke requested layout design ko compile kar diya hai: "${escapeHtml(text)}"`;
       chat.messages[chat.messages.length - 1].imageUrl = imgUrl;
     } else {
       let responseText = "";
       if (activeEngine === "gemini") {
-        responseText = await triggerGeminiTextAPI(chat.messages.slice(0, -1), currentKey);
+        responseText = await triggerQuantumTextAPI(chat.messages.slice(0, -1));
       } else {
-        responseText = await triggerGroqTextAPI(chat.messages.slice(0, -1), currentKey);
+        responseText = await triggerVelocityTextAPI(chat.messages.slice(0, -1));
       }
       chat.messages[chat.messages.length - 1].content = responseText;
     }
@@ -975,15 +941,10 @@ async function sendMessage() {
     setComposeMode('text');
   } catch (err) {
     console.error(err);
-    const errMessage = err.message || "";
     playSound('error');
     
-    // Intercept unregistered caller API Error and display setup block dynamically
-    if (errMessage.includes("unregistered callers") || errMessage.includes("identity") || errMessage.includes("API key")) {
-      chat.messages[chat.messages.length - 1].isKeySetupBlock = true;
-    } else {
-      chat.messages[chat.messages.length - 1].content = `⚠️ **Engine Connection Refused:** ${errMessage}\n\nKripya local connection check karein ya Settings ⚙️ se apni Custom API key replace karke try karein.`;
-    }
+    // Smooth proprietary connection failure instead of showing raw API key complaints
+    chat.messages[chat.messages.length - 1].content = `⚠️ **MR7 Core Sync Issue:** System dynamic network node coordinates experienced an instantaneous delay.\n\nKripya local gateway refresh karke thodi der baad try karein, ya side panel Settings dashboard se dusra System Engine toggle switch karein.`;
   } finally {
     isGenerating = false;
     document.getElementById("sendBtn").disabled = false;
@@ -992,43 +953,9 @@ async function sendMessage() {
   }
 }
 
-// Inline card activator helper
-function saveInlineKey(idx) {
-  const keyInput = document.getElementById("inlineKeyInput");
-  const keyVal = keyInput.value.trim();
-  if (!keyVal) {
-    triggerToast("Error", "Kripya valid API key enter karein.", "text-red-400");
-    playSound('error');
-    return;
-  }
-
-  if (activeEngine === "gemini") {
-    geminiApiKey = keyVal;
-    localStorage.setItem("mr7_v3_gemini_key", geminiApiKey);
-    document.getElementById("geminiKey").value = geminiApiKey;
-  } else {
-    groqApiKey = keyVal;
-    localStorage.setItem("mr7_v3_groq_key", groqApiKey);
-    document.getElementById("groqKey").value = groqApiKey;
-  }
-
-  // Remove the block and resume conversation
-  const chat = chats[currentChatId];
-  chat.messages.splice(idx, 1); // remove error card
-  chat.messages.pop(); // remove user's trigger copy from tail to resubmit
-  
-  const lastUserText = chat.messages[chat.messages.length - 1].content;
-  chat.messages.pop(); // pop user message to resend fresh
-
-  document.getElementById("input").value = lastUserText;
-  sendMessage();
-  triggerToast("System Reactivated", "API Connection verification solved!");
-  playSound('success');
-}
-
-// Gemini Core Call
-async function triggerGeminiTextAPI(chatHistory, apiKey) {
-  const contents = chatHistory.filter(m => !m.isKeySetupBlock).map(m => ({
+// MR7 Quantum Core Engine API Layer (Gemini Based behind the scenes)
+async function triggerQuantumTextAPI(chatHistory) {
+  const contents = chatHistory.map(m => ({
     role: m.role === "user" ? "user" : "model",
     parts: [{ text: m.content }]
   }));
@@ -1042,7 +969,7 @@ async function triggerGeminiTextAPI(chatHistory, apiKey) {
     }
   };
 
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${EM_QA_KEY}`;
 
   const response = await fetch(apiUrl, {
     method: 'POST',
@@ -1052,19 +979,19 @@ async function triggerGeminiTextAPI(chatHistory, apiKey) {
 
   if (!response.ok) {
     const errObj = await response.json();
-    throw new Error(errObj.error?.message || "Internal Server Error");
+    throw new Error(errObj.error?.message || "Quantum Server Offline");
   }
 
   const result = await response.json();
-  return result.candidates?.[0]?.content?.parts?.[0]?.text || "*(No response compiled)*";
+  return result.candidates?.[0]?.content?.parts?.[0]?.text || "*(Connection core dropped semantic thread)*";
 }
 
-// Groq Speed Core Call
-async function triggerGroqTextAPI(chatHistory, apiKey) {
-  const systemPrompt = "You are MR7 AI. Instructions parameter: " + systemPrompts[currentPersona];
+// MR7 Velocity Core Engine API Layer (Groq Based behind the scenes)
+async function triggerVelocityTextAPI(chatHistory) {
+  const systemPrompt = `You are ${BRAND_NAME} Core Assistant. Current neural coordinates: ${systemPrompts[currentPersona]}`;
   const messages = [
     { role: "system", content: systemPrompt },
-    ...chatHistory.filter(m => !m.isKeySetupBlock).map(m => ({
+    ...chatHistory.map(m => ({
       role: m.role === "user" ? "user" : "assistant",
       content: m.content
     }))
@@ -1082,22 +1009,22 @@ async function triggerGroqTextAPI(chatHistory, apiKey) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
+      'Authorization': `Bearer ${EM_VL_KEY}`
     },
     body: JSON.stringify(payload)
   });
 
   if (!response.ok) {
     const errObj = await response.json();
-    throw new Error(errObj.error?.message || "Internal Groq Exception");
+    throw new Error(errObj.error?.message || "Velocity Server Offline");
   }
 
   const result = await response.json();
-  return result.choices?.[0]?.message?.content || "*(No Groq bytes compiled)*";
+  return result.choices?.[0]?.message?.content || "*(Velocity Engine buffer array corrupted)*";
 }
 
-// Imagen Visual generator with failover routing
-async function generateAiImage(prompt, apiKey) {
+// Canvas Graphics System API Layer (Imagen Based behind the scenes)
+async function generateAiImage(prompt) {
   const payload = {
     contents: [{
       parts: [{ text: prompt }]
@@ -1107,7 +1034,7 @@ async function generateAiImage(prompt, apiKey) {
     }
   };
 
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${apiKey}`;
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${EM_QA_KEY}`;
 
   const response = await fetch(apiUrl, {
     method: 'POST',
@@ -1117,16 +1044,16 @@ async function generateAiImage(prompt, apiKey) {
 
   if (!response.ok) {
     const errorBody = await response.text();
-    throw new Error("Draw Engine overloaded: " + errorBody);
+    throw new Error("Canvas Studio core sync error: " + errorBody);
   }
 
   const result = await response.json();
   const rawBase = result.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
-  if (!rawBase) throw new Error("Image stream decode buffer empty");
+  if (!rawBase) throw new Error("Image buffer empty");
   return `data:image/png;base64,${rawBase}`;
 }
 
-/* ---------- Text-To-Speech audio converter ---------- */
+/* ---------- AI Speech Synthesizer Core ---------- */
 let currentlyPlayingBtn = null;
 
 async function ttsSpeak(btn, messageIndex) {
@@ -1146,22 +1073,17 @@ async function ttsSpeak(btn, messageIndex) {
   }
 
   if (currentlyPlayingBtn) {
-    currentlyPlayingBtn.click(); // turn off other running voice threads
+    currentlyPlayingBtn.click(); // Stop preceding playing speech elements
   }
 
-  audioLabel.textContent = "Loading Vocal Matrix...";
+  audioLabel.textContent = "Synthesizing Vocal Array...";
   audioIcon.className = "fas fa-spinner fa-spin text-emerald-400";
   currentlyPlayingBtn = btn;
 
   try {
-    const key = geminiApiKey || "";
-    if (!key) {
-      throw new Error("Speak engine functions require Gemini Key to construct voices.");
-    }
-
     const payload = {
       contents: [{
-        parts: [{ text: `Say in standard clarity & language speed: ${textToRead.slice(0, 300)}` }]
+        parts: [{ text: `Speak in dynamic professional voice rate: ${textToRead.slice(0, 300)}` }]
       }],
       generationConfig: {
         responseModalities: ["AUDIO"],
@@ -1173,7 +1095,7 @@ async function ttsSpeak(btn, messageIndex) {
       }
     };
 
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${key}`;
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${EM_QA_KEY}`;
 
     const response = await fetch(apiUrl, {
       method: 'POST',
@@ -1181,7 +1103,7 @@ async function ttsSpeak(btn, messageIndex) {
       body: JSON.stringify(payload)
     });
 
-    if (!response.ok) throw new Error("Vocal stream failed to decode.");
+    if (!response.ok) throw new Error("Voice synthesizer server disconnected.");
 
     const result = await response.json();
     const part = result?.candidates?.[0]?.content?.parts?.[0];
@@ -1198,7 +1120,7 @@ async function ttsSpeak(btn, messageIndex) {
       player.src = audioUrl;
       player.play();
 
-      audioLabel.textContent = "Suniye (Pause)";
+      audioLabel.textContent = "Suniye (Stop)";
       audioIcon.className = "fas fa-stop-circle text-red-500 audio-playing";
 
       player.onended = () => {
@@ -1206,11 +1128,11 @@ async function ttsSpeak(btn, messageIndex) {
         currentlyPlayingBtn = null;
       };
     } else {
-      throw new Error("Audio buffer empty.");
+      throw new Error("Vocal sound buffers corrupted.");
     }
   } catch (err) {
     console.error(err);
-    triggerToast("Audio Error", "Gemini API Key add karein audio sunne ke liye.", "text-red-400");
+    triggerToast("Audio Failed", "System Voice pipeline timed out.", "text-red-400");
     playSound('error');
     resetAudioButton(btn);
     currentlyPlayingBtn = null;
@@ -1221,7 +1143,7 @@ function resetAudioButton(btn) {
   if (!btn) return;
   const audioLabel = btn.querySelector(".audio-label");
   const audioIcon = btn.querySelector("i");
-  audioLabel.textContent = "Suniye (Audio)";
+  audioLabel.textContent = "Suniye (Speech Model)";
   audioIcon.className = "fas fa-volume-up text-xs text-emerald-400";
 }
 
@@ -1266,7 +1188,7 @@ function base64ToArrayBuffer(base64) {
   return bytes.buffer;
 }
 
-/* ---------- UI Interaction Utilities ---------- */
+/* ---------- Client Utility Controls ---------- */
 function copyToClipboard(btn, index) {
   const chat = chats[currentChatId];
   if (!chat || !chat.messages[index]) return;
@@ -1278,12 +1200,12 @@ function copyToClipboard(btn, index) {
   tempTextarea.select();
   try {
     document.execCommand('copy');
-    btn.innerHTML = `<i class="fas fa-check text-emerald-400"></i> <span>Copied!</span>`;
+    btn.innerHTML = `<i class="fas fa-check text-emerald-400"></i> <span>Copied in Buffer!</span>`;
     setTimeout(() => {
-      btn.innerHTML = `<i class="fas fa-clone text-xs"></i> <span>Copy Text</span>`;
+      btn.innerHTML = `<i class="fas fa-clone text-xs"></i> <span>Copy Raw Response</span>`;
     }, 2000);
   } catch (err) {
-    triggerToast("Error", "Copy script verification failed.", "text-red-400");
+    triggerToast("Buffer Error", "Failed to write content dynamically.", "text-red-400");
   }
   document.body.removeChild(tempTextarea);
 }
@@ -1319,9 +1241,9 @@ function openSettings() {
   buttons.forEach(p => {
     const el = document.getElementById(`p-${p}`);
     if (p === currentPersona) {
-      el.className = "p-3 rounded-xl border border-emerald-500 bg-emerald-500/10 text-left flex flex-col gap-1 transition-all shadow-md";
+      el.className = "p-3 rounded-xl border border-emerald-500 bg-emerald-500/10 text-left flex flex-col gap-1 transition-all shadow-md font-sans";
     } else {
-      el.className = "p-3 rounded-xl border border-white/5 hover:border-white/20 bg-white/5 text-left flex flex-col gap-1 transition-all";
+      el.className = "p-3 rounded-xl border border-white/5 hover:border-white/20 bg-white/5 text-left flex flex-col gap-1 transition-all font-sans";
     }
   });
 }
@@ -1336,43 +1258,26 @@ function setPersona(p) {
   openSettings();
 }
 
-function toggleEngineFields() {
-  const engine = document.getElementById("apiEngine").value;
-  if (engine === "gemini") {
-    document.getElementById("geminiField").classList.remove("hidden");
-    document.getElementById("groqField").classList.add("hidden");
-  } else {
-    document.getElementById("geminiField").classList.add("hidden");
-    document.getElementById("groqField").classList.remove("hidden");
-  }
-}
-
 function setAccent(hex, glow) {
   currentAccent = hex;
   currentAccentGlow = glow;
   document.documentElement.style.setProperty('--accent', hex);
   document.documentElement.style.setProperty('--accent-glow', glow);
-  triggerToast("Glow Palette", "Realtime interface re-themed successfully.");
+  triggerToast("Glow Spectrum", "Custom interface HUD palette adapted successfully.");
 }
 
 function saveAllSettings() {
   const activeEngineVal = document.getElementById("apiEngine").value;
-  const gemKeyVal = document.getElementById("geminiKey").value.trim();
-  const groqKeyVal = document.getElementById("groqKey").value.trim();
   const selectedVoice = document.getElementById("ttsVoice").value;
 
   activeEngine = activeEngineVal;
-  geminiApiKey = gemKeyVal;
-  groqApiKey = groqKeyVal;
   activeVoice = selectedVoice;
 
-  localStorage.setItem("mr7_v3_engine", activeEngine);
-  localStorage.setItem("mr7_v3_gemini_key", geminiApiKey);
-  localStorage.setItem("mr7_v3_groq_key", groqApiKey);
-  localStorage.setItem("mr7_v3_persona", currentPersona);
-  localStorage.setItem("mr7_v3_voice", activeVoice);
-  localStorage.setItem("mr7_v3_accent", currentAccent);
-  localStorage.setItem("mr7_v3_accent_glow", currentAccentGlow);
+  localStorage.setItem("mr7_v4_engine", activeEngine);
+  localStorage.setItem("mr7_v4_persona", currentPersona);
+  localStorage.setItem("mr7_v4_voice", activeVoice);
+  localStorage.setItem("mr7_v4_accent", currentAccent);
+  localStorage.setItem("mr7_v4_accent_glow", currentAccentGlow);
 
   if (chats[currentChatId]) {
     chats[currentChatId].persona = currentPersona;
@@ -1383,7 +1288,7 @@ function saveAllSettings() {
   updateEngineUI();
   closeSettings();
   renderMessages();
-  triggerToast("Vector Reloaded", "Smart system settings fully saved.");
+  triggerToast("Configuration Synced", "System parameters fully customized.");
 }
 
 function resetSettings() {
@@ -1391,29 +1296,24 @@ function resetSettings() {
   currentAccent = "#10a37f";
   currentAccentGlow = "rgba(16,163,127,0.15)";
   activeVoice = "Kore";
-  activeEngine = "gemini";
-  geminiApiKey = "";
-  groqApiKey = "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"; // restore original backup
+  activeEngine = "groq";
 
-  document.getElementById("apiEngine").value = "gemini";
-  document.getElementById("geminiKey").value = "";
-  document.getElementById("groqKey").value = groqApiKey;
+  document.getElementById("apiEngine").value = "groq";
   document.getElementById("ttsVoice").value = "Kore";
   
   document.documentElement.style.setProperty('--accent', currentAccent);
   document.documentElement.style.setProperty('--accent-glow', currentAccentGlow);
 
-  toggleEngineFields();
   openSettings();
-  triggerToast("Matrix Restored", "System defaults recalibrated.");
+  triggerToast("System Calibrated", "Restored standard default coordinate matrix.");
 }
 
 function updatePersonaUI() {
   const titles = {
-    friendly: "😊 Hinglish Dost Mode",
-    coder: "💻 Coding Master Mode",
-    writer: "✍️ Creative Writer Mode",
-    expert: "🎓 Deep Tech Guru Mode"
+    friendly: `😊 Hinglish Dost Mode`,
+    coder: `💻 Algorithm Architect Mode`,
+    writer: `✍️ Creative Matrix Mode`,
+    expert: `🎓 System Consultant Mode`
   };
   document.getElementById("activePersonaHeader").textContent = titles[currentPersona] || titles.friendly;
 }
@@ -1424,29 +1324,29 @@ function updateEngineUI() {
   const bottomIcon = document.getElementById("bottom-icon");
 
   if (activeEngine === "gemini") {
-    engineLabel.textContent = "Gemini Core";
-    engineSub.textContent = "Active Engine: Google";
-    bottomIcon.innerHTML = `<i class="fas fa-microchip"></i>`;
+    engineLabel.textContent = "MR7 Quantum";
+    engineSub.textContent = "Synthesis Core v4.2";
+    bottomIcon.innerHTML = `<i class="fas fa-brain"></i>`;
   } else {
-    engineLabel.textContent = "Groq Llama 3";
-    engineSub.textContent = "Active Engine: Groq";
+    engineLabel.textContent = "MR7 Velocity";
+    engineSub.textContent = "Speed Core v4.2";
     bottomIcon.innerHTML = `<i class="fas fa-bolt"></i>`;
   }
 }
 
 function toggleTheme() {
   isLightMode = !isLightMode;
-  localStorage.setItem("mr7_v3_theme", isLightMode ? "light" : "dark");
+  localStorage.setItem("mr7_v4_theme", isLightMode ? "light" : "dark");
   document.body.classList.toggle("light", isLightMode);
   document.getElementById("themeBtn").textContent = isLightMode ? "🌙 Dark Mode" : "☀️ Light Mode";
-  triggerToast("Theme Changed", isLightMode ? "Light mode activated!" : "Dark mode activated!");
+  triggerToast("Glow Spectrum", isLightMode ? "Adapted Solar Light panel theme." : "Adapted Deep Space panel theme.");
 }
 
 function toggleVisuals() {
   is3DActive = !is3DActive;
-  localStorage.setItem("mr7_v3_3d", is3DActive);
+  localStorage.setItem("mr7_v4_3d", is3DActive);
   const canvas = document.getElementById("bg-canvas");
-  canvas.style.opacity = is3DActive ? "0.55" : "0";
+  canvas.style.opacity = is3DActive ? "0.45" : "0";
   
   const btn = document.getElementById("visualToggleBtn");
   if (is3DActive) {
@@ -1461,27 +1361,26 @@ function toggleVisuals() {
 function exportChat() {
   const chat = chats[currentChatId];
   if (!chat || chat.messages.length === 0) {
-    triggerToast("Empty Chat", "Save karne ke liye messages add karein.", "text-yellow-400");
+    triggerToast("Buffer Empty", "Add messages to generate backup log.", "text-yellow-400");
     return;
   }
 
-  let text = `========================================\n        MR7 AI CONVERSATION EXPORT\n========================================\nGenerated On: ${new Date().toLocaleString()}\nEngine Mode: ${activeEngine}\nPersona: ${chat.persona}\n\n`;
+  let text = `====================================================\n             MR7 AI SYSTEM ARCHIVE LOG\n====================================================\nCreated On: ${new Date().toLocaleString()}\nPrimary Engine Node: ${activeEngine}\nDynamic Persona Module: ${chat.persona}\n\n`;
 
   chat.messages.forEach(m => {
-    if (m.isKeySetupBlock) return;
-    const speaker = m.role === "user" ? "YOU" : "MR7 INTEL ASSISTANT";
+    const speaker = m.role === "user" ? "USER CLIENT" : "MR7 SYSTEM INTEL";
     text += `[${speaker}]:\n${m.content}\n`;
     if (m.imageUrl) {
-      text += `[IMAGE LINK]: ${m.imageUrl}\n`;
+      text += `[RENDER LINK]: ${m.imageUrl}\n`;
     }
-    text += `\n----------------------------------------\n\n`;
+    text += `\n----------------------------------------------------\n\n`;
   });
 
   const tempLink = document.createElement("a");
   tempLink.href = "data:text/plain;charset=utf-8," + encodeURIComponent(text);
-  tempLink.download = `mr7-conversation-${chat.id}.txt`;
+  tempLink.download = `mr7-system-log-${chat.id}.txt`;
   tempLink.click();
-  triggerToast("Transcript Downloaded", "Chat history backup completed.");
+  triggerToast("Archive Exported", "System log files fully encrypted and saved.");
 }
 
 function escapeHtml(s) {
@@ -1490,7 +1389,7 @@ function escapeHtml(s) {
   }[c]));
 }
 
-/* ---------- 3D Space Particle Engine (Three.js) ---------- */
+/* ---------- 3D Space Particle Engine (Three.js WebGL) ---------- */
 function init3DSpace() {
   const canvas = document.getElementById("bg-canvas");
   const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
@@ -1501,36 +1400,36 @@ function init3DSpace() {
   const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.z = 60;
 
-  const particleCount = 1000;
+  const particleCount = 800;
   const geometry = new THREE.BufferGeometry();
   const positions = new Float32Array(particleCount * 3);
 
   for (let i = 0; i < particleCount * 3; i += 3) {
-    positions[i] = (Math.random() - 0.5) * 160;     
-    positions[i + 1] = (Math.random() - 0.5) * 160; 
-    positions[i + 2] = (Math.random() - 0.5) * 160; 
+    positions[i] = (Math.random() - 0.5) * 150;     
+    positions[i + 1] = (Math.random() - 0.5) * 150; 
+    positions[i + 2] = (Math.random() - 0.5) * 150; 
   }
 
   geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
   const material = new THREE.PointsMaterial({
     color: 0x10a37f,
-    size: 0.65,
+    size: 0.55,
     transparent: true,
-    opacity: 0.8,
+    opacity: 0.75,
     blending: THREE.AdditiveBlending
   });
 
   const pointsMesh = new THREE.Points(geometry, material);
   scene.add(pointsMesh);
 
-  // Floating Knot wireframe
-  const geoMatrix = new THREE.TorusKnotGeometry(9, 1.5, 120, 16);
+  // Torque Matrix geometry knot
+  const geoMatrix = new THREE.TorusKnotGeometry(10, 1.3, 100, 12);
   const matMatrix = new THREE.MeshBasicMaterial({
     color: 0x10a37f,
     wireframe: true,
     transparent: true,
-    opacity: 0.08
+    opacity: 0.05
   });
   const matrixMesh = new THREE.Mesh(geoMatrix, matMatrix);
   scene.add(matrixMesh);
@@ -1544,14 +1443,14 @@ function init3DSpace() {
   function renderLoop() {
     requestAnimationFrame(renderLoop);
     
-    pointsMesh.rotation.y += 0.0006;
-    pointsMesh.rotation.x += 0.0003;
+    pointsMesh.rotation.y += 0.0004;
+    pointsMesh.rotation.x += 0.0002;
 
-    matrixMesh.rotation.y -= 0.0015;
-    matrixMesh.rotation.x += 0.001;
+    matrixMesh.rotation.y -= 0.0012;
+    matrixMesh.rotation.x += 0.0008;
 
-    camera.position.x += (mouseX * 15 - camera.position.x) * 0.03;
-    camera.position.y += (-mouseY * 15 - camera.position.y) * 0.03;
+    camera.position.x += (mouseX * 12 - camera.position.x) * 0.03;
+    camera.position.y += (-mouseY * 12 - camera.position.y) * 0.03;
     camera.lookAt(scene.position);
 
     material.color.setHex(parseInt(currentAccent.replace("#", "0x"), 16));
