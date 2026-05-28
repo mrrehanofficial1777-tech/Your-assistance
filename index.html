@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>MR7 AI - Next-Gen Smart Assistant</title>
 
-<!-- Tailwind CSS for modern premium layouts -->
+<!-- Tailwind CSS -->
 <script src="https://cdn.tailwindcss.com"></script>
 
 <!-- Google Fonts -->
@@ -23,16 +23,16 @@
 <!-- Three.js for Interactive 3D Particles -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
-<!-- FontAwesome Icons for clean aesthetic look -->
+<!-- FontAwesome Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
   :root {
     --accent: #10a37f;
     --accent-glow: rgba(16, 163, 127, 0.15);
-    --bg-dark: #0a0a0c;
-    --panel-dark: #121216;
-    --border-dark: rgba(255, 255, 255, 0.08);
+    --bg-dark: #070709;
+    --panel-dark: #0f0f13;
+    --border-dark: rgba(255, 255, 255, 0.06);
     --text-dark: #f3f4f6;
     --text-muted: #9ca3af;
   }
@@ -44,23 +44,30 @@
     overflow: hidden;
   }
 
+  body.light {
+    --bg-dark: #f8fafc;
+    --panel-dark: #ffffff;
+    --border-dark: rgba(0, 0, 0, 0.08);
+    --text-dark: #0f172a;
+    --text-muted: #64748b;
+  }
+
   h1, h2, h3, .font-heading {
     font-family: 'Space Grotesk', sans-serif;
   }
 
-  /* Accent Color Classes dynamically handled */
+  /* Accent Color Classes */
   .color-accent { color: var(--accent); }
   .bg-accent { background-color: var(--accent); }
   .border-accent { border-color: var(--accent); }
-  .shadow-accent-glow { box-shadow: 0 0 20px var(--accent-glow); }
+  .shadow-accent-glow { box-shadow: 0 0 25px var(--accent-glow); }
 
-  /* 3D Canvas style */
   #bg-canvas {
     position: fixed;
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    opacity: 0.6;
+    opacity: 0.55;
     transition: opacity 0.5s;
   }
 
@@ -76,19 +83,21 @@
     background: rgba(255, 255, 255, 0.1);
     border-radius: 99px;
   }
+  body.light ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+  }
   ::-webkit-scrollbar-thumb:hover {
     background: var(--accent);
   }
 
-  /* Code Block Styling */
   pre code {
     font-family: 'Fira Code', monospace !important;
   }
 
-  /* Audio playing pulse animation */
+  /* Audio pulse animation */
   @keyframes pulse-audio {
     0%, 100% { transform: scale(1); opacity: 0.8; }
-    50% { transform: scale(1.2); opacity: 1; color: #ef4444; }
+    50% { transform: scale(1.15); opacity: 1; color: #ef4444; }
   }
   .audio-playing {
     animation: pulse-audio 1.2s infinite;
@@ -96,7 +105,7 @@
 
   /* Typing cursor */
   .typing-cursor::after {
-    content: '|';
+    content: '_';
     animation: blink-cursor 0.8s infinite;
     color: var(--accent);
     font-weight: bold;
@@ -105,79 +114,78 @@
     50% { opacity: 0; }
   }
 
-  /* Smooth transition for theme colors */
   * {
-    transition: background-color 0.2s ease, border-color 0.2s ease;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
   }
 </style>
 </head>
 <body class="relative h-screen w-screen overflow-hidden flex flex-col">
 
-<!-- Interactive 3D Space Background -->
+<!-- Interactive 3D Canvas Background -->
 <canvas id="bg-canvas"></canvas>
 
 <!-- Top Alert Toast -->
-<div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 bg-gray-900/90 border border-white/10 text-white px-5 py-3 rounded-xl shadow-2xl backdrop-blur-md z-50 flex items-center gap-3 transition-all duration-300 pointer-events-none opacity-0 scale-95">
+<div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 bg-gray-950/95 border border-white/10 text-white px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-md z-50 flex items-center gap-3 transition-all duration-300 pointer-events-none opacity-0 scale-95">
   <span id="toast-icon" class="text-emerald-400 text-lg"><i class="fas fa-check-circle"></i></span>
-  <span id="toast-msg" class="text-sm font-medium">Settings Applied Successfully!</span>
+  <span id="toast-msg" class="text-sm font-medium">Settings Applied!</span>
 </div>
 
 <div class="relative z-10 flex h-full w-full overflow-hidden">
   
   <!-- Sidebar -->
-  <aside id="sidebar" class="w-80 bg-black/40 backdrop-blur-xl border-r border-white/10 flex flex-col justify-between transition-all duration-300">
+  <aside id="sidebar" class="w-80 bg-black/50 backdrop-blur-2xl border-r border-white/5 flex flex-col justify-between transition-all duration-300">
     <div>
       <!-- Brand Area -->
-      <div class="p-6 border-b border-white/10 flex items-center justify-between">
+      <div class="p-5 border-b border-white/5 flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-black font-extrabold text-xl shadow-lg shadow-emerald-500/20">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-black font-extrabold text-2xl shadow-lg shadow-emerald-500/20">
             M
           </div>
           <div>
-            <h1 class="text-lg font-bold tracking-tight">MR7 <span class="text-emerald-400">AI</span></h1>
-            <p class="text-[10px] text-gray-500 font-mono tracking-wider uppercase">Super Intelligence</p>
+            <h1 class="text-lg font-bold tracking-tight">MR7 <span class="text-emerald-400" id="brand-accent-text">AI</span></h1>
+            <p class="text-[9px] text-gray-500 font-mono tracking-wider uppercase">Future Intelligence</p>
           </div>
         </div>
-        <button onclick="toggleSidebar()" class="text-gray-400 hover:text-white transition-colors p-1.5 hover:bg-white/5 rounded-lg">
+        <button onclick="toggleSidebar(); playSound('click')" class="text-gray-400 hover:text-white transition-colors p-1.5 hover:bg-white/5 rounded-xl">
           <i class="fas fa-chevron-left text-sm"></i>
         </button>
       </div>
 
       <!-- Action Button -->
       <div class="p-4">
-        <button onclick="newChat()" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl py-3 px-4 flex items-center justify-center gap-3 font-medium transition-all group shadow-sm hover:shadow-emerald-500/5">
+        <button onclick="newChat(); playSound('success')" class="w-full bg-white/5 hover:bg-white/10 border border-white/5 text-white rounded-2xl py-3 px-4 flex items-center justify-center gap-3 font-medium transition-all group hover:shadow-lg">
           <i class="fas fa-plus text-xs text-emerald-400 group-hover:rotate-90 transition-transform"></i>
           <span>Naya Chat Shuru Karein</span>
         </button>
       </div>
 
       <!-- Live Search Chats -->
-      <div class="px-4 mb-2">
+      <div class="px-4 mb-3">
         <div class="relative">
           <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
-          <input type="text" id="chatSearch" placeholder="Chats search karein..." oninput="filterChats(this.value)" class="w-full bg-white/5 border border-white/5 rounded-lg py-2 pl-9 pr-4 text-xs text-white focus:outline-none focus:border-emerald-500/50 transition-colors">
+          <input type="text" id="chatSearch" placeholder="Chats search karein..." oninput="filterChats(this.value)" class="w-full bg-white/5 border border-white/5 rounded-xl py-2.5 pl-9 pr-4 text-xs text-white focus:outline-none focus:border-emerald-500/50 transition-colors">
         </div>
       </div>
 
       <!-- Chat History Container -->
-      <div class="px-2 flex flex-col gap-1 overflow-y-auto max-h-[50vh]" id="chatList">
-        <!-- Dynamic chat items insert here -->
+      <div class="px-2 flex flex-col gap-1 overflow-y-auto max-h-[52vh]" id="chatList">
+        <!-- Chat items populating here -->
       </div>
     </div>
 
-    <!-- Sidebar Bottom controls -->
-    <div class="p-4 border-t border-white/10 bg-black/20">
-      <div class="flex items-center justify-between gap-2 p-2 bg-white/5 rounded-xl border border-white/5">
+    <!-- Sidebar Bottom Controls -->
+    <div class="p-4 border-t border-white/5 bg-black/20">
+      <div class="flex items-center justify-between gap-2 p-2.5 bg-white/5 rounded-2xl border border-white/5">
         <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400">
-            <i class="fas fa-robot"></i>
+          <div class="w-8 h-8 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400" id="bottom-icon">
+            <i class="fas fa-microchip"></i>
           </div>
           <div>
-            <p class="text-xs font-semibold">Gemini 3.1 Pro</p>
-            <p class="text-[10px] text-emerald-400 font-mono">Active (Free Tier)</p>
+            <p class="text-xs font-semibold" id="activeEngineLabel">Gemini Pro Core</p>
+            <p class="text-[9px] text-emerald-400 font-mono" id="activeEngineSub">Ready to Assist</p>
           </div>
         </div>
-        <button onclick="openSettings()" class="text-gray-400 hover:text-white p-2 hover:bg-white/5 rounded-lg transition-colors" title="Settings Center">
+        <button onclick="openSettings(); playSound('click')" class="text-gray-400 hover:text-white p-2 hover:bg-white/5 rounded-xl transition-colors" title="Settings Center">
           <i class="fas fa-cog"></i>
         </button>
       </div>
@@ -188,26 +196,29 @@
   <main class="flex-1 flex flex-col min-w-0 bg-transparent relative z-10">
     
     <!-- Topbar Navigation -->
-    <header class="h-16 border-b border-white/10 flex items-center justify-between px-6 bg-black/20 backdrop-blur-md">
+    <header class="h-16 border-b border-white/5 flex items-center justify-between px-6 bg-black/10 backdrop-blur-md">
       <div class="flex items-center gap-3">
-        <button id="sidebarToggle" onclick="toggleSidebar()" class="text-gray-400 hover:text-white p-2 hover:bg-white/5 rounded-lg mr-2" style="display:none;">
+        <button id="sidebarToggle" onclick="toggleSidebar(); playSound('click')" class="text-gray-400 hover:text-white p-2.5 hover:bg-white/5 rounded-xl mr-2" style="display:none;">
           <i class="fas fa-bars"></i>
         </button>
         <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span class="text-xs font-semibold text-gray-300 font-mono tracking-wider uppercase" id="activePersonaHeader">Global AI Mode</span>
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" id="top-pulse"></span>
+          <span class="text-xs font-semibold text-gray-300 font-mono tracking-wider uppercase" id="activePersonaHeader">😊 Hinglish Dost Mode</span>
         </div>
       </div>
 
       <!-- Control actions -->
-      <div class="flex items-center gap-3">
-        <button onclick="toggleVisuals()" id="visualToggleBtn" class="text-gray-400 hover:text-white bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-colors" title="Toggle 3D visual density">
+      <div class="flex items-center gap-2">
+        <button onclick="toggleTheme(); playSound('click')" id="themeBtn" class="text-gray-400 hover:text-white bg-white/5 border border-white/5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors">
+          ☀️ Light Mode
+        </button>
+        <button onclick="toggleVisuals(); playSound('click')" id="visualToggleBtn" class="text-gray-400 hover:text-white bg-white/5 border border-white/5 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-colors">
           <i class="fas fa-expand"></i> <span class="hidden md:inline">3D Effects On</span>
         </button>
-        <button onclick="exportChat()" class="text-gray-400 hover:text-white bg-white/5 border border-white/10 p-2 rounded-xl text-xs transition-colors" title="Download Text Chat">
+        <button onclick="exportChat(); playSound('success')" class="text-gray-400 hover:text-white bg-white/5 border border-white/5 p-2 rounded-xl text-xs transition-colors" title="Download Text Transcript">
           <i class="fas fa-download"></i>
         </button>
-        <button onclick="openSettings()" class="text-gray-400 hover:text-white bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-colors">
+        <button onclick="openSettings(); playSound('click')" class="text-gray-400 hover:text-white bg-white/5 border border-white/5 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-colors">
           <i class="fas fa-sliders-h"></i> <span>Customise</span>
         </button>
       </div>
@@ -215,216 +226,328 @@
 
     <!-- Chat Messages Screen -->
     <div class="flex-1 overflow-y-auto px-4 md:px-12 py-8 flex flex-col gap-6" id="messages">
-      <!-- Dynamic messages or Welcome Screen -->
+      <!-- Welcome Landing State rendered here -->
     </div>
 
     <!-- Contextual suggestions banner -->
     <div class="px-4 md:px-12" id="contextualSuggestionsWrap">
       <div class="max-w-4xl mx-auto flex flex-wrap gap-2 py-2" id="contextSuggestions">
-        <!-- AI Smart Suggestions populate dynamically here -->
+        <!-- AI Smart Suggestions populate here -->
       </div>
     </div>
 
     <!-- Input Form & Composer -->
     <div class="p-4 md:p-6 bg-gradient-to-t from-black/80 to-transparent">
       <div class="max-w-4xl mx-auto">
-        <div class="bg-zinc-900/90 border border-white/10 rounded-2xl p-3 shadow-2xl backdrop-blur-xl relative">
+        <div class="bg-zinc-900/90 border border-white/5 rounded-2xl p-3 shadow-2xl backdrop-blur-xl relative">
           
-          <!-- Mode toggles -->
+          <!-- Mode Toggles -->
           <div class="flex items-center justify-between px-2 pb-2 mb-2 border-b border-white/5">
             <div class="flex gap-2">
-              <button id="btnTextMode" onclick="setComposeMode('text')" class="px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 transition-all">
+              <button id="btnTextMode" onclick="setComposeMode('text'); playSound('click')" class="px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 transition-all">
                 <i class="fas fa-comment-dots"></i> <span>Chat Assistant</span>
               </button>
-              <button id="btnImageMode" onclick="setComposeMode('image')" class="px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 hover:bg-white/5 text-gray-400 transition-all border border-transparent hover:border-white/10">
+              <button id="btnImageMode" onclick="setComposeMode('image'); playSound('click')" class="px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 hover:bg-white/5 text-gray-400 transition-all border border-transparent hover:border-white/10">
                 <i class="fas fa-paint-brush"></i> <span>Imagine (AI Painting)</span>
               </button>
             </div>
             
-            <!-- Key hints -->
             <div class="hidden sm:flex items-center gap-2 text-[11px] text-gray-500">
-              <span>Shuruaat karein <b>/draw</b> se to instantly generate custom images!</span>
+              <span>Shuru karein <b>/draw</b> se to instantly paint masterpieces!</span>
             </div>
           </div>
 
           <!-- Main Input Controls -->
           <div class="flex items-end gap-3">
+            <!-- Smart Speech Voice Input Button -->
+            <button id="micBtn" onclick="toggleSpeechRecognition(); playSound('click')" class="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition-all shrink-0" title="Voice Typing (Speak instead of type)">
+              <i class="fas fa-microphone" id="micIcon"></i>
+            </button>
+
             <textarea id="input" rows="1" placeholder="Kuch poochiye, AI se baatein karein..." 
               onkeydown="handleTextareaKey(event)"
               oninput="autoGrow(this); updateCharCount(this)" 
-              class="flex-1 bg-transparent border-0 text-white placeholder-gray-500 focus:ring-0 focus:outline-none text-[15px] resize-none max-h-40 min-h-[24px] py-1 pl-2"></textarea>
+              class="flex-1 bg-transparent border-0 text-white placeholder-gray-500 focus:ring-0 focus:outline-none text-[15px] resize-none max-h-40 min-h-[24px] py-1 pl-1"></textarea>
             
-            <div class="flex items-center gap-2 pr-1">
+            <div class="flex items-center gap-1.5 pr-1">
               <span id="charCount" class="text-[10px] text-gray-500 font-mono">0</span>
-              <button onclick="clearInput()" class="w-8 h-8 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white flex items-center justify-center transition-colors" title="Clear input">
+              <button onclick="clearInput(); playSound('click')" class="w-8 h-8 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white flex items-center justify-center transition-colors" title="Clear input">
                 <i class="fas fa-trash-alt text-sm"></i>
               </button>
-              <button id="sendBtn" onclick="sendMessage()" class="w-9 h-9 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black flex items-center justify-center transition-all shadow-lg shadow-emerald-500/10">
+              <button id="sendBtn" onclick="sendMessage(); playSound('click')" class="w-9 h-9 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black flex items-center justify-center transition-all shadow-lg shadow-emerald-500/10">
                 <i class="fas fa-paper-plane text-sm"></i>
               </button>
             </div>
           </div>
         </div>
-        <p class="text-center text-[10px] text-gray-500 mt-3 font-medium">MR7 AI runs premium Google Gemini & Audio TTS models natively. Accuracy guaranteed.</p>
+        <p class="text-center text-[10px] text-gray-500 mt-3 font-medium">MR7 AI runs native Google Gemini Core & Groq Engines. Voice Speech, Audio TTS enabled.</p>
       </div>
     </div>
   </main>
 </div>
 
-<!-- Dynamic Settings Modal -->
+<!-- Settings Modal -->
 <div id="settingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
-  <div class="bg-zinc-950 border border-white/10 rounded-2xl w-full max-w-lg p-6 m-4 shadow-2xl transform scale-95 transition-all duration-300 flex flex-col gap-5 max-h-[90vh] overflow-y-auto">
-    <div class="flex items-center justify-between border-b border-white/10 pb-4">
-      <div class="flex items-center gap-2 text-emerald-400">
+  <div class="bg-zinc-950 border border-white/10 rounded-2xl w-full max-w-lg p-6 m-4 shadow-2xl transform scale-95 transition-all duration-300 flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between border-b border-white/10 pb-3">
+      <div class="flex items-center gap-2 text-emerald-400" id="settings-title-color">
         <i class="fas fa-sliders-h text-lg"></i>
-        <h2 class="text-lg font-bold font-heading">MR7 AI Settings Dashboard</h2>
+        <h2 class="text-lg font-bold font-heading">MR7 AI Engines & customization</h2>
       </div>
-      <button onclick="closeSettings()" class="text-gray-400 hover:text-white hover:bg-white/10 w-8 h-8 rounded-full flex items-center justify-center transition-all">
+      <button onclick="closeSettings(); playSound('click')" class="text-gray-400 hover:text-white hover:bg-white/10 w-8 h-8 rounded-full flex items-center justify-center transition-all">
         <i class="fas fa-times"></i>
       </button>
     </div>
 
-    <!-- Main settings settings content -->
+    <!-- Settings Forms -->
     <div class="flex flex-col gap-4">
       
-      <!-- Persona selector -->
+      <!-- Engine Selector -->
       <div>
         <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-          <i class="fas fa-user-circle mr-1"></i> Choose AI Persona (Behavior)
+          <i class="fas fa-server mr-1"></i> Engine Provider
+        </label>
+        <select id="apiEngine" onchange="toggleEngineFields()" class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-sm text-white focus:outline-none focus:border-emerald-500">
+          <option value="gemini" class="bg-zinc-950">Google Gemini Core (Supports Text & Draw)</option>
+          <option value="groq" class="bg-zinc-950">Groq Cloud Speed Engine (Ultra-Fast Llama 3.3)</option>
+        </select>
+      </div>
+
+      <!-- Gemini API Key field -->
+      <div id="geminiField">
+        <div class="flex items-center justify-between mb-1">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">
+            <i class="fas fa-key mr-1"></i> Google Gemini API Key
+          </label>
+          <a href="https://aistudio.google.com/apikey" target="_blank" class="text-[10px] text-emerald-400 underline">Get Free Key (10 sec)</a>
+        </div>
+        <input type="password" id="geminiKey" placeholder="Paste Gemini Key here: AIzaSy..." class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500">
+      </div>
+
+      <!-- Groq API Key field -->
+      <div id="groqField" class="hidden">
+        <div class="flex items-center justify-between mb-1">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">
+            <i class="fas fa-key mr-1"></i> Groq Cloud API Key
+          </label>
+          <a href="https://console.groq.com/keys" target="_blank" class="text-[10px] text-emerald-400 underline">Get Groq Key</a>
+        </div>
+        <input type="password" id="groqKey" placeholder="Paste Groq Key here: gsk_..." class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500">
+      </div>
+
+      <!-- Persona Selector -->
+      <div>
+        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          <i class="fas fa-user-circle mr-1"></i> Choose AI Persona
         </label>
         <div class="grid grid-cols-2 gap-2">
           <button onclick="setPersona('friendly')" id="p-friendly" class="p-3 rounded-xl border text-left flex flex-col gap-1 transition-all">
-            <span class="text-xs font-bold text-white">😊 Hinglish Friend</span>
-            <span class="text-[10px] text-gray-400 leading-tight">Casual friendly talks & native advices</span>
+            <span class="text-xs font-bold text-white">😊 Hinglish Dost</span>
+            <span class="text-[9px] text-gray-400 leading-tight">Casual talks, advices, and emojis</span>
           </button>
           <button onclick="setPersona('coder')" id="p-coder" class="p-3 rounded-xl border text-left flex flex-col gap-1 transition-all">
             <span class="text-xs font-bold text-white">💻 Coding Master</span>
-            <span class="text-[10px] text-gray-400 leading-tight">Strict clean code & logic optimization</span>
+            <span class="text-[9px] text-gray-400 leading-tight">Strict clean coding & execution flow</span>
           </button>
           <button onclick="setPersona('writer')" id="p-writer" class="p-3 rounded-xl border text-left flex flex-col gap-1 transition-all">
             <span class="text-xs font-bold text-white">✍️ Creative Writer</span>
-            <span class="text-[10px] text-gray-400 leading-tight">Savage lyrics, essays, scripts & stories</span>
+            <span class="text-[9px] text-gray-400 leading-tight">Savage poetry, lyrics, essays & copy</span>
           </button>
           <button onclick="setPersona('expert')" id="p-expert" class="p-3 rounded-xl border text-left flex flex-col gap-1 transition-all">
             <span class="text-xs font-bold text-white">🎓 Deep Tech Guru</span>
-            <span class="text-[10px] text-gray-400 leading-tight">Highly analytical responses & calculations</span>
+            <span class="text-[9px] text-gray-400 leading-tight">Logical summaries & complex math</span>
           </button>
         </div>
       </div>
 
-      <!-- Accent Color customization -->
+      <!-- Brand Accent Customization -->
       <div>
         <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-          <i class="fas fa-palette mr-1"></i> Brand Accent Color
+          <i class="fas fa-palette mr-1"></i> Interface Glow Theme
         </label>
-        <div class="flex gap-3 justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
-          <button onclick="setAccent('#10a37f', 'rgba(16,163,127,0.15)')" class="w-8 h-8 rounded-full bg-[#10a37f] border-2 border-transparent hover:scale-110 active:scale-95 transition-transform" title="Emerald"></button>
-          <button onclick="setAccent('#3b82f6', 'rgba(59,130,246,0.15)')" class="w-8 h-8 rounded-full bg-[#3b82f6] border-2 border-transparent hover:scale-110 active:scale-95 transition-transform" title="Blue Electric"></button>
-          <button onclick="setAccent('#a855f7', 'rgba(168,85,247,0.15)')" class="w-8 h-8 rounded-full bg-[#a855f7] border-2 border-transparent hover:scale-110 active:scale-95 transition-transform" title="Purple Neon"></button>
-          <button onclick="setAccent('#ec4899', 'rgba(236,72,153,0.15)')" class="w-8 h-8 rounded-full bg-[#ec4899] border-2 border-transparent hover:scale-110 active:scale-95 transition-transform" title="Cyber Pink"></button>
-          <button onclick="setAccent('#eab308', 'rgba(234,179,8,0.15)')" class="w-8 h-8 rounded-full bg-[#eab308] border-2 border-transparent hover:scale-110 active:scale-95 transition-transform" title="Sun Yellow"></button>
+        <div class="flex gap-2 justify-between items-center bg-white/5 p-2 rounded-xl border border-white/5">
+          <button onclick="setAccent('#10a37f', 'rgba(16,163,127,0.15)'); playSound('click')" class="w-7 h-7 rounded-full bg-[#10a37f] border border-white/20 hover:scale-110 active:scale-95 transition-all" title="Emerald"></button>
+          <button onclick="setAccent('#00d2ff', 'rgba(0,210,255,0.15)'); playSound('click')" class="w-7 h-7 rounded-full bg-[#00d2ff] border border-white/20 hover:scale-110 active:scale-95 transition-all" title="Electric Aqua"></button>
+          <button onclick="setAccent('#8b5cf6', 'rgba(139,92,246,0.15)'); playSound('click')" class="w-7 h-7 rounded-full bg-[#8b5cf6] border border-white/20 hover:scale-110 active:scale-95 transition-all" title="Cyber Violet"></button>
+          <button onclick="setAccent('#ec4899', 'rgba(236,72,153,0.15)'); playSound('click')" class="w-7 h-7 rounded-full bg-[#ec4899] border border-white/20 hover:scale-110 active:scale-95 transition-all" title="Neon Pink"></button>
+          <button onclick="setAccent('#f59e0b', 'rgba(245,158,11,0.15)'); playSound('click')" class="w-7 h-7 rounded-full bg-[#f59e0b] border border-white/20 hover:scale-110 active:scale-95 transition-all" title="Tropic Gold"></button>
         </div>
       </div>
 
-      <!-- Text to speech options -->
+      <!-- Audio TTS config -->
       <div>
         <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
           <i class="fas fa-volume-up mr-1"></i> AI Speaking Voice (TTS Reader)
         </label>
-        <select id="ttsVoice" class="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm text-white focus:outline-none focus:border-emerald-500">
+        <select id="ttsVoice" class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-sm text-white focus:outline-none focus:border-emerald-500">
           <option value="Zephyr" class="bg-zinc-950">Zephyr (Bright Speaker)</option>
           <option value="Puck" class="bg-zinc-950">Puck (Upbeat Energy)</option>
-          <option value="Charon" class="bg-zinc-950">Charon (Informative Voice)</option>
-          <option value="Kore" class="bg-zinc-950" selected>Kore (Firm / Normal)</option>
+          <option value="Charon" class="bg-zinc-950">Charon (Informative Deep)</option>
+          <option value="Kore" class="bg-zinc-950" selected>Kore (Firm / Native Standard)</option>
           <option value="Fenrir" class="bg-zinc-950">Fenrir (Excitable)</option>
         </select>
       </div>
 
-      <!-- Free API Key overrides (Optional) -->
-      <div>
-        <div class="flex items-center justify-between mb-1">
-          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">
-            <i class="fas fa-key mr-1"></i> Custom Gemini API Key (Optional)
-          </label>
-          <span class="text-[10px] text-gray-500">Keep blank to use canvas key</span>
-        </div>
-        <input type="password" id="customApiKey" placeholder="AI Studio key: AIzaSy..." class="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500">
-      </div>
     </div>
 
     <!-- Actions -->
-    <div class="flex gap-3 mt-4 pt-4 border-t border-white/10">
-      <button onclick="resetSettings()" class="flex-1 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl py-3 text-sm font-semibold text-gray-400 transition-colors">
+    <div class="flex gap-3 mt-4 pt-3 border-t border-white/10">
+      <button onclick="resetSettings(); playSound('click')" class="flex-1 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl py-2.5 text-xs font-semibold text-gray-400 transition-colors">
         Restore Defaults
       </button>
-      <button onclick="saveAllSettings()" class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-black rounded-xl py-3 text-sm font-bold shadow-lg shadow-emerald-500/20">
-        💾 Save settings
+      <button onclick="saveAllSettings(); playSound('success')" class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-black rounded-xl py-2.5 text-xs font-bold shadow-lg">
+        💾 Save Settings
       </button>
     </div>
   </div>
 </div>
 
-<!-- Audio element (Hidden helper) -->
+<!-- Audio Player Helper -->
 <audio id="globalAudioPlayer" class="hidden"></audio>
 
 <script>
-// State Management
+/* ---------- Jarvis Style Sound FX Engine ---------- */
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+function playSound(type) {
+  try {
+    const osc = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    osc.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    if (type === 'click') {
+      osc.frequency.setValueAtTime(600, audioContext.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(150, audioContext.currentTime + 0.08);
+      gainNode.gain.setValueAtTime(0.04, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.08);
+      osc.start();
+      osc.stop(audioContext.currentTime + 0.08);
+    } else if (type === 'success') {
+      osc.frequency.setValueAtTime(400, audioContext.currentTime);
+      osc.frequency.setValueAtTime(800, audioContext.currentTime + 0.08);
+      gainNode.gain.setValueAtTime(0.05, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.25);
+      osc.start();
+      osc.stop(audioContext.currentTime + 0.25);
+    } else if (type === 'error') {
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(150, audioContext.currentTime);
+      osc.frequency.linearRampToValueAtTime(80, audioContext.currentTime + 0.3);
+      gainNode.gain.setValueAtTime(0.06, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
+      osc.start();
+      osc.stop(audioContext.currentTime + 0.3);
+    }
+  } catch (e) {
+    console.warn("Sound engine error: ", e);
+  }
+}
+
+/* ---------- State Management ---------- */
 let chats = JSON.parse(localStorage.getItem("mr7_v3_chats") || "{}");
 let currentChatId = localStorage.getItem("mr7_v3_current") || null;
 let currentPersona = localStorage.getItem("mr7_v3_persona") || "friendly";
 let currentAccent = localStorage.getItem("mr7_v3_accent") || "#10a37f";
 let currentAccentGlow = localStorage.getItem("mr7_v3_accent_glow") || "rgba(16,163,127,0.15)";
 let activeVoice = localStorage.getItem("mr7_v3_voice") || "Kore";
+let activeEngine = localStorage.getItem("mr7_v3_engine") || "gemini"; // "gemini" or "groq"
 let activeComposeMode = "text"; // text or image
 let isGenerating = false;
-let customKey = localStorage.getItem("mr7_v3_custom_key") || "";
-let is3DActive = localStorage.getItem("mr7_v3_3d") !== "false";
 
-// Preset default suggestions based on current active Persona
+// Keys
+let geminiApiKey = localStorage.getItem("mr7_v3_gemini_key") || "";
+// Default groq api key as fallback from user's original file
+let groqApiKey = localStorage.getItem("mr7_v3_groq_key") || "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";
+
+let is3DActive = localStorage.getItem("mr7_v3_3d") !== "false";
+let isLightMode = localStorage.getItem("mr7_v3_theme") === "light";
+
+// Speech Recognition Init
+let recognition = null;
+let isListening = false;
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+  const SpeechObj = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechObj();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.lang = 'hi-IN'; // Default to Hinglish / Hindi & English integration
+
+  recognition.onstart = () => {
+    isListening = true;
+    const micIcon = document.getElementById("micIcon");
+    micIcon.className = "fas fa-microphone text-red-500 animate-bounce";
+    triggerToast("Listening", "Aap bol sakte hain...");
+  };
+
+  recognition.onresult = (event) => {
+    const voiceText = event.results[0][0].transcript;
+    const inp = document.getElementById("input");
+    inp.value += (inp.value ? " " : "") + voiceText;
+    autoGrow(inp);
+    updateCharCount(inp);
+  };
+
+  recognition.onend = () => {
+    isListening = false;
+    document.getElementById("micIcon").className = "fas fa-microphone text-gray-400";
+  };
+}
+
 const suggestionsByPersona = {
   friendly: [
     "Ek mast joke sunao Hinglish mein 😄",
     "Mera aaj mood off hai, kya karun?",
-    "Give me advice on starting a Youtube channel",
+    "Advice on starting a cool YouTube channel",
     "Simple terms mein space black holes kya hote hain?"
   ],
   coder: [
     "JavaScript recursion explain karo with examples",
-    "Clean standard python script to fetch HTML page",
-    "Optimal search solution using Binary Search",
-    "SQL query to find second highest salary in database"
+    "Standard python script to fetch HTML page with comments",
+    "Optimal search solution using Binary Search algorithm",
+    "Explain standard test cases for backend verification"
   ],
   writer: [
-    "Write a catchy poetic rap verse on cyber war",
+    "Write a catchy poetic rap verse on cyberpunk war",
     "Suggest unique naming ideas for an Indian AI agency",
-    "Write a gripping suspense thriller movie introduction",
-    "Compose an email asking boss for medical leaves"
+    "Write a gripping suspense thriller movie introduction scene",
+    "Compose an email asking boss for medical leaves politely"
   ],
   expert: [
-    "Calculate the compound interest rate logic dynamically",
+    "Calculate compound interest rate logic dynamically",
     "Summarize Einstein's Special Theory of Relativity",
     "Tell me key elements of financial budget optimization",
     "Outline structural components of space rockets"
   ]
 };
 
-// System instruction prompt variations for different personalities
 const systemPrompts = {
-  friendly: "You are MR7 AI, a helpful, cheerful, and super-friendly Hinglish-speaking virtual friend. Use casual tone, emojis, and explain things using clear real-life metaphors. Write in Hinglish (Hindi text in Latin script) as much as possible for emotional and casual connect.",
-  coder: "You are MR7 AI, an expert Senior Software Engineer and computer science mentor. Be straight, highly professional, and precise. Always write clean, well-commented, optimized code blocks and explain execution flows.",
-  writer: "You are MR7 AI, a master creative storyteller, copywriter, and professional lyricist. Give expressive, metaphorical, and high-impact descriptions. Think deep and generate unique lyrics or stories.",
-  expert: "You are MR7 AI, an extremely knowledgeable and logical research analyst. Provide deep structure, use accurate facts, formulas, or academic summaries without unnecessary small talk."
+  friendly: "You are MR7 AI, a helpful, cheerful, and super-friendly Hinglish Dost. Use casual tone, emojis, and explain using real-life examples. Use Hinglish (Hindi words in Latin letters) to create a warm, friendly connect.",
+  coder: "You are MR7 AI, an expert Senior Software Architect and computer programmer. Be professional and highly precise. Always write clean, well-commented code, and describe the algorithmic approach briefly.",
+  writer: "You are MR7 AI, a master creative writer, lyricist, and storyteller. Use deep metaphorical languages, creative words, and engaging story structures. Generate highly expressive content.",
+  expert: "You are MR7 AI, an extremely knowledgeable, analytical, and logical deep research consultant. Structure responses clearly, use formulas or academic references, and avoid unnecessary friendly small talk."
 };
 
 /* ---------- Initialization Entrypoint ---------- */
 window.addEventListener("load", () => {
-  // Setup CSS Accent parameters
+  // Apply visual variables
   document.documentElement.style.setProperty('--accent', currentAccent);
   document.documentElement.style.setProperty('--accent-glow', currentAccentGlow);
 
-  // Load Settings options
-  document.getElementById("customApiKey").value = customKey;
+  // Restore Theme
+  if (isLightMode) {
+    document.body.classList.add("light");
+    document.getElementById("themeBtn").textContent = "🌙 Dark Mode";
+  }
+
+  // Populate Key fields
+  document.getElementById("geminiKey").value = geminiApiKey;
+  document.getElementById("groqKey").value = groqApiKey;
+  document.getElementById("apiEngine").value = activeEngine;
   document.getElementById("ttsVoice").value = activeVoice;
+
+  // Toggle visible api fields
+  toggleEngineFields();
 
   // Restore sidebar visibility state
   if (window.innerWidth < 768) {
@@ -442,6 +565,7 @@ window.addEventListener("load", () => {
 
   // Visual highlights setup
   updatePersonaUI();
+  updateEngineUI();
   init3DSpace();
 });
 
@@ -455,6 +579,20 @@ function toggleSidebar() {
     toggleBtn.style.display = "block";
   } else {
     toggleBtn.style.display = isHidden ? "block" : "none";
+  }
+}
+
+/* ---------- Text Recognition Controls ---------- */
+function toggleSpeechRecognition() {
+  if (!recognition) {
+    triggerToast("Error", "Aapka browser Voice Recognition support nahi karta.", "text-red-400");
+    playSound('error');
+    return;
+  }
+  if (isListening) {
+    recognition.stop();
+  } else {
+    recognition.start();
   }
 }
 
@@ -491,7 +629,7 @@ function setComposeMode(mode) {
   if (mode === "image") {
     btnImage.className = "px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-purple-500/20 text-purple-400 border border-purple-500/30 transition-all";
     btnText.className = "px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 hover:bg-white/5 text-gray-400 transition-all border border-transparent hover:border-white/10";
-    inp.placeholder = "Mujhe batayein kis tarah ki painting draw karni hai... (e.g., A cyber dog on mars in pixel art)";
+    inp.placeholder = "Mujhe batayein kis tarah ki painting draw karni hai... (e.g., A cyber dog on mars)";
   } else {
     btnText.className = "px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 transition-all";
     btnImage.className = "px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 hover:bg-white/5 text-gray-400 transition-all border border-transparent hover:border-white/10";
@@ -499,12 +637,12 @@ function setComposeMode(mode) {
   }
 }
 
-/* ---------- STREAMING_CHUNK: Managing chat histories and persistent data... ---------- */
+/* ---------- Managing chat histories ---------- */
 function newChat() {
   const id = "chat_" + Date.now();
   chats[id] = {
     id: id,
-    title: "Naya Chat Conversation",
+    title: "Naya Conversation",
     messages: [],
     persona: currentPersona
   };
@@ -532,10 +670,6 @@ function switchChat(id) {
 
 function deleteChat(id, e) {
   e.stopPropagation();
-  // Premium modal fallback instead of browser confirm
-  triggerToast("Confirm Deletion...", "🗑️ Dobara click karein to delete completely!", "text-yellow-400");
-  
-  // Custom double tap handler to protect delete actions
   const btn = e.target.closest('button');
   if (btn.getAttribute('data-confirm') === 'true') {
     delete chats[id];
@@ -548,9 +682,11 @@ function deleteChat(id, e) {
     renderChatList();
     renderMessages();
     triggerToast("Deleted", "Chat has been erased.", "text-red-400");
+    playSound('click');
   } else {
     btn.setAttribute('data-confirm', 'true');
     btn.innerHTML = `<i class="fas fa-exclamation-triangle text-red-500"></i>`;
+    playSound('error');
     setTimeout(() => {
       if (btn) {
         btn.setAttribute('data-confirm', 'false');
@@ -569,17 +705,16 @@ function filterChats(query) {
   const val = query.trim().toLowerCase();
   const list = document.getElementById("chatList");
   const filteredIds = Object.keys(chats).reverse().filter(id => chats[id].title.toLowerCase().includes(val));
-  
   renderChatList(filteredIds);
 }
 
-/* ---------- STREAMING_CHUNK: Building UI render templates... ---------- */
+/* ---------- Rendering UI Templates ---------- */
 function renderChatList(customIdArray = null) {
   const container = document.getElementById("chatList");
   const ids = customIdArray || Object.keys(chats).reverse();
   
   if (ids.length === 0) {
-    container.innerHTML = `<p class="text-center text-xs text-gray-500 py-6 font-medium">Koi conversations nahi mili</p>`;
+    container.innerHTML = `<p class="text-center text-xs text-gray-500 py-6 font-medium">Koi chats nahi mile.</p>`;
     return;
   }
 
@@ -593,10 +728,10 @@ function renderChatList(customIdArray = null) {
     if (persona === "expert") icon = "fa-graduation-cap";
 
     return `
-      <div onclick="switchChat('${id}')" class="group flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all ${isSel ? 'bg-white/10 border border-white/10 shadow-sm' : 'hover:bg-white/5 border border-transparent'}">
+      <div onclick="switchChat('${id}'); playSound('click')" class="group flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all ${isSel ? 'bg-white/10 border border-white/5 shadow-sm font-semibold' : 'hover:bg-white/5 border border-transparent'}">
         <div class="flex items-center gap-3 min-w-0">
-          <span class="text-xs ${isSel ? 'text-emerald-400' : 'text-gray-500'}"><i class="fas ${icon}"></i></span>
-          <span class="text-xs font-medium text-gray-300 truncate pr-2">${escapeHtml(title)}</span>
+          <span class="text-xs ${isSel ? 'text-emerald-400' : 'text-gray-500'}" id="chat-icon-${id}"><i class="fas ${icon}"></i></span>
+          <span class="text-xs text-gray-300 truncate pr-2">${escapeHtml(title)}</span>
         </div>
         <button onclick="deleteChat('${id}', event)" data-confirm="false" class="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-white/10 text-gray-400 hover:text-red-400 transition-all text-xs" title="Delete">
           <i class="fas fa-trash"></i>
@@ -611,17 +746,16 @@ function renderMessages() {
   const chat = chats[currentChatId];
 
   if (!chat || chat.messages.length === 0) {
-    // Generate Welcome Landing State
     container.innerHTML = `
-      <div class="flex-1 flex flex-col justify-center items-center text-center py-12 max-w-2xl mx-auto">
-        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-black font-extrabold text-3xl shadow-xl shadow-emerald-500/10 mb-6">
+      <div class="flex-1 flex flex-col justify-center items-center text-center py-10 max-w-2xl mx-auto">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-black font-extrabold text-3xl shadow-xl shadow-emerald-500/10 mb-6" id="welcome-glow">
           M
         </div>
         <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white font-heading">
-          MR7 <span class="text-emerald-400">AI</span> Intelligence
+          MR7 <span class="text-emerald-400">AI</span> Assistant
         </h2>
         <p class="text-gray-400 text-sm mt-3 leading-relaxed max-w-md">
-          A native intelligent dashboard powered by premium Gemini-3 Pro. Try asking programming tasks, logical solutions or creative visuals directly!
+          Google Gemini Core & Groq Engines se powered smart workspace. Kuch bhi poochiye—programming codes, essays ya graphics visuals!
         </p>
 
         <!-- Prompt Suggestions Grid -->
@@ -644,39 +778,70 @@ function renderMessages() {
   hljs.highlightAll();
   container.scrollTop = container.scrollHeight;
 
-  // Populate dynamic context recommendations for smart next responses
+  // Render suggestion chips
   generateSmartContextSuggestions(chat.messages[chat.messages.length - 1]);
 }
 
 function renderMessageBubble(m, idx) {
   const isUser = m.role === "user";
+  
+  // Custom display if there is an unregistered key or error setup card required
+  if (m.isKeySetupBlock) {
+    return `
+      <div class="w-full bg-red-950/20 border border-red-900/40 py-6 px-4 md:px-6 rounded-2xl max-w-4xl mx-auto my-4 shadow-xl">
+        <div class="flex gap-4 items-start">
+          <div class="w-9 h-9 rounded-xl bg-red-500/10 text-red-400 flex items-center justify-center text-sm shrink-0">
+            <i class="fas fa-exclamation-triangle"></i>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-sm font-bold text-red-400">⚠️ API Key Required / Unregistered Caller Error</h3>
+            <p class="text-xs text-gray-300 mt-2 leading-relaxed">
+              Google Gemini Server standard request block kar raha hai kyunki aapka API identity missing hai. Chaliye isko <b>10 Seconds me bilkul free activate</b> karte hain:
+            </p>
+            <ol class="text-xs text-gray-400 list-decimal pl-4 mt-2 space-y-1">
+              <li>Niche diye button par click karke <b>Google AI Studio</b> se free key generate karein.</li>
+              <li>Mili hui key ko paste karke <b>Save & Continue</b> par click karein. Aapka active conversation wahin se chalu ho jayega!</li>
+            </ol>
+            <div class="flex flex-wrap gap-2 mt-4 items-center">
+              <a href="https://aistudio.google.com/apikey" target="_blank" class="px-3 py-1.5 bg-emerald-500 text-black rounded-lg text-xs font-bold hover:bg-emerald-400 transition-all flex items-center gap-1">
+                <i class="fas fa-external-link-alt text-[10px]"></i> Get FREE Key Now
+              </a>
+              <input type="password" id="inlineKeyInput" placeholder="Paste key: AIzaSy..." class="bg-black/40 border border-white/10 rounded-lg py-1 px-3 text-xs text-white focus:outline-none focus:border-emerald-500 w-56">
+              <button onclick="saveInlineKey(${idx})" class="px-3 py-1.5 bg-white text-black rounded-lg text-xs font-bold hover:bg-gray-200 transition-all">
+                Save & Continue
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   const content = isUser 
     ? `<p class="whitespace-pre-wrap">${escapeHtml(m.content)}</p>` 
     : marked.parse(m.content || "");
 
-  // Render Image attachment markup if image generation output detected
   let mediaBlock = "";
   if (m.imageUrl) {
     mediaBlock = `
-      <div class="mt-4 rounded-xl overflow-hidden border border-white/10 shadow-2xl relative group bg-black/40">
-        <img src="${m.imageUrl}" alt="Generated AI Visual" class="w-full max-h-96 object-contain hover:scale-[1.01] transition-transform duration-300" onerror="this.onerror=null; this.src='https://placehold.co/600x400/222/aaa?text=Error+Loading+Image'">
+      <div class="mt-4 rounded-xl overflow-hidden border border-white/5 shadow-2xl relative group bg-black/40">
+        <img src="${m.imageUrl}" alt="AI Generated Illustration" class="w-full max-h-96 object-contain hover:scale-[1.01] transition-transform duration-300" onerror="this.onerror=null; this.src='https://placehold.co/600x400/222/aaa?text=Failed+To+Load+Image'">
         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-4 flex items-end justify-between">
-          <span class="text-xs text-emerald-400 font-semibold"><i class="fas fa-check-circle mr-1"></i> Generated Real-Time</span>
-          <a href="${m.imageUrl}" download="mr7-ai-render.png" class="px-3 py-1.5 bg-white text-black text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-lg active:scale-95 transition-all">
-            <i class="fas fa-download"></i> Download Image
+          <span class="text-xs text-emerald-400 font-semibold"><i class="fas fa-check-circle mr-1"></i> Render Perfect</span>
+          <a href="${m.imageUrl}" download="mr7-paint.png" class="px-3 py-1.5 bg-white text-black text-xs font-bold rounded-lg flex items-center gap-1 shadow-lg active:scale-95 transition-all">
+            <i class="fas fa-download"></i> Download Paint
           </a>
         </div>
       </div>
     `;
   }
 
-  // Interactive controls for assistant messages
   const actionControls = !isUser ? `
     <div class="flex items-center gap-2 mt-4 pt-3 border-t border-white/5">
-      <button onclick="ttsSpeak(this, ${idx})" class="px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-[11px] font-semibold flex items-center gap-1.5 transition-colors" title="Speak Response aloud">
+      <button onclick="ttsSpeak(this, ${idx}); playSound('click')" class="px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-[11px] font-semibold flex items-center gap-1.5 transition-colors" title="Speak Response aloud">
         <i class="fas fa-volume-up text-xs text-emerald-400"></i> <span class="audio-label">Suniye (Audio)</span>
       </button>
-      <button onclick="copyToClipboard(this, ${idx})" class="px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-[11px] font-semibold flex items-center gap-1.5 transition-colors">
+      <button onclick="copyToClipboard(this, ${idx}); playSound('success')" class="px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-[11px] font-semibold flex items-center gap-1.5 transition-colors">
         <i class="fas fa-clone text-xs"></i> <span>Copy Text</span>
       </button>
     </div>
@@ -685,12 +850,12 @@ function renderMessageBubble(m, idx) {
   return `
     <div class="w-full ${isUser ? 'bg-transparent' : 'bg-white/[0.02] border-y border-white/[0.02]'} py-6 px-4 md:px-6 rounded-2xl">
       <div class="max-w-4xl mx-auto flex gap-4 md:gap-6 items-start">
-        <div class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold shrink-0 ${isUser ? 'bg-[#3b82f6]/20 text-[#3b82f6] border border-[#3b82f6]/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}">
+        <div class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold shrink-0 ${isUser ? 'bg-[#3b82f6]/20 text-[#3b82f6] border border-[#3b82f6]/20' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20'}">
           ${isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>'}
         </div>
         <div class="flex-1 min-w-0">
-          <p class="text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-1">
-            ${isUser ? 'User Pro' : 'MR7 Smart Core'}
+          <p class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">
+            ${isUser ? 'User Pro' : 'MR7 Core'}
           </p>
           <div class="prose prose-invert max-w-none text-gray-200 text-sm md:text-[15px] leading-relaxed">
             ${content}
@@ -708,48 +873,42 @@ function useSuggestion(s) {
   sendMessage();
 }
 
-/* ---------- STREAMING_CHUNK: Dynamic Smart suggestions generator... ---------- */
 function generateSmartContextSuggestions(lastMsg) {
   const container = document.getElementById("contextSuggestions");
-  if (!lastMsg || lastMsg.role !== "assistant") {
+  if (!lastMsg || lastMsg.role !== "assistant" || lastMsg.isKeySetupBlock) {
     container.innerHTML = "";
     return;
   }
 
-  // Base smart dynamic continuation prompts based on AI's last reply
   let dynamicChips = [
-    "Isko thoda aur details me batao",
-    "Kuch solid examples ke sath clarify karo",
-    "Iska mathematical/logical calculation dikhao",
-    "Generate code logic for this structure"
+    "Isko thoda detail me samjhao",
+    "Kuch practical code examples ke sath clear karo",
+    "Explain in simple layman terms"
   ];
 
-  // Specific triggers based on content patterns
-  const text = lastMsg.content.toLowerCase();
+  const text = (lastMsg.content || "").toLowerCase();
   if (text.includes("code") || text.includes("function") || text.includes("api")) {
     dynamicChips = [
-      "Is logic ki test cases likhein",
-      "Explain the time/space complexity",
-      "Is logic ko JavaScript framework me adjust karo",
-      "Refactor code to optimize execution speed"
+      "Is script ke basic test cases likho",
+      "Is system ki time complexity optimization explain karo",
+      "Refactor karke clean formatting karo"
     ];
-  } else if (text.includes("image") || text.includes("draw") || text.includes("photo")) {
+  } else if (text.includes("joke") || text.includes("friend") || text.includes("story")) {
     dynamicChips = [
-      "Ise cartoonish pixel style me draw karo",
-      "Iski color palette me dramatic lighting lagao",
-      "Make it look like a sci-fi cinema masterpiece",
-      "Add glowing futuristic holographic symbols"
+      "Kuch aur funny and entertaining details batao",
+      "Aage kya hua? Continue story block",
+      "Is topic par ek choti kavita/poem sunao"
     ];
   }
 
   container.innerHTML = dynamicChips.map(c => `
-    <button onclick="useSuggestion('${c}')" class="px-3 py-1.5 bg-zinc-900/80 hover:bg-zinc-800 border border-white/5 text-gray-400 hover:text-white text-xs rounded-lg transition-all flex items-center gap-1 shadow-sm font-medium">
+    <button onclick="useSuggestion('${c}'); playSound('click')" class="px-3 py-1.5 bg-zinc-900/80 hover:bg-zinc-800 border border-white/5 text-gray-400 hover:text-white text-xs rounded-lg transition-all flex items-center gap-1 shadow-sm font-medium">
       <span>${c}</span> <i class="fas fa-plus text-[8px] text-emerald-400 opacity-60"></i>
     </button>
   `).join("");
 }
 
-/* ---------- STREAMING_CHUNK: Integrating Core Gemini Text & TTS APIs... ---------- */
+/* ---------- Core Engines API Integration ---------- */
 async function sendMessage() {
   if (isGenerating) return;
 
@@ -757,20 +916,16 @@ async function sendMessage() {
   let text = inp.value.trim();
   if (!text) return;
 
-  // Automatic Command Triggers
   if (text.startsWith("/draw ")) {
     activeComposeMode = "image";
     text = text.replace("/draw ", "");
   }
 
   const chat = chats[currentChatId];
-  
-  // Append User message
   chat.messages.push({ role: "user", content: text });
   
-  // Title upgrade on first conversational trigger
   if (chat.messages.length === 1) {
-    chat.title = text.length > 28 ? text.slice(0, 26) + "..." : text;
+    chat.title = text.length > 25 ? text.slice(0, 23) + "..." : text;
   }
 
   clearInput();
@@ -778,38 +933,57 @@ async function sendMessage() {
   renderChatList();
   renderMessages();
 
+  // Active Key Verification
+  const currentKey = activeEngine === "gemini" ? geminiApiKey : groqApiKey;
+  if (!currentKey) {
+    playSound('error');
+    // Replace assistant placeholder directly with the Activation Help block card
+    chat.messages.push({ role: "assistant", content: "", isKeySetupBlock: true });
+    saveChatsToLocal();
+    renderMessages();
+    return;
+  }
+
   // Create empty bot bubble with typing indicator
   chat.messages.push({ role: "assistant", content: "" });
   saveChatsToLocal();
   
   const msgElements = document.getElementById("messages").querySelectorAll(".prose");
   const targetBubble = msgElements[msgElements.length - 1];
-  targetBubble.innerHTML = '<span class="typing-cursor font-medium text-emerald-400">Thinking deeply...</span>';
+  targetBubble.innerHTML = '<span class="typing-cursor font-medium text-emerald-400">Processing vectors...</span>';
 
   isGenerating = true;
   document.getElementById("sendBtn").disabled = true;
 
   try {
-    const key = customKey || ""; // Canvas resolves to runtime API automatically if blank
-    
     if (activeComposeMode === "image") {
-      // Execute Image Generation Pipeline via Imagen model
-      targetBubble.innerHTML = '<span class="typing-cursor font-medium text-purple-400">Rendering digital details...</span>';
-      const imgUrl = await generateAiImage(text, key);
+      targetBubble.innerHTML = '<span class="typing-cursor font-medium text-purple-400">Drawing pixels...</span>';
+      const imgUrl = await generateAiImage(text, currentKey);
       
-      chat.messages[chat.messages.length - 1].content = `Maine aapke liye beautiful visual rendering complete kar li hai! "${escapeHtml(text)}" ka optimized output screen par attached hai:`;
+      chat.messages[chat.messages.length - 1].content = `Maine aapke prprompt ke continuous execution par automatic image compile kar di hai! "${escapeHtml(text)}" ka output screen par attached hai:`;
       chat.messages[chat.messages.length - 1].imageUrl = imgUrl;
     } else {
-      // Execute Text Completion Pipeline via standard Gemini Pro Chat API
-      const responseStream = await triggerGeminiTextAPI(chat.messages.slice(0, -1), key);
-      chat.messages[chat.messages.length - 1].content = responseStream;
+      let responseText = "";
+      if (activeEngine === "gemini") {
+        responseText = await triggerGeminiTextAPI(chat.messages.slice(0, -1), currentKey);
+      } else {
+        responseText = await triggerGroqTextAPI(chat.messages.slice(0, -1), currentKey);
+      }
+      chat.messages[chat.messages.length - 1].content = responseText;
     }
 
-    // Reset Compose state
     setComposeMode('text');
   } catch (err) {
     console.error(err);
-    chat.messages[chat.messages.length - 1].content = `⚠️ **Kuch issue aa gaya:** ${err.message}\n\nKripya check karein ki connection sahi hai ya thodi der baad try karein. Settings dashboard se direct Custom API key feed karke bypass kar sakte hain.`;
+    const errMessage = err.message || "";
+    playSound('error');
+    
+    // Intercept unregistered caller API Error and display setup block dynamically
+    if (errMessage.includes("unregistered callers") || errMessage.includes("identity") || errMessage.includes("API key")) {
+      chat.messages[chat.messages.length - 1].isKeySetupBlock = true;
+    } else {
+      chat.messages[chat.messages.length - 1].content = `⚠️ **Engine Connection Refused:** ${errMessage}\n\nKripya local connection check karein ya Settings ⚙️ se apni Custom API key replace karke try karein.`;
+    }
   } finally {
     isGenerating = false;
     document.getElementById("sendBtn").disabled = false;
@@ -818,10 +992,43 @@ async function sendMessage() {
   }
 }
 
-// Gemini Text Completion API Fetch Handler
+// Inline card activator helper
+function saveInlineKey(idx) {
+  const keyInput = document.getElementById("inlineKeyInput");
+  const keyVal = keyInput.value.trim();
+  if (!keyVal) {
+    triggerToast("Error", "Kripya valid API key enter karein.", "text-red-400");
+    playSound('error');
+    return;
+  }
+
+  if (activeEngine === "gemini") {
+    geminiApiKey = keyVal;
+    localStorage.setItem("mr7_v3_gemini_key", geminiApiKey);
+    document.getElementById("geminiKey").value = geminiApiKey;
+  } else {
+    groqApiKey = keyVal;
+    localStorage.setItem("mr7_v3_groq_key", groqApiKey);
+    document.getElementById("groqKey").value = groqApiKey;
+  }
+
+  // Remove the block and resume conversation
+  const chat = chats[currentChatId];
+  chat.messages.splice(idx, 1); // remove error card
+  chat.messages.pop(); // remove user's trigger copy from tail to resubmit
+  
+  const lastUserText = chat.messages[chat.messages.length - 1].content;
+  chat.messages.pop(); // pop user message to resend fresh
+
+  document.getElementById("input").value = lastUserText;
+  sendMessage();
+  triggerToast("System Reactivated", "API Connection verification solved!");
+  playSound('success');
+}
+
+// Gemini Core Call
 async function triggerGeminiTextAPI(chatHistory, apiKey) {
-  // Format history logs matching standard Gemini structural format
-  const contents = chatHistory.map(m => ({
+  const contents = chatHistory.filter(m => !m.isKeySetupBlock).map(m => ({
     role: m.role === "user" ? "user" : "model",
     parts: [{ text: m.content }]
   }));
@@ -835,7 +1042,7 @@ async function triggerGeminiTextAPI(chatHistory, apiKey) {
     }
   };
 
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
   const response = await fetch(apiUrl, {
     method: 'POST',
@@ -845,43 +1052,52 @@ async function triggerGeminiTextAPI(chatHistory, apiKey) {
 
   if (!response.ok) {
     const errObj = await response.json();
-    throw new Error(errObj.error?.message || "Internal Engine Error");
+    throw new Error(errObj.error?.message || "Internal Server Error");
   }
 
   const result = await response.json();
-  return result.candidates?.[0]?.content?.parts?.[0]?.text || "*(No response received)*";
+  return result.candidates?.[0]?.content?.parts?.[0]?.text || "*(No response compiled)*";
 }
 
-// Imagen AI Image Generation Call
-async function generateAiImage(prompt, apiKey) {
+// Groq Speed Core Call
+async function triggerGroqTextAPI(chatHistory, apiKey) {
+  const systemPrompt = "You are MR7 AI. Instructions parameter: " + systemPrompts[currentPersona];
+  const messages = [
+    { role: "system", content: systemPrompt },
+    ...chatHistory.filter(m => !m.isKeySetupBlock).map(m => ({
+      role: m.role === "user" ? "user" : "assistant",
+      content: m.content
+    }))
+  ];
+
   const payload = {
-    instances: [{ prompt: prompt }],
-    parameters: { sampleCount: 1 }
+    model: "llama-3.3-70b-versatile",
+    messages: messages,
+    max_tokens: 4096
   };
 
-  // Using premium imagen generation pipeline
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
+  const apiUrl = "https://api.groq.com/openai/v1/chat/completions";
 
   const response = await fetch(apiUrl, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
     body: JSON.stringify(payload)
   });
 
   if (!response.ok) {
-    // If Imagen-4-0 fails or is unavailable, fallback gracefully to gemini-2.5-flash-image-preview
-    return await fallbackImageGenerator(prompt, apiKey);
+    const errObj = await response.json();
+    throw new Error(errObj.error?.message || "Internal Groq Exception");
   }
 
   const result = await response.json();
-  const rawBase64 = result.predictions?.[0]?.bytesBase64Encoded;
-  if (!rawBase64) {
-    throw new Error("Failed to resolve image stream");
-  }
-  return `data:image/png;base64,${rawBase64}`;
+  return result.choices?.[0]?.message?.content || "*(No Groq bytes compiled)*";
 }
 
-async function fallbackImageGenerator(prompt, apiKey) {
+// Imagen Visual generator with failover routing
+async function generateAiImage(prompt, apiKey) {
   const payload = {
     contents: [{
       parts: [{ text: prompt }]
@@ -900,28 +1116,28 @@ async function fallbackImageGenerator(prompt, apiKey) {
   });
 
   if (!response.ok) {
-    throw new Error("Dono standard image engines response nahi de paaye. Check credits/limits.");
+    const errorBody = await response.text();
+    throw new Error("Draw Engine overloaded: " + errorBody);
   }
 
   const result = await response.json();
   const rawBase = result.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
-  if (!rawBase) throw new Error("Base64 visual stream empty");
+  if (!rawBase) throw new Error("Image stream decode buffer empty");
   return `data:image/png;base64,${rawBase}`;
 }
 
-/* ---------- STREAMING_CHUNK: Setting up the Text-To-Speech audio converter... ---------- */
+/* ---------- Text-To-Speech audio converter ---------- */
 let currentlyPlayingBtn = null;
 
 async function ttsSpeak(btn, messageIndex) {
   const chat = chats[currentChatId];
   if (!chat || !chat.messages[messageIndex]) return;
 
-  const textToRead = chat.messages[messageIndex].content.replace(/[\*\#\`\_]/g, ""); // Clean markdown
+  const textToRead = chat.messages[messageIndex].content.replace(/[\*\#\`\_]/g, "");
   const audioLabel = btn.querySelector(".audio-label");
   const audioIcon = btn.querySelector("i");
   const player = document.getElementById("globalAudioPlayer");
 
-  // Toggle Playback behavior
   if (currentlyPlayingBtn === btn) {
     player.pause();
     resetAudioButton(btn);
@@ -930,19 +1146,22 @@ async function ttsSpeak(btn, messageIndex) {
   }
 
   if (currentlyPlayingBtn) {
-    // Stop previous speakers
-    currentlyPlayingBtn.click();
+    currentlyPlayingBtn.click(); // turn off other running voice threads
   }
 
-  audioLabel.textContent = "Loading Audio...";
+  audioLabel.textContent = "Loading Vocal Matrix...";
   audioIcon.className = "fas fa-spinner fa-spin text-emerald-400";
   currentlyPlayingBtn = btn;
 
   try {
-    const key = customKey || "";
+    const key = geminiApiKey || "";
+    if (!key) {
+      throw new Error("Speak engine functions require Gemini Key to construct voices.");
+    }
+
     const payload = {
       contents: [{
-        parts: [{ text: `Say clearly in a professional voice matching our configuration: ${textToRead.slice(0, 400)}` }] // limit chars for latency performance
+        parts: [{ text: `Say in standard clarity & language speed: ${textToRead.slice(0, 300)}` }]
       }],
       generationConfig: {
         responseModalities: ["AUDIO"],
@@ -962,7 +1181,7 @@ async function ttsSpeak(btn, messageIndex) {
       body: JSON.stringify(payload)
     });
 
-    if (!response.ok) throw new Error("TTS Engine overloaded or key missing.");
+    if (!response.ok) throw new Error("Vocal stream failed to decode.");
 
     const result = await response.json();
     const part = result?.candidates?.[0]?.content?.parts?.[0];
@@ -970,7 +1189,6 @@ async function ttsSpeak(btn, messageIndex) {
     const mimeType = part?.inlineData?.mimeType;
 
     if (base64Audio && mimeType) {
-      // Decode raw PCM signed 16-bit sound output to playable WAV format
       const rawSampleRate = parseInt(mimeType.match(/rate=(\d+)/)?.[1] || "24000", 10);
       const binaryPcm = base64ToArrayBuffer(base64Audio);
       const pcm16 = new Int16Array(binaryPcm);
@@ -980,7 +1198,7 @@ async function ttsSpeak(btn, messageIndex) {
       player.src = audioUrl;
       player.play();
 
-      audioLabel.textContent = "Listening... (Pause)";
+      audioLabel.textContent = "Suniye (Pause)";
       audioIcon.className = "fas fa-stop-circle text-red-500 audio-playing";
 
       player.onended = () => {
@@ -988,11 +1206,12 @@ async function ttsSpeak(btn, messageIndex) {
         currentlyPlayingBtn = null;
       };
     } else {
-      throw new Error("No audio stream received");
+      throw new Error("Audio buffer empty.");
     }
   } catch (err) {
     console.error(err);
-    triggerToast("Audio Error", "Sound reader failed to generate output.", "text-red-400");
+    triggerToast("Audio Error", "Gemini API Key add karein audio sunne ke liye.", "text-red-400");
+    playSound('error');
     resetAudioButton(btn);
     currentlyPlayingBtn = null;
   }
@@ -1006,23 +1225,21 @@ function resetAudioButton(btn) {
   audioIcon.className = "fas fa-volume-up text-xs text-emerald-400";
 }
 
-// PCM-to-WAV Array Buffer helper converter
 function pcmToWav(pcm16, sampleRate) {
   const buffer = new ArrayBuffer(44 + pcm16.length * 2);
   const view = new DataView(buffer);
   
-  // Write structural WAV header
   writeString(view, 0, 'RIFF');
   view.setUint32(4, 36 + pcm16.length * 2, true);
   writeString(view, 8, 'WAVE');
   writeString(view, 12, 'fmt ');
   view.setUint32(16, 16, true);
-  view.setUint16(20, 1, true); // Linear integer PCM
-  view.setUint16(22, 1, true); // Mono channel config
+  view.setUint16(20, 1, true); 
+  view.setUint16(22, 1, true); 
   view.setUint32(24, sampleRate, true);
-  view.setUint32(28, sampleRate * 2, true); // Mono 16-bit byte rate
-  view.setUint16(32, 2, true); // Block alignment
-  view.setUint16(34, 16, true); // Sign-depth
+  view.setUint32(28, sampleRate * 2, true); 
+  view.setUint16(32, 2, true); 
+  view.setUint16(34, 16, true); 
   writeString(view, 36, 'data');
   view.setUint32(40, pcm16.length * 2, true);
 
@@ -1049,14 +1266,12 @@ function base64ToArrayBuffer(base64) {
   return bytes.buffer;
 }
 
-/* ---------- STREAMING_CHUNK: User Interface Helpers ---------- */
+/* ---------- UI Interaction Utilities ---------- */
 function copyToClipboard(btn, index) {
   const chat = chats[currentChatId];
   if (!chat || !chat.messages[index]) return;
   
   const text = chat.messages[index].content;
-  
-  // Fallback Copy utility for reliable compatibility within frameworks
   const tempTextarea = document.createElement("textarea");
   tempTextarea.value = text;
   document.body.appendChild(tempTextarea);
@@ -1068,7 +1283,7 @@ function copyToClipboard(btn, index) {
       btn.innerHTML = `<i class="fas fa-clone text-xs"></i> <span>Copy Text</span>`;
     }, 2000);
   } catch (err) {
-    triggerToast("Error Copying", "Niche selector block support missing.", "text-red-400");
+    triggerToast("Error", "Copy script verification failed.", "text-red-400");
   }
   document.body.removeChild(tempTextarea);
 }
@@ -1087,17 +1302,17 @@ function triggerToast(title, text, styleClass = "text-emerald-400") {
   }
 
   msg.innerHTML = `<b>${title}</b>: ${text}`;
-  toast.className = "fixed top-6 left-1/2 transform -translate-x-1/2 bg-gray-900/95 border border-white/10 text-white px-5 py-3 rounded-xl shadow-2xl backdrop-blur-md z-50 flex items-center gap-3 transition-all duration-300 pointer-events-auto opacity-100 scale-100";
+  toast.className = "fixed top-6 left-1/2 transform -translate-x-1/2 bg-gray-900/95 border border-white/10 text-white px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-md z-50 flex items-center gap-3 transition-all duration-300 pointer-events-auto opacity-100 scale-100";
   
   setTimeout(() => {
-    toast.className = "fixed top-6 left-1/2 transform -translate-x-1/2 bg-gray-900/90 border border-white/10 text-white px-5 py-3 rounded-xl shadow-2xl backdrop-blur-md z-50 flex items-center gap-3 transition-all duration-300 pointer-events-none opacity-0 scale-95";
+    toast.className = "fixed top-6 left-1/2 transform -translate-x-1/2 bg-gray-900/90 border border-white/10 text-white px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-md z-50 flex items-center gap-3 transition-all duration-300 pointer-events-none opacity-0 scale-95";
   }, 3500);
 }
 
-/* ---------- STREAMING_CHUNK: Handling Settings Dashboard Logic... ---------- */
+/* ---------- Custom Settings Controllers ---------- */
 function openSettings() {
   document.getElementById("settingsModal").classList.remove("pointer-events-none", "opacity-0");
-  document.getElementById("settingsModal").querySelector(".modal").classList.remove("scale-95");
+  document.getElementById("settingsModal").querySelector(".transform").classList.remove("scale-95");
   
   // Highlighting active Persona button
   const buttons = ["friendly", "coder", "writer", "expert"];
@@ -1113,13 +1328,23 @@ function openSettings() {
 
 function closeSettings() {
   document.getElementById("settingsModal").classList.add("pointer-events-none", "opacity-0");
-  document.getElementById("settingsModal").querySelector(".modal").classList.add("scale-95");
+  document.getElementById("settingsModal").querySelector(".transform").classList.add("scale-95");
 }
 
 function setPersona(p) {
   currentPersona = p;
-  // Refresh settings layout highlights
   openSettings();
+}
+
+function toggleEngineFields() {
+  const engine = document.getElementById("apiEngine").value;
+  if (engine === "gemini") {
+    document.getElementById("geminiField").classList.remove("hidden");
+    document.getElementById("groqField").classList.add("hidden");
+  } else {
+    document.getElementById("geminiField").classList.add("hidden");
+    document.getElementById("groqField").classList.remove("hidden");
+  }
 }
 
 function setAccent(hex, glow) {
@@ -1127,32 +1352,38 @@ function setAccent(hex, glow) {
   currentAccentGlow = glow;
   document.documentElement.style.setProperty('--accent', hex);
   document.documentElement.style.setProperty('--accent-glow', glow);
-  triggerToast("Accent Updated", "Realtime brand theme switched.", "text-emerald-400");
+  triggerToast("Glow Palette", "Realtime interface re-themed successfully.");
 }
 
 function saveAllSettings() {
-  const customKeyValue = document.getElementById("customApiKey").value.trim();
+  const activeEngineVal = document.getElementById("apiEngine").value;
+  const gemKeyVal = document.getElementById("geminiKey").value.trim();
+  const groqKeyVal = document.getElementById("groqKey").value.trim();
   const selectedVoice = document.getElementById("ttsVoice").value;
 
-  customKey = customKeyValue;
+  activeEngine = activeEngineVal;
+  geminiApiKey = gemKeyVal;
+  groqApiKey = groqKeyVal;
   activeVoice = selectedVoice;
 
+  localStorage.setItem("mr7_v3_engine", activeEngine);
+  localStorage.setItem("mr7_v3_gemini_key", geminiApiKey);
+  localStorage.setItem("mr7_v3_groq_key", groqApiKey);
   localStorage.setItem("mr7_v3_persona", currentPersona);
+  localStorage.setItem("mr7_v3_voice", activeVoice);
   localStorage.setItem("mr7_v3_accent", currentAccent);
   localStorage.setItem("mr7_v3_accent_glow", currentAccentGlow);
-  localStorage.setItem("mr7_v3_voice", activeVoice);
-  localStorage.setItem("mr7_v3_custom_key", customKey);
 
-  // Sync with active conversation context
   if (chats[currentChatId]) {
     chats[currentChatId].persona = currentPersona;
     saveChatsToLocal();
   }
 
   updatePersonaUI();
+  updateEngineUI();
   closeSettings();
   renderMessages();
-  triggerToast("Settings Applied", "Engine parameters re-compiled dynamically.");
+  triggerToast("Vector Reloaded", "Smart system settings fully saved.");
 }
 
 function resetSettings() {
@@ -1160,66 +1391,97 @@ function resetSettings() {
   currentAccent = "#10a37f";
   currentAccentGlow = "rgba(16,163,127,0.15)";
   activeVoice = "Kore";
-  customKey = "";
+  activeEngine = "gemini";
+  geminiApiKey = "";
+  groqApiKey = "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"; // restore original backup
 
-  document.getElementById("customApiKey").value = "";
+  document.getElementById("apiEngine").value = "gemini";
+  document.getElementById("geminiKey").value = "";
+  document.getElementById("groqKey").value = groqApiKey;
   document.getElementById("ttsVoice").value = "Kore";
+  
   document.documentElement.style.setProperty('--accent', currentAccent);
   document.documentElement.style.setProperty('--accent-glow', currentAccentGlow);
 
+  toggleEngineFields();
   openSettings();
-  triggerToast("Restored", "Standard settings restored.");
+  triggerToast("Matrix Restored", "System defaults recalibrated.");
 }
 
 function updatePersonaUI() {
   const titles = {
     friendly: "😊 Hinglish Dost Mode",
-    coder: "💻 Senior Dev Mode",
+    coder: "💻 Coding Master Mode",
     writer: "✍️ Creative Writer Mode",
     expert: "🎓 Deep Tech Guru Mode"
   };
   document.getElementById("activePersonaHeader").textContent = titles[currentPersona] || titles.friendly;
 }
 
+function updateEngineUI() {
+  const engineLabel = document.getElementById("activeEngineLabel");
+  const engineSub = document.getElementById("activeEngineSub");
+  const bottomIcon = document.getElementById("bottom-icon");
+
+  if (activeEngine === "gemini") {
+    engineLabel.textContent = "Gemini Core";
+    engineSub.textContent = "Active Engine: Google";
+    bottomIcon.innerHTML = `<i class="fas fa-microchip"></i>`;
+  } else {
+    engineLabel.textContent = "Groq Llama 3";
+    engineSub.textContent = "Active Engine: Groq";
+    bottomIcon.innerHTML = `<i class="fas fa-bolt"></i>`;
+  }
+}
+
+function toggleTheme() {
+  isLightMode = !isLightMode;
+  localStorage.setItem("mr7_v3_theme", isLightMode ? "light" : "dark");
+  document.body.classList.toggle("light", isLightMode);
+  document.getElementById("themeBtn").textContent = isLightMode ? "🌙 Dark Mode" : "☀️ Light Mode";
+  triggerToast("Theme Changed", isLightMode ? "Light mode activated!" : "Dark mode activated!");
+}
+
 function toggleVisuals() {
   is3DActive = !is3DActive;
   localStorage.setItem("mr7_v3_3d", is3DActive);
   const canvas = document.getElementById("bg-canvas");
-  canvas.style.opacity = is3DActive ? "0.6" : "0";
+  canvas.style.opacity = is3DActive ? "0.55" : "0";
   
   const btn = document.getElementById("visualToggleBtn");
   if (is3DActive) {
     btn.innerHTML = `<i class="fas fa-expand"></i> <span class="hidden md:inline">3D Effects On</span>`;
-    btn.className = "text-gray-400 hover:text-white bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-colors";
+    btn.className = "text-gray-400 hover:text-white bg-white/5 border border-white/5 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-colors";
   } else {
     btn.innerHTML = `<i class="fas fa-compress text-red-400"></i> <span class="hidden md:inline">3D Effects Off</span>`;
-    btn.className = "text-red-400 border border-red-500/20 bg-red-500/5 px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-colors";
+    btn.className = "text-red-400 border border-red-500/20 bg-red-500/5 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-colors";
   }
 }
 
 function exportChat() {
   const chat = chats[currentChatId];
   if (!chat || chat.messages.length === 0) {
-    triggerToast("Empty Chat", "Naye conversation me messages likhein tabhi save hoga.", "text-yellow-400");
+    triggerToast("Empty Chat", "Save karne ke liye messages add karein.", "text-yellow-400");
     return;
   }
 
-  let formattedText = `==============================\n   MR7 AI SMART ASSISTANT CHAT EXPORT\n==============================\nChat Title: ${chat.title}\nBehavior Persona: ${chat.persona}\nGenerated On: ${new Date().toLocaleString()}\n\n`;
+  let text = `========================================\n        MR7 AI CONVERSATION EXPORT\n========================================\nGenerated On: ${new Date().toLocaleString()}\nEngine Mode: ${activeEngine}\nPersona: ${chat.persona}\n\n`;
 
   chat.messages.forEach(m => {
-    const speaker = m.role === "user" ? "YOU" : "MR7 INTEL CORE";
-    formattedText += `[${speaker}]:\n${m.content}\n`;
+    if (m.isKeySetupBlock) return;
+    const speaker = m.role === "user" ? "YOU" : "MR7 INTEL ASSISTANT";
+    text += `[${speaker}]:\n${m.content}\n`;
     if (m.imageUrl) {
-      formattedText += `[ATTACHED IMAGE URL]: ${m.imageUrl}\n`;
+      text += `[IMAGE LINK]: ${m.imageUrl}\n`;
     }
-    formattedText += `\n------------------------------\n\n`;
+    text += `\n----------------------------------------\n\n`;
   });
 
   const tempLink = document.createElement("a");
-  tempLink.href = "data:text/plain;charset=utf-8," + encodeURIComponent(formattedText);
+  tempLink.href = "data:text/plain;charset=utf-8," + encodeURIComponent(text);
   tempLink.download = `mr7-conversation-${chat.id}.txt`;
   tempLink.click();
-  triggerToast("Export Saved", "Plain text transcript downloaded successfully.");
+  triggerToast("Transcript Downloaded", "Chat history backup completed.");
 }
 
 function escapeHtml(s) {
@@ -1228,7 +1490,7 @@ function escapeHtml(s) {
   }[c]));
 }
 
-/* ---------- STREAMING_CHUNK: Initializing Interactive 3D Particles... ---------- */
+/* ---------- 3D Space Particle Engine (Three.js) ---------- */
 function init3DSpace() {
   const canvas = document.getElementById("bg-canvas");
   const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
@@ -1239,16 +1501,14 @@ function init3DSpace() {
   const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.z = 60;
 
-  // Render dense glowing space particles
-  const particleCount = 1200;
+  const particleCount = 1000;
   const geometry = new THREE.BufferGeometry();
   const positions = new Float32Array(particleCount * 3);
-  const scales = new Float32Array(particleCount);
 
   for (let i = 0; i < particleCount * 3; i += 3) {
-    positions[i] = (Math.random() - 0.5) * 160;     // X dimension
-    positions[i + 1] = (Math.random() - 0.5) * 160; // Y dimension
-    positions[i + 2] = (Math.random() - 0.5) * 160; // Z dimension
+    positions[i] = (Math.random() - 0.5) * 160;     
+    positions[i + 1] = (Math.random() - 0.5) * 160; 
+    positions[i + 2] = (Math.random() - 0.5) * 160; 
   }
 
   geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
@@ -1257,27 +1517,25 @@ function init3DSpace() {
     color: 0x10a37f,
     size: 0.65,
     transparent: true,
-    opacity: 0.75,
+    opacity: 0.8,
     blending: THREE.AdditiveBlending
   });
 
   const pointsMesh = new THREE.Points(geometry, material);
   scene.add(pointsMesh);
 
-  // Floating Wireframe Matrix geometric object
-  const geoMatrix = new THREE.IcosahedronGeometry(12, 1);
+  // Floating Knot wireframe
+  const geoMatrix = new THREE.TorusKnotGeometry(9, 1.5, 120, 16);
   const matMatrix = new THREE.MeshBasicMaterial({
     color: 0x10a37f,
     wireframe: true,
     transparent: true,
-    opacity: 0.12
+    opacity: 0.08
   });
   const matrixMesh = new THREE.Mesh(geoMatrix, matMatrix);
   scene.add(matrixMesh);
 
-  // Mouse interactivity warp
-  let mouseX = 0;
-  let mouseY = 0;
+  let mouseX = 0, mouseY = 0;
   window.addEventListener('mousemove', (e) => {
     mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
     mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
@@ -1286,26 +1544,22 @@ function init3DSpace() {
   function renderLoop() {
     requestAnimationFrame(renderLoop);
     
-    // Smooth translation rotations
     pointsMesh.rotation.y += 0.0006;
     pointsMesh.rotation.x += 0.0003;
 
-    matrixMesh.rotation.y -= 0.002;
+    matrixMesh.rotation.y -= 0.0015;
     matrixMesh.rotation.x += 0.001;
 
-    // Camera inertia follows cursor gently
     camera.position.x += (mouseX * 15 - camera.position.x) * 0.03;
     camera.position.y += (-mouseY * 15 - camera.position.y) * 0.03;
     camera.lookAt(scene.position);
 
-    // Dynamic accent color syncing for WebGL material
     material.color.setHex(parseInt(currentAccent.replace("#", "0x"), 16));
     matMatrix.color.setHex(parseInt(currentAccent.replace("#", "0x"), 16));
 
     renderer.render(scene, camera);
   }
 
-  // Handle system resizing dynamic adjusts
   window.addEventListener("resize", () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
