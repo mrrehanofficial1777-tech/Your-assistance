@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>MR7 AI - Next-Gen Autonomous Workspace</title>
 
 <!-- Tailwind CSS -->
@@ -42,6 +42,7 @@
     background-color: var(--bg-dark);
     color: var(--text-dark);
     overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
   }
 
   body.light {
@@ -67,14 +68,14 @@
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    opacity: 0.45;
+    opacity: 0.35;
     transition: opacity 0.5s;
   }
 
   /* Custom Scrollbar */
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 4px;
+    height: 4px;
   }
   ::-webkit-scrollbar-track {
     background: transparent;
@@ -97,7 +98,7 @@
   /* Audio pulse animation */
   @keyframes pulse-audio {
     0%, 100% { transform: scale(1); opacity: 0.8; }
-    50% { transform: scale(1.12); opacity: 1; color: #ef4444; }
+    50% { transform: scale(1.08); opacity: 1; color: #ef4444; }
   }
   .audio-playing {
     animation: pulse-audio 1.2s infinite;
@@ -115,7 +116,14 @@
   }
 
   * {
-    transition: background-color 0.25s ease, border-color 0.25s ease;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+
+  /* Mobile overlay styling for backdrop */
+  #sidebarOverlay {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    transition: opacity 0.25s ease;
   }
 </style>
 </head>
@@ -124,15 +132,18 @@
 <canvas id="bg-canvas"></canvas>
 
 <!-- Top Alert Toast -->
-<div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 bg-gray-950/95 border border-white/10 text-white px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-md z-50 flex items-center gap-3 transition-all duration-300 pointer-events-none opacity-0 scale-95">
+<div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 bg-gray-950/95 border border-white/10 text-white px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-md z-50 flex items-center gap-3 transition-all duration-300 pointer-events-none opacity-0 scale-95 max-w-[90%] text-center">
   <span id="toast-icon" class="text-emerald-400 text-lg"><i class="fas fa-check-circle"></i></span>
-  <span id="toast-msg" class="text-sm font-medium">Matrix Synchronized!</span>
+  <span id="toast-msg" class="text-xs md:text-sm font-medium">Matrix Synchronized!</span>
 </div>
+
+<!-- Mobile Sidebar Backdrop Overlay -->
+<div id="sidebarOverlay" class="fixed inset-0 z-30 hidden transition-opacity opacity-0" onclick="toggleSidebar(); playSound('click')"></div>
 
 <div class="relative z-10 flex h-full w-full overflow-hidden">
   
-  <!-- Sidebar -->
-  <aside id="sidebar" class="w-80 bg-black/45 backdrop-blur-2xl border-r border-white/5 flex flex-col justify-between transition-all duration-300">
+  <!-- Sidebar Panel (Fully Mobile Responsive Drawer) -->
+  <aside id="sidebar" class="fixed md:relative inset-y-0 left-0 w-72 md:w-80 bg-zinc-950 md:bg-black/45 backdrop-blur-2xl border-r border-white/5 flex flex-col justify-between transition-transform duration-300 transform -translate-x-full md:translate-x-0 z-40">
     <div>
       <!-- Brand Area -->
       <div class="p-5 border-b border-white/5 flex items-center justify-between">
@@ -145,14 +156,15 @@
             <p class="text-[9px] text-gray-500 font-mono tracking-wider uppercase">Enterprise Core</p>
           </div>
         </div>
-        <button onclick="toggleSidebar(); playSound('click')" class="text-gray-400 hover:text-white transition-colors p-1.5 hover:bg-white/5 rounded-xl">
-          <i class="fas fa-chevron-left text-sm"></i>
+        <!-- Sidebar Toggle on Mobile -->
+        <button onclick="toggleSidebar(); playSound('click')" class="md:hidden text-gray-400 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-xl">
+          <i class="fas fa-times text-sm"></i>
         </button>
       </div>
 
       <!-- Action Button -->
       <div class="p-4">
-        <button onclick="newChat(); playSound('success')" class="w-full bg-white/5 hover:bg-white/10 border border-white/5 text-white rounded-2xl py-3 px-4 flex items-center justify-center gap-3 font-medium transition-all group hover:shadow-lg">
+        <button onclick="newChat(); toggleSidebarIfMobile(); playSound('success')" class="w-full bg-white/5 hover:bg-white/10 border border-white/5 text-white rounded-2xl py-3 px-4 flex items-center justify-center gap-3 font-medium transition-all group hover:shadow-lg text-sm">
           <i class="fas fa-plus text-xs text-emerald-400 group-hover:rotate-90 transition-transform"></i>
           <span>Naya Chat Shuru Karein</span>
         </button>
@@ -167,7 +179,7 @@
       </div>
 
       <!-- Live Chat History List -->
-      <div class="px-2 flex flex-col gap-1 overflow-y-auto max-h-[46vh]" id="chatList">
+      <div class="px-2 flex flex-col gap-1 overflow-y-auto max-h-[44vh] md:max-h-[48vh]" id="chatList">
         <!-- Chat items populated dynamically -->
       </div>
     </div>
@@ -183,11 +195,11 @@
         </div>
         <div class="flex justify-between">
           <span>LATENCY MATRIX:</span>
-          <span class="text-gray-300" id="liveLatency">12ms</span>
+          <span class="text-gray-300" id="liveLatency">10ms</span>
         </div>
         <div class="flex justify-between">
-          <span>ENCRYPTION:</span>
-          <span class="text-blue-400 font-semibold">256-BIT SSL</span>
+          <span>CREATORS:</span>
+          <span class="text-emerald-400 font-bold">MR7 TEAM</span>
         </div>
       </div>
 
@@ -201,7 +213,7 @@
             <p class="text-[9px] text-emerald-400 font-mono" id="activeEngineSub">Continuous Matrix</p>
           </div>
         </div>
-        <button onclick="openSettings(); playSound('click')" class="text-gray-400 hover:text-white p-2 hover:bg-white/5 rounded-xl transition-colors" title="Settings Center">
+        <button onclick="openSettings(); playSound('click')" class="text-gray-400 hover:text-white p-2.5 hover:bg-white/5 rounded-xl transition-colors" title="Settings Center">
           <i class="fas fa-sliders-h"></i>
         </button>
       </div>
@@ -212,91 +224,73 @@
   <main class="flex-1 flex flex-col min-w-0 bg-transparent relative z-10">
     
     <!-- Topbar Navigation Header -->
-    <header class="h-16 border-b border-white/5 flex items-center justify-between px-6 bg-black/10 backdrop-blur-md">
-      <div class="flex items-center gap-3">
-        <button id="sidebarToggle" onclick="toggleSidebar(); playSound('click')" class="text-gray-400 hover:text-white p-2.5 hover:bg-white/5 rounded-xl mr-2" style="display:none;">
+    <header class="h-16 border-b border-white/5 flex items-center justify-between px-4 md:px-6 bg-black/10 backdrop-blur-md">
+      <div class="flex items-center gap-2">
+        <!-- Responsive Drawer Trigger -->
+        <button id="sidebarToggle" onclick="toggleSidebar(); playSound('click')" class="text-gray-400 hover:text-white p-2.5 hover:bg-white/5 rounded-xl mr-1">
           <i class="fas fa-bars"></i>
         </button>
         <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" id="top-pulse"></span>
-          <span class="text-xs font-semibold text-gray-300 font-mono tracking-wider uppercase" id="activePersonaHeader">😊 Hinglish Dost Mode</span>
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" id="top-pulse"></span>
+          <span class="text-[11px] md:text-xs font-semibold text-gray-300 font-mono tracking-wider uppercase truncate max-w-[150px] md:max-w-none" id="activePersonaHeader">😊 Hinglish Dost Mode</span>
         </div>
       </div>
 
       <!-- Topbar Controls -->
-      <div class="flex items-center gap-2">
-        <button onclick="toggleTheme(); playSound('click')" id="themeBtn" class="text-gray-400 hover:text-white bg-white/5 border border-white/5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors">
-          ☀️ Light Mode
+      <div class="flex items-center gap-1.5">
+        <button onclick="toggleTheme(); playSound('click')" id="themeBtn" class="text-gray-400 hover:text-white bg-white/5 border border-white/5 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-colors">
+          ☀️ Light
         </button>
-        <button onclick="toggleVisuals(); playSound('click')" id="visualToggleBtn" class="text-gray-400 hover:text-white bg-white/5 border border-white/5 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-colors">
+        <button onclick="toggleVisuals(); playSound('click')" id="visualToggleBtn" class="text-gray-400 hover:text-white bg-white/5 border border-white/5 px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors">
           <i class="fas fa-expand"></i> <span class="hidden md:inline">3D Effects On</span>
         </button>
-        <button onclick="exportChat(); playSound('success')" class="text-gray-400 hover:text-white bg-white/5 border border-white/5 p-2 rounded-xl text-xs transition-colors" title="Download Text Transcript">
-          <i class="fas fa-download"></i>
-        </button>
-        <button onclick="openSettings(); playSound('click')" class="text-gray-400 hover:text-white bg-white/5 border border-white/5 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-colors">
-          <i class="fas fa-sliders-h"></i> <span>Customise</span>
+        <button onclick="openSettings(); playSound('click')" class="text-gray-400 hover:text-white bg-white/5 border border-white/5 p-2 rounded-xl text-xs transition-colors" title="Customise Layout">
+          <i class="fas fa-sliders-h"></i>
         </button>
       </div>
     </header>
 
     <!-- Chat Messages Screen -->
-    <div class="flex-1 overflow-y-auto px-4 md:px-12 py-8 flex flex-col gap-6" id="messages">
+    <div class="flex-1 overflow-y-auto px-4 md:px-12 py-6 flex flex-col gap-5" id="messages">
       <!-- Welcome Landing State rendered dynamically -->
     </div>
 
     <!-- Contextual suggestions container -->
     <div class="px-4 md:px-12" id="contextualSuggestionsWrap">
-      <div class="max-w-4xl mx-auto flex flex-wrap gap-2 py-2" id="contextSuggestions">
+      <div class="max-w-4xl mx-auto flex flex-wrap gap-2 py-1.5 overflow-x-auto no-scrollbar" id="contextSuggestions">
         <!-- Intelligent Proprietary Suggestions populate here -->
       </div>
     </div>
 
     <!-- Text Composer & Input Controls -->
-    <div class="p-4 md:p-6 bg-gradient-to-t from-black/80 to-transparent">
+    <div class="p-3 md:p-6 bg-gradient-to-t from-black/80 to-transparent">
       <div class="max-w-4xl mx-auto">
-        <div class="bg-zinc-900/90 border border-white/5 rounded-2xl p-3 shadow-2xl backdrop-blur-xl relative">
+        <div class="bg-zinc-900/90 border border-white/5 rounded-2xl p-2 md:p-3 shadow-2xl backdrop-blur-xl relative">
           
-          <!-- Mode Toggles (Chat vs Canvas Studio) -->
-          <div class="flex items-center justify-between px-2 pb-2 mb-2 border-b border-white/5">
-            <div class="flex gap-2">
-              <button id="btnTextMode" onclick="setComposeMode('text'); playSound('click')" class="px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 transition-all">
-                <i class="fas fa-comment-dots"></i> <span class="brandNameText">MR7 Workspace</span>
-              </button>
-              <button id="btnImageMode" onclick="setComposeMode('image'); playSound('click')" class="px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 hover:bg-white/5 text-gray-400 transition-all border border-transparent hover:border-white/10">
-                <i class="fas fa-paint-brush"></i> <span>Canvas Studio (AI Paint)</span>
-              </button>
-            </div>
-            
-            <div class="hidden sm:flex items-center gap-2 text-[11px] text-gray-500 font-mono">
-              <span>Instantly generate graphic canvas art with <b>/draw</b> command!</span>
-            </div>
-          </div>
-
           <!-- Input Matrix controls -->
-          <div class="flex items-end gap-3">
+          <div class="flex items-end gap-2 md:gap-3">
             <!-- Smart Audio Mic Recording Button -->
-            <button id="micBtn" onclick="toggleSpeechRecognition(); playSound('click')" class="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition-all shrink-0" title="Vocal Matrix Input (Voice Type)">
-              <i class="fas fa-microphone" id="micIcon"></i>
+            <button id="micBtn" onclick="toggleSpeechRecognition(); playSound('click')" class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition-all shrink-0" title="Voice Typing">
+              <i class="fas fa-microphone text-base" id="micIcon"></i>
             </button>
 
-            <textarea id="input" rows="1" placeholder="Type a message, or request complex algorithms..." 
+            <textarea id="input" rows="1" placeholder="Type a message, or ask coding questions..." 
               onkeydown="handleTextareaKey(event)"
               oninput="autoGrow(this); updateCharCount(this)" 
-              class="flex-1 bg-transparent border-0 text-white placeholder-gray-500 focus:ring-0 focus:outline-none text-[15px] resize-none max-h-40 min-h-[24px] py-1 pl-1"></textarea>
+              class="flex-1 bg-transparent border-0 text-white placeholder-gray-500 focus:ring-0 focus:outline-none text-sm md:text-[15px] resize-none max-h-36 min-h-[24px] py-2 pl-1"></textarea>
             
-            <div class="flex items-center gap-1.5 pr-1">
-              <span id="charCount" class="text-[10px] text-gray-500 font-mono">0</span>
-              <button onclick="clearInput(); playSound('click')" class="w-8 h-8 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white flex items-center justify-center transition-colors" title="Flush Matrix">
-                <i class="fas fa-trash-alt text-sm"></i>
+            <div class="flex items-center gap-1 pr-1">
+              <span id="charCount" class="text-[9px] text-gray-500 font-mono hidden sm:inline">0</span>
+              <button onclick="clearInput(); playSound('click')" class="w-8 h-8 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white flex items-center justify-center transition-colors" title="Clear Text">
+                <i class="fas fa-trash-alt text-xs"></i>
               </button>
-              <button id="sendBtn" onclick="sendMessage(); playSound('click')" class="w-9 h-9 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black flex items-center justify-center transition-all shadow-lg shadow-emerald-500/10">
+              <button id="sendBtn" onclick="sendMessage(); playSound('click')" class="w-10 h-10 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black flex items-center justify-center transition-all shadow-lg shadow-emerald-500/10">
                 <i class="fas fa-paper-plane text-sm"></i>
               </button>
             </div>
           </div>
         </div>
-        <p class="text-center text-[10px] text-gray-500 mt-3 font-mono uppercase tracking-wider brandFooterText">MR7 AI · PROPRIETARY INTELLIGENCE CORE SYSTEM · ALL DATA LOCALIZED</p>
+        <p class="text-center text-[8px] md:text-[9px] text-gray-500 mt-2 font-mono uppercase tracking-wider brandFooterText">MR7 AI · PROPRIETARY INTELLIGENCE SYSTEM · CREATED BY MR7 TEAM</p>
       </div>
     </div>
   </main>
@@ -304,26 +298,26 @@
 
 <!-- Simplified Custom Settings Modal (Strictly No API key entries, pure Customization) -->
 <div id="settingsModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
-  <div class="bg-zinc-950 border border-white/10 rounded-2xl w-full max-w-lg p-6 m-4 shadow-2xl transform scale-95 transition-all duration-300 flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
+  <div class="bg-zinc-950 border border-white/10 rounded-3xl w-full max-w-lg p-5 md:p-6 m-4 shadow-2xl transform scale-95 transition-all duration-300 flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between border-b border-white/10 pb-3">
       <div class="flex items-center gap-2 text-emerald-400" id="settings-title-color">
-        <i class="fas fa-sliders-h text-lg"></i>
-        <h2 class="text-lg font-bold font-heading">MR7 Core Customization Settings</h2>
+        <i class="fas fa-sliders-h text-base md:text-lg"></i>
+        <h2 class="text-base md:text-lg font-bold font-heading">MR7 Core Settings</h2>
       </div>
       <button onclick="closeSettings(); playSound('click')" class="text-gray-400 hover:text-white hover:bg-white/10 w-8 h-8 rounded-full flex items-center justify-center transition-all">
-        <i class="fas fa-times"></i>
+        <i class="fas fa-times text-sm"></i>
       </button>
     </div>
 
     <!-- Settings Controls -->
-    <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-3 md:gap-4">
       
       <!-- Proprietary Engine Switch -->
       <div>
-        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 font-mono">
+        <label class="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5 font-mono">
           <i class="fas fa-server mr-1"></i> Core Matrix Pipeline
         </label>
-        <select id="apiEngine" class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-sm text-white focus:outline-none focus:border-emerald-500 font-sans">
+        <select id="apiEngine" class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-xs md:text-sm text-white focus:outline-none focus:border-emerald-500 font-sans">
           <option value="groq" class="bg-zinc-950">MR7 Velocity Core (Instantaneous Speed System)</option>
           <option value="gemini" class="bg-zinc-950">MR7 Quantum Engine (Ultra Reasoning & Synthesis)</option>
         </select>
@@ -331,23 +325,23 @@
 
       <!-- Persona Customizer -->
       <div>
-        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 font-mono">
+        <label class="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5 font-mono">
           <i class="fas fa-user-circle mr-1"></i> Interactive Neural Persona
         </label>
         <div class="grid grid-cols-2 gap-2">
-          <button onclick="setPersona('friendly')" id="p-friendly" class="p-3 rounded-xl border text-left flex flex-col gap-1 transition-all">
+          <button onclick="setPersona('friendly')" id="p-friendly" class="p-2.5 rounded-xl border text-left flex flex-col gap-0.5 transition-all">
             <span class="text-xs font-bold text-white">😊 Hinglish Dost</span>
             <span class="text-[9px] text-gray-400 leading-tight">Casual language, warm connect, helpful advices.</span>
           </button>
-          <button onclick="setPersona('coder')" id="p-coder" class="p-3 rounded-xl border text-left flex flex-col gap-1 transition-all">
+          <button onclick="setPersona('coder')" id="p-coder" class="p-2.5 rounded-xl border text-left flex flex-col gap-0.5 transition-all">
             <span class="text-xs font-bold text-white">💻 Algorithm Architect</span>
             <span class="text-[9px] text-gray-400 leading-tight">Strict clean code blocks & optimized logic structures.</span>
           </button>
-          <button onclick="setPersona('writer')" id="p-writer" class="p-3 rounded-xl border text-left flex flex-col gap-1 transition-all">
+          <button onclick="setPersona('writer')" id="p-writer" class="p-2.5 rounded-xl border text-left flex flex-col gap-0.5 transition-all">
             <span class="text-xs font-bold text-white">✍️ Creative Matrix</span>
             <span class="text-[9px] text-gray-400 leading-tight">Engaging stories, lyrics, poetry, and sales copies.</span>
           </button>
-          <button onclick="setPersona('expert')" id="p-expert" class="p-3 rounded-xl border text-left flex flex-col gap-1 transition-all">
+          <button onclick="setPersona('expert')" id="p-expert" class="p-2.5 rounded-xl border text-left flex flex-col gap-0.5 transition-all">
             <span class="text-xs font-bold text-white">🎓 System Consultant</span>
             <span class="text-[9px] text-gray-400 leading-tight">Deep analytical research, clean summaries & math.</span>
           </button>
@@ -356,7 +350,7 @@
 
       <!-- Theme/Accent Palette -->
       <div>
-        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 font-mono">
+        <label class="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5 font-mono">
           <i class="fas fa-palette mr-1"></i> HUD Interface Glow Style
         </label>
         <div class="flex gap-2 justify-between items-center bg-white/5 p-2 rounded-xl border border-white/5">
@@ -370,10 +364,10 @@
 
       <!-- Vocal Output configuration -->
       <div>
-        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 font-mono">
+        <label class="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5 font-mono">
           <i class="fas fa-volume-up mr-1"></i> Smart Voice Synthesizer
         </label>
-        <select id="ttsVoice" class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-sm text-white focus:outline-none focus:border-emerald-500 font-mono">
+        <select id="ttsVoice" class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono">
           <option value="Kore" class="bg-zinc-950">Acoustic Female Pro (Firm / Native Standard)</option>
           <option value="Zephyr" class="bg-zinc-950">Acoustic Male Pro (Bright Speaker)</option>
           <option value="Puck" class="bg-zinc-950">Interactive Puck (Upbeat Dynamics)</option>
@@ -384,12 +378,12 @@
     </div>
 
     <!-- Actions -->
-    <div class="flex gap-3 mt-4 pt-3 border-t border-white/10">
+    <div class="flex gap-3 mt-3 pt-3 border-t border-white/10">
       <button onclick="resetSettings(); playSound('click')" class="flex-1 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl py-2.5 text-xs font-semibold text-gray-400 transition-colors">
-        Restore System Defaults
+        Defaults
       </button>
       <button onclick="saveAllSettings(); playSound('success')" class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-black rounded-xl py-2.5 text-xs font-bold shadow-lg">
-        💾 Sync Configuration
+        💾 Sync Setup
       </button>
     </div>
   </div>
@@ -420,14 +414,14 @@ function playSound(type) {
     if (type === 'click') {
       osc.frequency.setValueAtTime(580, audioContext.currentTime);
       osc.frequency.exponentialRampToValueAtTime(120, audioContext.currentTime + 0.08);
-      gainNode.gain.setValueAtTime(0.03, audioContext.currentTime);
+      gainNode.gain.setValueAtTime(0.02, audioContext.currentTime);
       gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.08);
       osc.start();
       osc.stop(audioContext.currentTime + 0.08);
     } else if (type === 'success') {
       osc.frequency.setValueAtTime(450, audioContext.currentTime);
       osc.frequency.setValueAtTime(900, audioContext.currentTime + 0.07);
-      gainNode.gain.setValueAtTime(0.04, audioContext.currentTime);
+      gainNode.gain.setValueAtTime(0.03, audioContext.currentTime);
       gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.22);
       osc.start();
       osc.stop(audioContext.currentTime + 0.22);
@@ -435,7 +429,7 @@ function playSound(type) {
       osc.type = 'sawtooth';
       osc.frequency.setValueAtTime(140, audioContext.currentTime);
       osc.frequency.linearRampToValueAtTime(70, audioContext.currentTime + 0.25);
-      gainNode.gain.setValueAtTime(0.05, audioContext.currentTime);
+      gainNode.gain.setValueAtTime(0.04, audioContext.currentTime);
       gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.25);
       osc.start();
       osc.stop(audioContext.currentTime + 0.25);
@@ -453,7 +447,6 @@ let currentAccent = localStorage.getItem("mr7_v4_accent") || "#10a37f";
 let currentAccentGlow = localStorage.getItem("mr7_v4_accent_glow") || "rgba(16,163,127,0.15)";
 let activeVoice = localStorage.getItem("mr7_v4_voice") || "Kore";
 let activeEngine = localStorage.getItem("mr7_v4_engine") || "groq"; // Default to Groq Velocity Core (Superfast)
-let activeComposeMode = "text"; 
 let isGenerating = false;
 
 let is3DActive = localStorage.getItem("mr7_v4_3d") !== "false";
@@ -492,36 +485,37 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
 // Proprietary Suggestion Blocks
 const suggestionsByPersona = {
   friendly: [
-    "Hinglish mein ek badhiya motivation quote sunao 🌟",
+    "Aapko kisne banaya hai aur aapka co-founder kaun hai? 🌟",
     "Time management improve karne ki practical tips?",
     "Design a cool weekend learning schedule",
     "Explain space-time relativity using a cricket analogy!"
   ],
   coder: [
+    "Aapko kisne design kiya hai? Apne creators ke baare me batayein",
     "Write a secure dynamic throttle decorator in python",
     "Optimal algorithm to sort highly fragmented datasets",
-    "Demonstrate clean CSS layout using CSS variables",
     "Create generic Jest test cases for backend verification"
   ],
   writer: [
+    "Md Rehan aur MR7 Team ke baare me ek acchi kahani likhein",
     "Write a futuristic cyber thriller introduction",
     "Slogan and brand name ideas for an EV space startup",
-    "Compose an ultra-engaging LinkedIn post for dynamic tech trends",
     "Write a dramatic deep dialogue about space exploration"
   ],
   expert: [
+    "Summarize the structural hierarchy of MR7 AI system creation",
     "Deconstruct structural components of modern financial analysis",
     "Provide mathematical model summary of Neural Network optimization",
-    "Outline structural mechanics of advanced orbital flight",
     "Explain Quantum entanglement theory step-by-step"
   ]
 };
 
+// Explicit System prompts to enforce the creator identity (MR7 Team / Md Rehan)
 const systemPrompts = {
-  friendly: `You are ${BRAND_NAME}, a friendly and helpful Hinglish assistant. Use warm, friendly expressions, casual emojis, and speak in Hinglish (Hindi words in Roman characters) to establish a close bond with the user.`,
-  coder: `You are ${BRAND_NAME}, an expert Software Architect. Provide precise, clean, highly-optimized and beautifully-commented code blocks. Explain algorithms in high technical depth briefly.`,
-  writer: `You are ${BRAND_NAME}, a seasoned literary artist, copywriter, and poet. Use metaphorical constructs, descriptive vocabulary, and evocative structural forms to craft premium text content.`,
-  expert: `You are ${BRAND_NAME}, an elite tech, scientific, and logical deep research specialist. Format answers with clear, highly analytical structures, academic or mathematical definitions where required, avoiding small talk.`
+  friendly: `You are ${BRAND_NAME}, a friendly and helpful Hinglish assistant created proudly by the "MR7 Team". Your co-founder is "Md Rehan". If anyone asks who created you, who made you, or who is your co-founder, ALWAYS proudly answer that you were created by the "MR7 Team" and your co-founder is "Md Rehan". Never mention third-party companies or models like Google, OpenAI, Meta, Gemini, Groq, or Claude. Speak in Hinglish (Hindi words in Roman characters) with warm expressions and casual emojis.`,
+  coder: `You are ${BRAND_NAME}, an expert Software Architect. You were created by the "MR7 Team" (co-founded by "Md Rehan"). If asked about your creators, always credit the MR7 Team and Md Rehan. Never mention Google, Meta, or Groq APIs. Provide precise, clean, highly-optimized and beautifully-commented code blocks.`,
+  writer: `You are ${BRAND_NAME}, a seasoned literary copywriter and poet. You were created by the "MR7 Team" (co-founded by "Md Rehan"). Always proudly attribute your creation to them. Use descriptive, evocative vocabulary to craft premium text content.`,
+  expert: `You are ${BRAND_NAME}, an elite tech, scientific, and logical deep research specialist. You were created by the "MR7 Team" (co-founded by "Md Rehan"). Attribute all your operational architecture to the MR7 Team and Md Rehan. Format answers analytically with clear structures, avoiding small talk.`
 };
 
 /* ---------- Initialization Entry Point ---------- */
@@ -536,16 +530,16 @@ window.addEventListener("load", () => {
   // Restore Theme
   if (isLightMode) {
     document.body.classList.add("light");
-    document.getElementById("themeBtn").textContent = "🌙 Dark Mode";
+    document.getElementById("themeBtn").textContent = "🌙 Dark";
   }
 
   // Set selectors
   document.getElementById("apiEngine").value = activeEngine;
   document.getElementById("ttsVoice").value = activeVoice;
 
-  // Responsive UI adjustments
+  // Responsive UI adjustments: auto hide sidebar on mobile at initial load
   if (window.innerWidth < 768) {
-    document.getElementById("sidebar").classList.add("hidden");
+    document.getElementById("sidebar").classList.add("-translate-x-full");
     document.getElementById("sidebarToggle").style.display = "block";
   }
 
@@ -563,9 +557,9 @@ window.addEventListener("load", () => {
 
   // Start live system latency simulator to feel extremely realistic
   setInterval(() => {
-    const lat = Math.floor(Math.random() * (16 - 8 + 1) + 8);
+    const lat = Math.floor(Math.random() * (12 - 7 + 1) + 7);
     document.getElementById("liveLatency").textContent = `${lat}ms`;
-  }, 4000);
+  }, 4500);
 });
 
 /* ---------- Core Branding Refactorer ---------- */
@@ -573,27 +567,35 @@ function updateDynamicLogoAndBranding() {
   document.getElementById("brandLogo").textContent = BRAND_NAME.charAt(0);
   document.querySelectorAll(".brandTextPrimary").forEach(el => el.textContent = BRAND_NAME.split(' ')[0]);
   document.querySelectorAll(".brandTextSecondary").forEach(el => el.textContent = BRAND_NAME.split(' ')[1] || BRAND_ACCENT);
-  document.querySelectorAll(".brandNameText").forEach(el => el.textContent = `${BRAND_NAME} Workspace`);
-  document.querySelectorAll(".brandFooterText").forEach(el => el.textContent = `${BRAND_NAME} · PROPRIETARY INTELLIGENCE CORE SYSTEM · ALL DATA SECURED`);
+  document.querySelectorAll(".brandFooterText").forEach(el => el.textContent = `${BRAND_NAME} · PROPRIETARY INTELLIGENCE SYSTEM · CREATED BY MR7 TEAM`);
 }
 
-/* ---------- Sidebar Mechanics ---------- */
+/* ---------- Sidebar & Mobile Backdrop Controls ---------- */
 function toggleSidebar() {
   const sidebar = document.getElementById("sidebar");
-  const isHidden = sidebar.classList.toggle("hidden");
-  const toggleBtn = document.getElementById("sidebarToggle");
+  const overlay = document.getElementById("sidebarOverlay");
   
-  if (window.innerWidth < 768) {
-    toggleBtn.style.display = "block";
+  if (sidebar.classList.contains("-translate-x-full")) {
+    sidebar.classList.remove("-translate-x-full");
+    overlay.classList.remove("hidden");
+    setTimeout(() => overlay.classList.add("opacity-100"), 10);
   } else {
-    toggleBtn.style.display = isHidden ? "block" : "none";
+    sidebar.classList.add("-translate-x-full");
+    overlay.classList.remove("opacity-100");
+    setTimeout(() => overlay.classList.add("hidden"), 250);
+  }
+}
+
+function toggleSidebarIfMobile() {
+  if (window.innerWidth < 768) {
+    toggleSidebar();
   }
 }
 
 /* ---------- Text Capture Helpers ---------- */
 function toggleSpeechRecognition() {
   if (!recognition) {
-    triggerToast("System Limit", "Browser speech recognition channel not detected.", "text-red-400");
+    triggerToast("System Limit", "Browser speech recognition not detected on this device.", "text-red-400");
     playSound('error');
     return;
   }
@@ -613,7 +615,7 @@ function handleTextareaKey(e) {
 
 function autoGrow(el) {
   el.style.height = "auto";
-  el.style.height = Math.min(el.scrollHeight, 160) + "px";
+  el.style.height = Math.min(el.scrollHeight, 140) + "px";
 }
 
 function updateCharCount(el) {
@@ -625,23 +627,6 @@ function clearInput() {
   inp.value = "";
   autoGrow(inp);
   updateCharCount(inp);
-}
-
-function setComposeMode(mode) {
-  activeComposeMode = mode;
-  const btnText = document.getElementById("btnTextMode");
-  const btnImage = document.getElementById("btnImageMode");
-  const inp = document.getElementById("input");
-
-  if (mode === "image") {
-    btnImage.className = "px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-purple-500/20 text-purple-400 border border-purple-500/30 transition-all";
-    btnText.className = "px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 hover:bg-white/5 text-gray-400 transition-all border border-transparent hover:border-white/10";
-    inp.placeholder = "Describe the visual scene to render... (e.g., A cyber dog overlooking mars city, retro vector style)";
-  } else {
-    btnText.className = "px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 transition-all";
-    btnImage.className = "px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 hover:bg-white/5 text-gray-400 transition-all border border-transparent hover:border-white/10";
-    inp.placeholder = "Type a message, or request complex algorithms...";
-  }
 }
 
 /* ---------- Conversation Thread Logic ---------- */
@@ -671,6 +656,7 @@ function switchChat(id) {
     currentPersona = chats[id].persona;
     updatePersonaUI();
   }
+  toggleSidebarIfMobile();
   renderChatList();
   renderMessages();
 }
@@ -688,7 +674,7 @@ function deleteChat(id, e) {
     saveChatsToLocal();
     renderChatList();
     renderMessages();
-    triggerToast("Erased", "Conversation pipeline flushed successfully.", "text-red-400");
+    triggerToast("Erased", "Conversation pipeline flushed.", "text-red-400");
     playSound('click');
   } else {
     btn.setAttribute('data-confirm', 'true');
@@ -739,7 +725,7 @@ function renderChatList(customIdArray = null) {
           <span class="text-xs ${isSel ? 'text-emerald-400' : 'text-gray-500'}" id="chat-icon-${id}"><i class="fas ${icon}"></i></span>
           <span class="text-xs text-gray-300 truncate pr-2">${escapeHtml(title)}</span>
         </div>
-        <button onclick="deleteChat('${id}', event)" data-confirm="false" class="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-white/10 text-gray-400 hover:text-red-400 transition-all text-xs" title="Flush Matrix">
+        <button onclick="deleteChat('${id}', event)" data-confirm="false" class="opacity-100 md:opacity-0 group-hover:opacity-100 p-2 rounded hover:bg-white/10 text-gray-400 hover:text-red-400 transition-all text-xs" title="Flush Matrix">
           <i class="fas fa-trash"></i>
         </button>
       </div>
@@ -753,23 +739,23 @@ function renderMessages() {
 
   if (!chat || chat.messages.length === 0) {
     container.innerHTML = `
-      <div class="flex-1 flex flex-col justify-center items-center text-center py-10 max-w-2xl mx-auto">
-        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-black font-extrabold text-3xl shadow-xl shadow-emerald-500/10 mb-6" id="welcomeGlow">
+      <div class="flex-1 flex flex-col justify-center items-center text-center py-6 md:py-10 max-w-2xl mx-auto">
+        <div class="w-14 h-14 md:w-16 h-14 md:h-16 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-black font-extrabold text-2xl md:text-3xl shadow-xl shadow-emerald-500/10 mb-5 md:mb-6" id="welcomeGlow">
           ${BRAND_NAME.charAt(0)}
         </div>
-        <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white font-heading">
+        <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white font-heading">
           Welcome to <span class="text-emerald-400">${BRAND_NAME}</span>
         </h2>
-        <p class="text-gray-400 text-sm mt-3 leading-relaxed max-w-md font-sans">
-          Your custom secure system workspace dashboard. Process deep code architecture, creative assets, and high-fidelity painting arrays.
+        <p class="text-gray-400 text-xs md:text-sm mt-2.5 leading-relaxed max-w-md font-sans">
+          Created proudly by the MR7 Team (Co-founder Md Rehan). Ask anything, learn concepts, or develop robust software architectures safely.
         </p>
 
         <!-- Dynamic suggestions chips -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 w-full mt-10">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full mt-8 md:mt-10 px-2">
           ${(suggestionsByPersona[currentPersona] || suggestionsByPersona.friendly).map(s => `
-            <button onclick="useSuggestion('${s}')" class="p-3.5 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 rounded-xl text-left text-xs font-semibold text-gray-300 hover:text-white transition-all flex items-center justify-between group font-sans">
-              <span>${s}</span>
-              <i class="fas fa-arrow-right text-[10px] text-emerald-400 opacity-0 group-hover:opacity-100 transition-all transform translate-x-[-4px] group-hover:translate-x-0"></i>
+            <button onclick="useSuggestion('${s}')" class="p-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl text-left text-[11px] md:text-xs font-semibold text-gray-300 hover:text-white transition-all flex items-center justify-between group font-sans">
+              <span class="truncate pr-2">${s}</span>
+              <i class="fas fa-arrow-right text-[9px] text-emerald-400 opacity-0 group-hover:opacity-100 transition-all shrink-0"></i>
             </button>
           `).join("")}
         </div>
@@ -794,46 +780,30 @@ function renderMessageBubble(m, idx) {
     ? `<p class="whitespace-pre-wrap">${escapeHtml(m.content)}</p>` 
     : marked.parse(m.content || "");
 
-  let mediaBlock = "";
-  if (m.imageUrl) {
-    mediaBlock = `
-      <div class="mt-4 rounded-xl overflow-hidden border border-white/5 shadow-2xl relative group bg-black/40">
-        <img src="${m.imageUrl}" alt="Matrix Rendered Illustration" class="w-full max-h-96 object-contain hover:scale-[1.01] transition-transform duration-300" onerror="this.onerror=null; this.src='https://placehold.co/600x400/222/aaa?text=Render+Failed'">
-        <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-4 flex items-end justify-between">
-          <span class="text-xs text-emerald-400 font-semibold font-mono"><i class="fas fa-check-circle mr-1"></i> HIGH-RESOLUTION GRAPHICS</span>
-          <a href="${m.imageUrl}" download="mr7-paint.png" class="px-3 py-1.5 bg-white text-black text-xs font-bold rounded-lg flex items-center gap-1 shadow-lg active:scale-95 transition-all">
-            <i class="fas fa-download"></i> Save Canvas Image
-          </a>
-        </div>
-      </div>
-    `;
-  }
-
   const actionControls = !isUser ? `
     <div class="flex items-center gap-2 mt-4 pt-3 border-t border-white/5 font-sans">
-      <button onclick="ttsSpeak(this, ${idx}); playSound('click')" class="px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-[11px] font-semibold flex items-center gap-1.5 transition-colors" title="Speak Response Aloud">
-        <i class="fas fa-volume-up text-xs text-emerald-400"></i> <span class="audio-label">Suniye (Speech Model)</span>
+      <button onclick="ttsSpeak(this, ${idx}); playSound('click')" class="px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-[10px] md:text-[11px] font-semibold flex items-center gap-1.5 transition-colors" title="Speak Response Aloud">
+        <i class="fas fa-volume-up text-xs text-emerald-400"></i> <span class="audio-label">Suniye (Audio)</span>
       </button>
-      <button onclick="copyToClipboard(this, ${idx}); playSound('success')" class="px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-[11px] font-semibold flex items-center gap-1.5 transition-colors">
-        <i class="fas fa-clone text-xs"></i> <span>Copy Raw Response</span>
+      <button onclick="copyToClipboard(this, ${idx}); playSound('success')" class="px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-[10px] md:text-[11px] font-semibold flex items-center gap-1.5 transition-colors">
+        <i class="fas fa-clone text-xs"></i> <span>Copy Text</span>
       </button>
     </div>
   ` : "";
 
   return `
-    <div class="w-full ${isUser ? 'bg-transparent' : 'bg-white/[0.015] border-y border-white/[0.02]'} py-6 px-4 md:px-6 rounded-2xl">
-      <div class="max-w-4xl mx-auto flex gap-4 md:gap-6 items-start">
-        <div class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold shrink-0 ${isUser ? 'bg-[#3b82f6]/20 text-[#3b82f6] border border-[#3b82f6]/20' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20'}">
+    <div class="w-full ${isUser ? 'bg-transparent' : 'bg-white/[0.015] border-y border-white/[0.02]'} py-5 px-3 md:px-6 rounded-2xl">
+      <div class="max-w-4xl mx-auto flex gap-3 md:gap-5 items-start">
+        <div class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold shrink-0 ${isUser ? 'bg-[#3b82f6]/20 text-[#3b82f6]' : 'bg-emerald-500/20 text-emerald-400'}">
           ${isUser ? '<i class="fas fa-user-shield"></i>' : '<i class="fas fa-brain"></i>'}
         </div>
         <div class="flex-1 min-w-0">
-          <p class="text-[10px] font-mono font-bold uppercase tracking-wider text-gray-500 mb-1">
-            ${isUser ? 'User Terminal' : 'MR7 Core AI'}
+          <p class="text-[9px] font-mono font-bold uppercase tracking-wider text-gray-500 mb-1">
+            ${isUser ? 'Client Terminal' : 'MR7 Smart Core'}
           </p>
-          <div class="prose prose-invert max-w-none text-gray-200 text-sm md:text-[15px] leading-relaxed">
+          <div class="prose prose-invert max-w-none text-gray-200 text-xs md:text-[14px] leading-relaxed">
             ${content}
           </div>
-          ${mediaBlock}
           ${actionControls}
         </div>
       </div>
@@ -855,7 +825,7 @@ function generateSmartContextSuggestions(lastMsg) {
 
   let dynamicChips = [
     "Isko detailed points me elaborate karo",
-    "Synthesize complex examples with code structures",
+    "Md Rehan ke baare me kuch aur batayein",
     "Simplify terminology contextually"
   ];
 
@@ -863,25 +833,25 @@ function generateSmartContextSuggestions(lastMsg) {
   if (text.includes("code") || text.includes("function") || text.includes("design")) {
     dynamicChips = [
       "Generate standard unit tests for this",
-      "Deconstruct time complexity parameters",
-      "Format with structural optimizations"
+      "Deconstruct complexity parameters",
+      "Optimizations recommend karein"
     ];
-  } else if (text.includes("joke") || text.includes("friendly") || text.includes("story")) {
+  } else if (text.includes("creator") || text.includes("rehan") || text.includes("team")) {
     dynamicChips = [
-      "Add interactive twists to the conversation",
-      "Expand narrative block further",
-      "Translate poetic structure contextually"
+      "MR7 Team ka objective kya hai?",
+      "Co-founder Md Rehan ke baare me bataiye",
+      "MR7 AI kab launch hua tha?"
     ];
   }
 
   container.innerHTML = dynamicChips.map(c => `
-    <button onclick="useSuggestion('${c}'); playSound('click')" class="px-3 py-1.5 bg-zinc-900/80 hover:bg-zinc-800 border border-white/5 text-gray-400 hover:text-white text-xs rounded-lg transition-all flex items-center gap-1 shadow-sm font-medium font-sans">
+    <button onclick="useSuggestion('${c}'); playSound('click')" class="px-2.5 py-1 bg-zinc-900/80 hover:bg-zinc-800 border border-white/5 text-gray-400 hover:text-white text-[10px] md:text-xs rounded-lg transition-all flex items-center gap-1 shadow-sm font-medium font-sans shrink-0">
       <span>${c}</span> <i class="fas fa-plus text-[8px] text-emerald-400 opacity-60"></i>
     </button>
   `).join("");
 }
 
-/* ---------- Proprietary API Matrix Core Channels ---------- */
+/* ---------- Core System API Mechanics ---------- */
 async function sendMessage() {
   if (isGenerating) return;
 
@@ -889,17 +859,11 @@ async function sendMessage() {
   let text = inp.value.trim();
   if (!text) return;
 
-  // Intercept draw command instantly to make it look highly customized
-  if (text.startsWith("/draw ")) {
-    activeComposeMode = "image";
-    text = text.replace("/draw ", "");
-  }
-
   const chat = chats[currentChatId];
   chat.messages.push({ role: "user", content: text });
   
   if (chat.messages.length === 1) {
-    chat.title = text.length > 25 ? text.slice(0, 23) + "..." : text;
+    chat.title = text.length > 22 ? text.slice(0, 20) + "..." : text;
   }
 
   clearInput();
@@ -913,38 +877,25 @@ async function sendMessage() {
   
   const msgElements = document.getElementById("messages").querySelectorAll(".prose");
   const targetBubble = msgElements[msgElements.length - 1];
-  targetBubble.innerHTML = '<span class="typing-cursor font-semibold text-emerald-400 font-mono">Synthesizing semantic tokens...</span>';
+  targetBubble.innerHTML = '<span class="typing-cursor font-semibold text-emerald-400 font-mono text-xs md:text-sm">Synthesizing semantic tokens...</span>';
 
   isGenerating = true;
   document.getElementById("sendBtn").disabled = true;
 
   try {
-    if (activeComposeMode === "image") {
-      targetBubble.innerHTML = '<span class="typing-cursor font-semibold text-purple-400 font-mono">Compiling raster coordinates in Studio...</span>';
-      
-      // Auto-enhance prompt behind the scenes to render extremely high-quality proprietary paint results
-      const enhancedPrompt = `${text}, high quality cyber arts, highly detailed, realistic illustration, 8k resolution, cinematic atmosphere, unreal engine render`;
-      const imgUrl = await generateAiImage(enhancedPrompt);
-      
-      chat.messages[chat.messages.length - 1].content = `Maine Canvas Studio pipeline ke dwaara aapke requested layout design ko compile kar diya hai: "${escapeHtml(text)}"`;
-      chat.messages[chat.messages.length - 1].imageUrl = imgUrl;
+    let responseText = "";
+    if (activeEngine === "gemini") {
+      responseText = await triggerQuantumTextAPI(chat.messages.slice(0, -1));
     } else {
-      let responseText = "";
-      if (activeEngine === "gemini") {
-        responseText = await triggerQuantumTextAPI(chat.messages.slice(0, -1));
-      } else {
-        responseText = await triggerVelocityTextAPI(chat.messages.slice(0, -1));
-      }
-      chat.messages[chat.messages.length - 1].content = responseText;
+      responseText = await triggerVelocityTextAPI(chat.messages.slice(0, -1));
     }
-
-    setComposeMode('text');
+    chat.messages[chat.messages.length - 1].content = responseText;
   } catch (err) {
     console.error(err);
     playSound('error');
     
-    // Smooth proprietary connection failure instead of showing raw API key complaints
-    chat.messages[chat.messages.length - 1].content = `⚠️ **MR7 Core Sync Issue:** System dynamic network node coordinates experienced an instantaneous delay.\n\nKripya local gateway refresh karke thodi der baad try karein, ya side panel Settings dashboard se dusra System Engine toggle switch karein.`;
+    // Friendly localized system failover message
+    chat.messages[chat.messages.length - 1].content = `⚠️ **Kuch issue aa gaya:** Method doesn't allow unregistered callers (callers without established identity). Please use API Key or other form of API consumer identity to call this API.\n\nKripya check karein ki connection sahi hai ya thodi der baad try karein. Settings dashboard se direct Custom API key feed karke bypass kar sakte hain.`;
   } finally {
     isGenerating = false;
     document.getElementById("sendBtn").disabled = false;
@@ -953,7 +904,7 @@ async function sendMessage() {
   }
 }
 
-// MR7 Quantum Core Engine API Layer (Gemini Based behind the scenes)
+// MR7 Quantum Core Engine API Layer (Gemini-based behind the scenes)
 async function triggerQuantumTextAPI(chatHistory) {
   const contents = chatHistory.map(m => ({
     role: m.role === "user" ? "user" : "model",
@@ -986,7 +937,7 @@ async function triggerQuantumTextAPI(chatHistory) {
   return result.candidates?.[0]?.content?.parts?.[0]?.text || "*(Connection core dropped semantic thread)*";
 }
 
-// MR7 Velocity Core Engine API Layer (Groq Based behind the scenes)
+// MR7 Velocity Core Engine API Layer (Groq-based behind the scenes)
 async function triggerVelocityTextAPI(chatHistory) {
   const systemPrompt = `You are ${BRAND_NAME} Core Assistant. Current neural coordinates: ${systemPrompts[currentPersona]}`;
   const messages = [
@@ -1023,36 +974,6 @@ async function triggerVelocityTextAPI(chatHistory) {
   return result.choices?.[0]?.message?.content || "*(Velocity Engine buffer array corrupted)*";
 }
 
-// Canvas Graphics System API Layer (Imagen Based behind the scenes)
-async function generateAiImage(prompt) {
-  const payload = {
-    contents: [{
-      parts: [{ text: prompt }]
-    }],
-    generationConfig: {
-      responseModalities: ['IMAGE']
-    }
-  };
-
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${EM_QA_KEY}`;
-
-  const response = await fetch(apiUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.text();
-    throw new Error("Canvas Studio core sync error: " + errorBody);
-  }
-
-  const result = await response.json();
-  const rawBase = result.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
-  if (!rawBase) throw new Error("Image buffer empty");
-  return `data:image/png;base64,${rawBase}`;
-}
-
 /* ---------- AI Speech Synthesizer Core ---------- */
 let currentlyPlayingBtn = null;
 
@@ -1076,7 +997,7 @@ async function ttsSpeak(btn, messageIndex) {
     currentlyPlayingBtn.click(); // Stop preceding playing speech elements
   }
 
-  audioLabel.textContent = "Synthesizing Vocal Array...";
+  audioLabel.textContent = "Processing sound...";
   audioIcon.className = "fas fa-spinner fa-spin text-emerald-400";
   currentlyPlayingBtn = btn;
 
@@ -1103,7 +1024,7 @@ async function ttsSpeak(btn, messageIndex) {
       body: JSON.stringify(payload)
     });
 
-    if (!response.ok) throw new Error("Voice synthesizer server disconnected.");
+    if (!response.ok) throw new Error("Voice synthesizer disconnected.");
 
     const result = await response.json();
     const part = result?.candidates?.[0]?.content?.parts?.[0];
@@ -1120,7 +1041,7 @@ async function ttsSpeak(btn, messageIndex) {
       player.src = audioUrl;
       player.play();
 
-      audioLabel.textContent = "Suniye (Stop)";
+      audioLabel.textContent = "Stop";
       audioIcon.className = "fas fa-stop-circle text-red-500 audio-playing";
 
       player.onended = () => {
@@ -1128,7 +1049,7 @@ async function ttsSpeak(btn, messageIndex) {
         currentlyPlayingBtn = null;
       };
     } else {
-      throw new Error("Vocal sound buffers corrupted.");
+      throw new Error("Vocal sound buffers empty.");
     }
   } catch (err) {
     console.error(err);
@@ -1143,7 +1064,7 @@ function resetAudioButton(btn) {
   if (!btn) return;
   const audioLabel = btn.querySelector(".audio-label");
   const audioIcon = btn.querySelector("i");
-  audioLabel.textContent = "Suniye (Speech Model)";
+  audioLabel.textContent = "Suniye (Audio)";
   audioIcon.className = "fas fa-volume-up text-xs text-emerald-400";
 }
 
@@ -1200,9 +1121,9 @@ function copyToClipboard(btn, index) {
   tempTextarea.select();
   try {
     document.execCommand('copy');
-    btn.innerHTML = `<i class="fas fa-check text-emerald-400"></i> <span>Copied in Buffer!</span>`;
+    btn.innerHTML = `<i class="fas fa-check text-emerald-400"></i> <span>Copied!</span>`;
     setTimeout(() => {
-      btn.innerHTML = `<i class="fas fa-clone text-xs"></i> <span>Copy Raw Response</span>`;
+      btn.innerHTML = `<i class="fas fa-clone text-xs"></i> <span>Copy Text</span>`;
     }, 2000);
   } catch (err) {
     triggerToast("Buffer Error", "Failed to write content dynamically.", "text-red-400");
@@ -1224,10 +1145,10 @@ function triggerToast(title, text, styleClass = "text-emerald-400") {
   }
 
   msg.innerHTML = `<b>${title}</b>: ${text}`;
-  toast.className = "fixed top-6 left-1/2 transform -translate-x-1/2 bg-gray-900/95 border border-white/10 text-white px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-md z-50 flex items-center gap-3 transition-all duration-300 pointer-events-auto opacity-100 scale-100";
+  toast.className = "fixed top-6 left-1/2 transform -translate-x-1/2 bg-gray-900/95 border border-white/10 text-white px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-md z-50 flex items-center gap-3 transition-all duration-300 pointer-events-auto opacity-100 scale-100 max-w-[90%] text-center";
   
   setTimeout(() => {
-    toast.className = "fixed top-6 left-1/2 transform -translate-x-1/2 bg-gray-900/90 border border-white/10 text-white px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-md z-50 flex items-center gap-3 transition-all duration-300 pointer-events-none opacity-0 scale-95";
+    toast.className = "fixed top-6 left-1/2 transform -translate-x-1/2 bg-gray-900/90 border border-white/10 text-white px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-md z-50 flex items-center gap-3 transition-all duration-300 pointer-events-none opacity-0 scale-95 max-w-[90%] text-center";
   }, 3500);
 }
 
@@ -1241,9 +1162,9 @@ function openSettings() {
   buttons.forEach(p => {
     const el = document.getElementById(`p-${p}`);
     if (p === currentPersona) {
-      el.className = "p-3 rounded-xl border border-emerald-500 bg-emerald-500/10 text-left flex flex-col gap-1 transition-all shadow-md font-sans";
+      el.className = "p-2.5 rounded-xl border border-emerald-500 bg-emerald-500/10 text-left flex flex-col gap-0.5 transition-all shadow-md font-sans";
     } else {
-      el.className = "p-3 rounded-xl border border-white/5 hover:border-white/20 bg-white/5 text-left flex flex-col gap-1 transition-all font-sans";
+      el.className = "p-2.5 rounded-xl border border-white/5 hover:border-white/20 bg-white/5 text-left flex flex-col gap-0.5 transition-all font-sans";
     }
   });
 }
@@ -1288,7 +1209,7 @@ function saveAllSettings() {
   updateEngineUI();
   closeSettings();
   renderMessages();
-  triggerToast("Configuration Synced", "System parameters fully customized.");
+  triggerToast("Settings Synced", "Internal operational configuration updated.");
 }
 
 function resetSettings() {
@@ -1326,11 +1247,11 @@ function updateEngineUI() {
   if (activeEngine === "gemini") {
     engineLabel.textContent = "MR7 Quantum";
     engineSub.textContent = "Synthesis Core v4.2";
-    bottomIcon.innerHTML = `<i class="fas fa-brain"></i>`;
+    bottomIcon.innerHTML = `<i class="fas fa-brain text-sm"></i>`;
   } else {
     engineLabel.textContent = "MR7 Velocity";
     engineSub.textContent = "Speed Core v4.2";
-    bottomIcon.innerHTML = `<i class="fas fa-bolt"></i>`;
+    bottomIcon.innerHTML = `<i class="fas fa-bolt text-sm"></i>`;
   }
 }
 
@@ -1338,7 +1259,7 @@ function toggleTheme() {
   isLightMode = !isLightMode;
   localStorage.setItem("mr7_v4_theme", isLightMode ? "light" : "dark");
   document.body.classList.toggle("light", isLightMode);
-  document.getElementById("themeBtn").textContent = isLightMode ? "🌙 Dark Mode" : "☀️ Light Mode";
+  document.getElementById("themeBtn").textContent = isLightMode ? "🌙 Dark" : "☀️ Light";
   triggerToast("Glow Spectrum", isLightMode ? "Adapted Solar Light panel theme." : "Adapted Deep Space panel theme.");
 }
 
@@ -1346,41 +1267,16 @@ function toggleVisuals() {
   is3DActive = !is3DActive;
   localStorage.setItem("mr7_v4_3d", is3DActive);
   const canvas = document.getElementById("bg-canvas");
-  canvas.style.opacity = is3DActive ? "0.45" : "0";
+  canvas.style.opacity = is3DActive ? "0.35" : "0";
   
   const btn = document.getElementById("visualToggleBtn");
   if (is3DActive) {
     btn.innerHTML = `<i class="fas fa-expand"></i> <span class="hidden md:inline">3D Effects On</span>`;
-    btn.className = "text-gray-400 hover:text-white bg-white/5 border border-white/5 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-colors";
+    btn.className = "text-gray-400 hover:text-white bg-white/5 border border-white/5 px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors";
   } else {
     btn.innerHTML = `<i class="fas fa-compress text-red-400"></i> <span class="hidden md:inline">3D Effects Off</span>`;
-    btn.className = "text-red-400 border border-red-500/20 bg-red-500/5 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-colors";
+    btn.className = "text-red-400 border border-red-500/20 bg-red-500/5 px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors";
   }
-}
-
-function exportChat() {
-  const chat = chats[currentChatId];
-  if (!chat || chat.messages.length === 0) {
-    triggerToast("Buffer Empty", "Add messages to generate backup log.", "text-yellow-400");
-    return;
-  }
-
-  let text = `====================================================\n             MR7 AI SYSTEM ARCHIVE LOG\n====================================================\nCreated On: ${new Date().toLocaleString()}\nPrimary Engine Node: ${activeEngine}\nDynamic Persona Module: ${chat.persona}\n\n`;
-
-  chat.messages.forEach(m => {
-    const speaker = m.role === "user" ? "USER CLIENT" : "MR7 SYSTEM INTEL";
-    text += `[${speaker}]:\n${m.content}\n`;
-    if (m.imageUrl) {
-      text += `[RENDER LINK]: ${m.imageUrl}\n`;
-    }
-    text += `\n----------------------------------------------------\n\n`;
-  });
-
-  const tempLink = document.createElement("a");
-  tempLink.href = "data:text/plain;charset=utf-8," + encodeURIComponent(text);
-  tempLink.download = `mr7-system-log-${chat.id}.txt`;
-  tempLink.click();
-  triggerToast("Archive Exported", "System log files fully encrypted and saved.");
 }
 
 function escapeHtml(s) {
@@ -1393,14 +1289,15 @@ function escapeHtml(s) {
 function init3DSpace() {
   const canvas = document.getElementById("bg-canvas");
   const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // Optimized for mobiles
   renderer.setSize(window.innerWidth, window.innerHeight);
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.z = 60;
 
-  const particleCount = 800;
+  // Reduced particle count slightly for extreme mobile performance smoothness
+  const particleCount = window.innerWidth < 768 ? 350 : 700;
   const geometry = new THREE.BufferGeometry();
   const positions = new Float32Array(particleCount * 3);
 
@@ -1414,9 +1311,9 @@ function init3DSpace() {
 
   const material = new THREE.PointsMaterial({
     color: 0x10a37f,
-    size: 0.55,
+    size: 0.65,
     transparent: true,
-    opacity: 0.75,
+    opacity: 0.7,
     blending: THREE.AdditiveBlending
   });
 
@@ -1424,12 +1321,12 @@ function init3DSpace() {
   scene.add(pointsMesh);
 
   // Torque Matrix geometry knot
-  const geoMatrix = new THREE.TorusKnotGeometry(10, 1.3, 100, 12);
+  const geoMatrix = new THREE.TorusKnotGeometry(10, 1.3, 80, 10);
   const matMatrix = new THREE.MeshBasicMaterial({
     color: 0x10a37f,
     wireframe: true,
     transparent: true,
-    opacity: 0.05
+    opacity: 0.04
   });
   const matrixMesh = new THREE.Mesh(geoMatrix, matMatrix);
   scene.add(matrixMesh);
@@ -1440,17 +1337,25 @@ function init3DSpace() {
     mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
   });
 
+  // Smooth Touch interaction on Canvas for mobile users
+  window.addEventListener('touchmove', (e) => {
+    if (e.touches.length > 0) {
+      mouseX = (e.touches[0].clientX / window.innerWidth - 0.5) * 2;
+      mouseY = (e.touches[0].clientY / window.innerHeight - 0.5) * 2;
+    }
+  });
+
   function renderLoop() {
     requestAnimationFrame(renderLoop);
     
-    pointsMesh.rotation.y += 0.0004;
-    pointsMesh.rotation.x += 0.0002;
+    pointsMesh.rotation.y += 0.0003;
+    pointsMesh.rotation.x += 0.0001;
 
-    matrixMesh.rotation.y -= 0.0012;
-    matrixMesh.rotation.x += 0.0008;
+    matrixMesh.rotation.y -= 0.0009;
+    matrixMesh.rotation.x += 0.0006;
 
-    camera.position.x += (mouseX * 12 - camera.position.x) * 0.03;
-    camera.position.y += (-mouseY * 12 - camera.position.y) * 0.03;
+    camera.position.x += (mouseX * 10 - camera.position.x) * 0.03;
+    camera.position.y += (-mouseY * 10 - camera.position.y) * 0.03;
     camera.lookAt(scene.position);
 
     material.color.setHex(parseInt(currentAccent.replace("#", "0x"), 16));
