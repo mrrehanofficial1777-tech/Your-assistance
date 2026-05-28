@@ -114,47 +114,6 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-
-  /* Mobile-first Dynamic Persona menu drawer styles */
-  #personaMenu {
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease, visibility 0.2s;
-  }
-
-  @media (max-width: 767px) {
-    #personaMenu {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      width: 100%;
-      border-top-left-radius: 1.5rem;
-      border-top-right-radius: 1.5rem;
-      transform: translateY(100%);
-      z-index: 50;
-    }
-    #personaMenu.open {
-      transform: translateY(0);
-      pointer-events: auto;
-    }
-  }
-
-  @media (min-width: 768px) {
-    #personaMenu {
-      position: absolute;
-      bottom: calc(100% + 12px);
-      left: 8px;
-      width: 19rem;
-      transform: translateY(10px);
-      opacity: 0;
-      pointer-events: none;
-      z-index: 40;
-    }
-    #personaMenu.open {
-      transform: translateY(0);
-      opacity: 1;
-      pointer-events: auto;
-    }
-  }
 </style>
 </head>
 <body class="relative h-screen w-screen overflow-hidden flex flex-col">
@@ -301,62 +260,11 @@
       <div class="max-w-4xl mx-auto">
         <div class="bg-zinc-900/90 border border-white/5 rounded-2xl p-2 md:p-3 shadow-2xl backdrop-blur-xl relative">
           
-          <!-- Smart Persona Menu Popover / Bottom Sheet Drawer -->
-          <div id="personaMenu" class="bg-zinc-950 border-t md:border border-white/10 p-4 md:p-3 shadow-2xl rounded-t-3xl md:rounded-2xl flex flex-col gap-2.5 pointer-events-none opacity-0 md:opacity-0 transition-all duration-300">
-            <div class="flex items-center justify-between border-b border-white/5 pb-2 md:hidden">
-              <div class="flex items-center gap-2">
-                <div class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></div>
-                <span class="text-[10px] font-bold text-gray-400 font-mono tracking-wider">CHOOSE CORE PERSONA</span>
-              </div>
-              <button onclick="closePersonaMenu()" class="text-gray-400 hover:text-white p-1 text-sm">
-                <i class="fas fa-times"></i>
-              </button>
-            </div>
-            <div class="text-[9px] font-semibold text-gray-500 uppercase tracking-widest px-1 hidden md:block">
-              Operational Persona Core
-            </div>
-            <div class="flex flex-col gap-1">
-              <button onclick="selectPersonaMenu('friendly')" id="pm-friendly" class="w-full p-2.5 rounded-xl border border-white/5 text-left flex items-start gap-3 hover:bg-white/5 transition-all">
-                <span class="text-lg shrink-0">😊</span>
-                <div class="min-w-0">
-                  <span class="text-xs font-bold text-white block leading-tight">Adaptive Mode</span>
-                  <span class="text-[9px] text-gray-400 line-clamp-1">Adapts tone to mirror your typing style perfectly.</span>
-                </div>
-              </button>
-              <button onclick="selectPersonaMenu('coder')" id="pm-coder" class="w-full p-2.5 rounded-xl border border-white/5 text-left flex items-start gap-3 hover:bg-white/5 transition-all">
-                <span class="text-lg shrink-0">💻</span>
-                <div class="min-w-0">
-                  <span class="text-xs font-bold text-white block leading-tight">Software Architect</span>
-                  <span class="text-[9px] text-gray-400 line-clamp-1">Focuses on generating clean, bug-free, and optimized code.</span>
-                </div>
-              </button>
-              <button onclick="selectPersonaMenu('writer')" id="pm-writer" class="w-full p-2.5 rounded-xl border border-white/5 text-left flex items-start gap-3 hover:bg-white/5 transition-all">
-                <span class="text-lg shrink-0">✍️</span>
-                <div class="min-w-0">
-                  <span class="text-xs font-bold text-white block leading-tight">Creative Matrix</span>
-                  <span class="text-[9px] text-gray-400 line-clamp-1">Ideal for stories, blogs, and creative texts.</span>
-                </div>
-              </button>
-              <button onclick="selectPersonaMenu('expert')" id="pm-expert" class="w-full p-2.5 rounded-xl border border-white/5 text-left flex items-start gap-3 hover:bg-white/5 transition-all">
-                <span class="text-lg shrink-0">🎓</span>
-                <div class="min-w-0">
-                  <span class="text-xs font-bold text-white block leading-tight">System Analyst</span>
-                  <span class="text-[9px] text-gray-400 line-clamp-1">Highly analytical logic, research, and deep insights.</span>
-                </div>
-              </button>
-            </div>
-          </div>
-
           <!-- Input Area controls -->
           <div class="flex items-end gap-2 md:gap-3">
             <!-- Smart Voice Speech to Text Input -->
             <button id="micBtn" onclick="toggleSpeechRecognition()" class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition-all shrink-0" title="Voice Dictation">
               <i class="fas fa-microphone text-base" id="micIcon"></i>
-            </button>
-
-            <!-- Dynamic Plus Persona Trigger Button -->
-            <button id="plusBtn" onclick="togglePersonaMenu(event)" class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-emerald-400 flex items-center justify-center transition-all shrink-0" title="Select Operational Persona">
-              <i class="fas fa-plus text-sm"></i>
             </button>
 
             <textarea id="input" rows="1" placeholder="Type a message, or ask coding questions..." 
@@ -383,7 +291,7 @@
 
 <!-- Custom Settings Modal -->
 <div id="settingsModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
-  <div id="settingsModalCard" class="bg-zinc-950 border border-white/10 rounded-3xl w-full max-w-lg p-5 md:p-6 m-4 shadow-2xl transform scale-95 transition-all duration-300 flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
+  <div class="bg-zinc-950 border border-white/10 rounded-3xl w-full max-w-lg p-5 md:p-6 m-4 shadow-2xl transform scale-95 transition-all duration-300 flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between border-b border-white/10 pb-3">
       <div class="flex items-center gap-2 text-emerald-400">
         <i class="fas fa-sliders-h text-base md:text-lg"></i>
@@ -406,6 +314,31 @@
           <option value="groq" class="bg-zinc-950">MR7 Velocity Engine (Instant Speed Priority)</option>
           <option value="gemini" class="bg-zinc-950">MR7 Quantum Engine (Analytical Processing Priority)</option>
         </select>
+      </div>
+
+      <!-- Mode Selector -->
+      <div>
+        <label class="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5 font-mono">
+          <i class="fas fa-user-circle mr-1"></i> Core Operational Persona
+        </label>
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="setPersona('friendly')" id="p-friendly" class="p-2.5 rounded-xl border text-left flex flex-col gap-0.5 transition-all">
+            <span class="text-xs font-bold text-white">😊 Adaptive Mode</span>
+            <span class="text-[9px] text-gray-400 leading-tight">Engages with natural phrasing matching your style perfectly.</span>
+          </button>
+          <button onclick="setPersona('coder')" id="p-coder" class="p-2.5 rounded-xl border text-left flex flex-col gap-0.5 transition-all">
+            <span class="text-xs font-bold text-white">💻 Software Architect</span>
+            <span class="text-[9px] text-gray-400 leading-tight">Focuses on generating clean, bug-free, structured code.</span>
+          </button>
+          <button onclick="setPersona('writer')" id="p-writer" class="p-2.5 rounded-xl border text-left flex flex-col gap-0.5 transition-all">
+            <span class="text-xs font-bold text-white">✍️ Creative Matrix</span>
+            <span class="text-[9px] text-gray-400 leading-tight">Unlocks descriptive stories, persuasive copywriting, and texts.</span>
+          </button>
+          <button onclick="setPersona('expert')" id="p-expert" class="p-2.5 rounded-xl border text-left flex flex-col gap-0.5 transition-all">
+            <span class="text-xs font-bold text-white">🎓 System Analyst</span>
+            <span class="text-[9px] text-gray-400 leading-tight">Provides deeply calculated research and technical answers.</span>
+          </button>
+        </div>
       </div>
 
       <!-- Glow HUD Color Customization -->
@@ -454,13 +387,9 @@
 const BRAND_NAME = "MR7 AI"; 
 const BRAND_ACCENT = "AI";
 
-// Embedded Proprietary Access Tokens (Base64 Encoded for Ultimate Public Leak Scan Protection)
-const EM_QA_KEY_B64 = "QUl6YVN5RFVncm5KVEcwYXVoQjhqbTk5YUtwRDdXVERyNlA2VjJZ"; // Gemini Secure Scrambled Core Token
-const EM_VL_KEY_B64 = "WjNudFgyWlBValJOUjJ4blZIZlpWek5EY0ZwalUwdHllbTlaTmsxaGQzWXllRTFoZGpOVWVtRjJOblA5TjNscU9ucEJkM2x6UVcxeWMyTTVPZz09"; // Scrambled Groq Key
-
-// Obfuscation Decryption Logic
-function getSecureQA() { return atob(EM_QA_KEY_B64); }
-function getSecureVL() { return atob(atob(EM_VL_KEY_B64)); } // Double scrambled layer for optimal bot leakage safety
+// Embedded Proprietary Access Tokens (Hardcoded and hidden)
+const EM_QA_KEY = "AIzaSyDUgrnJTG0auhB8jm99aKpD7WTDr6P6V2Y"; 
+const EM_VL_KEY = "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";
 
 /* ---------- Local Configuration State ---------- */
 let chats = JSON.parse(localStorage.getItem("mr7_v5_chats") || "{}");
@@ -472,7 +401,6 @@ let activeVoiceAccent = localStorage.getItem("mr7_v5_voice_accent") || "en-US";
 let activeEngine = localStorage.getItem("mr7_v5_engine") || "groq"; 
 let isGenerating = false;
 let is3DActive = localStorage.getItem("mr7_v5_3d") !== "false";
-let isPersonaMenuOpen = false;
 
 /* ---------- Native Speech Capture Web API ---------- */
 let recognition = null;
@@ -594,13 +522,6 @@ window.addEventListener("load", () => {
   updatePersonaUI();
   updateEngineUI();
   init3DSpace();
-
-  // Close menus on clicking outside
-  window.addEventListener("click", (e) => {
-    if (isPersonaMenuOpen && !document.getElementById("personaMenu").contains(e.target) && !document.getElementById("plusBtn").contains(e.target)) {
-      closePersonaMenu();
-    }
-  });
 
   // Start Live Telemetry Diagnostics
   setInterval(() => {
@@ -925,7 +846,7 @@ async function sendMessage() {
   } catch (err) {
     console.error(err);
     // Graceful customized failover response
-    chat.messages[chat.messages.length - 1].content = `⚠️ **Transmission Error:** Deep routing nodes are currently saturated or blocked.\n\nPlease verify your network parameters or check your current Engine settings. Standard local fallback operations remained secure.`;
+    chat.messages[chat.messages.length - 1].content = `⚠️ **Transmission Error:** Deep routing nodes are currently saturated or blocked.\n\nPlease verify your network parameters or try again shortly. Standard local fallback operations remained secure.`;
   } finally {
     isGenerating = false;
     document.getElementById("sendBtn").disabled = false;
@@ -950,8 +871,7 @@ async function triggerQuantumTextAPI(chatHistory) {
     }
   };
 
-  const key = getSecureQA();
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${EM_QA_KEY}`;
 
   const response = await fetch(apiUrl, {
     method: 'POST',
@@ -985,14 +905,13 @@ async function triggerVelocityTextAPI(chatHistory) {
     max_tokens: 4096
   };
 
-  const key = getSecureVL();
   const apiUrl = "https://api.groq.com/openai/v1/chat/completions";
 
   const response = await fetch(apiUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${key}`
+      'Authorization': `Bearer ${EM_VL_KEY}`
     },
     body: JSON.stringify(payload)
   });
@@ -1064,80 +983,68 @@ function copyToClipboard(btn, index) {
   if (!chat || !chat.messages[index]) return;
   
   const text = chat.messages[index].content;
-  navigator.clipboard.writeText(text).then(() => {
+  const tempTextarea = document.createElement("textarea");
+  tempTextarea.value = text;
+  document.body.appendChild(tempTextarea);
+  tempTextarea.select();
+  try {
+    document.execCommand('copy');
     btn.innerHTML = `<i class="fas fa-check text-emerald-400"></i> <span>Copied!</span>`;
     setTimeout(() => {
       btn.innerHTML = `<i class="fas fa-clone text-xs"></i> <span>Copy Text</span>`;
     }, 2000);
-  }).catch(() => {
+  } catch (err) {
     triggerToast("Buffer Error", "Failed to access workspace clipboard.", "text-red-400");
-  });
+  }
+  document.body.removeChild(tempTextarea);
 }
 
-/* ---------- Dynamic Persona Popover Menu Controllers ---------- */
-function togglePersonaMenu(event) {
-  if (event) event.stopPropagation();
-  const menu = document.getElementById("personaMenu");
-  isPersonaMenuOpen = !isPersonaMenuOpen;
+function triggerToast(title, text, styleClass = "text-emerald-400") {
+  const toast = document.getElementById("toast");
+  const icon = document.getElementById("toast-icon");
+  const msg = document.getElementById("toast-msg");
   
-  if (isPersonaMenuOpen) {
-    menu.classList.add("open");
-    menu.classList.remove("pointer-events-none", "opacity-0");
-    
-    // Highlight currently active persona menu option
-    const personas = ["friendly", "coder", "writer", "expert"];
-    personas.forEach(p => {
-      const btn = document.getElementById(`pm-${p}`);
-      if (p === currentPersona) {
-        btn.style.borderColor = "var(--accent)";
-        btn.style.backgroundColor = "rgba(16, 163, 127, 0.08)";
-      } else {
-        btn.style.borderColor = "rgba(255, 255, 255, 0.05)";
-        btn.style.backgroundColor = "transparent";
-      }
-    });
+  if (styleClass.includes("red")) {
+    icon.innerHTML = `<i class="fas fa-exclamation-circle text-red-400"></i>`;
+  } else if (styleClass.includes("yellow")) {
+    icon.innerHTML = `<i class="fas fa-info-circle text-yellow-400"></i>`;
   } else {
-    closePersonaMenu();
+    icon.innerHTML = `<i class="fas fa-check-circle text-emerald-400"></i>`;
   }
-}
 
-function closePersonaMenu() {
-  const menu = document.getElementById("personaMenu");
-  menu.classList.remove("open", "pointer-events-auto");
-  menu.classList.add("pointer-events-none", "opacity-0");
-  isPersonaMenuOpen = false;
-}
-
-function selectPersonaMenu(personaKey) {
-  currentPersona = personaKey;
-  localStorage.setItem("mr7_v5_persona", currentPersona);
+  msg.innerHTML = `<b>${title}</b>: ${text}`;
+  toast.className = "fixed top-6 left-1/2 transform -translate-x-1/2 bg-gray-900/95 border border-white/10 text-white px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-md z-50 flex items-center gap-3 transition-all duration-300 pointer-events-auto opacity-100 scale-100 max-w-[90%] text-center";
   
-  if (chats[currentChatId]) {
-    chats[currentChatId].persona = currentPersona;
-    saveChatsToLocal();
-  }
-
-  updatePersonaUI();
-  renderMessages();
-  closePersonaMenu();
-  triggerToast("Persona Loaded", `Switched to ${currentPersona.toUpperCase()} Mode!`);
+  setTimeout(() => {
+    toast.className = "fixed top-6 left-1/2 transform -translate-x-1/2 bg-gray-900/90 border border-white/10 text-white px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-md z-50 flex items-center gap-3 transition-all duration-300 pointer-events-none opacity-0 scale-95 max-w-[90%] text-center";
+  }, 3000);
 }
 
 /* ---------- Custom Settings Matrix Panels ---------- */
 function openSettings() {
-  const modal = document.getElementById("settingsModal");
-  modal.style.opacity = "1";
-  modal.style.pointerEvents = "auto";
-  const card = document.getElementById("settingsModalCard");
-  card.style.transform = "scale(1)";
+  document.getElementById("settingsModal").classList.remove("pointer-events-none", "opacity-0");
+  document.getElementById("settingsModal").querySelector(".transform").classList.remove("scale-95");
+  
+  // Activate selected persona highlighting
+  const buttons = ["friendly", "coder", "writer", "expert"];
+  buttons.forEach(p => {
+    const el = document.getElementById(`p-${p}`);
+    if (p === currentPersona) {
+      el.className = "p-2.5 rounded-xl border border-emerald-500 bg-emerald-500/10 text-left flex flex-col gap-0.5 transition-all shadow-md font-sans";
+    } else {
+      el.className = "p-2.5 rounded-xl border border-white/5 hover:border-white/20 bg-white/5 text-left flex flex-col gap-0.5 transition-all font-sans";
+    }
+  });
 }
 
 function closeSettings() {
-  const modal = document.getElementById("settingsModal");
-  modal.style.opacity = "0";
-  modal.style.pointerEvents = "none";
-  const card = document.getElementById("settingsModalCard");
-  card.style.transform = "scale(0.95)";
+  document.getElementById("settingsModal").classList.add("pointer-events-none", "opacity-0");
+  document.getElementById("settingsModal").querySelector(".transform").classList.add("scale-95");
+}
+
+function setPersona(p) {
+  currentPersona = p;
+  openSettings();
 }
 
 function setAccent(hex, glow) {
@@ -1156,10 +1063,17 @@ function saveAllSettings() {
   activeVoiceAccent = selectedAccent;
 
   localStorage.setItem("mr7_v5_engine", activeEngine);
+  localStorage.setItem("mr7_v5_persona", currentPersona);
   localStorage.setItem("mr7_v5_voice_accent", activeVoiceAccent);
   localStorage.setItem("mr7_v5_accent", currentAccent);
   localStorage.setItem("mr7_v5_accent_glow", currentAccentGlow);
 
+  if (chats[currentChatId]) {
+    chats[currentChatId].persona = currentPersona;
+    saveChatsToLocal();
+  }
+
+  updatePersonaUI();
   updateEngineUI();
   closeSettings();
   renderMessages();
@@ -1167,6 +1081,7 @@ function saveAllSettings() {
 }
 
 function resetSettings() {
+  currentPersona = "friendly";
   currentAccent = "#10a37f";
   currentAccentGlow = "rgba(16,163,127,0.15)";
   activeVoiceAccent = "en-US";
@@ -1178,7 +1093,7 @@ function resetSettings() {
   document.documentElement.style.setProperty('--accent', currentAccent);
   document.documentElement.style.setProperty('--accent-glow', currentAccentGlow);
 
-  closeSettings();
+  openSettings();
   triggerToast("Calibrated", "Default systemic settings restored successfully.");
 }
 
@@ -1340,26 +1255,6 @@ function init3DSpace() {
 
   renderLoop();
 }
-
-/* ---------- Custom Notification Alert Popups ---------- */
-function triggerToast(title, message = "", iconClass = "text-emerald-400") {
-  const toast = document.getElementById("toast");
-  const toastIcon = document.getElementById("toast-icon");
-  const toastMsg = document.getElementById("toast-msg");
-  if (!toast) return;
-
-  toastIcon.className = iconClass;
-  toastMsg.innerHTML = `<strong>${title}</strong> ${message ? '· ' + message : ''}`;
-
-  toast.classList.remove("opacity-0", "scale-95", "pointer-events-none");
-  toast.classList.add("opacity-100", "scale-100");
-
-  setTimeout(() => {
-    toast.classList.add("opacity-0", "scale-95", "pointer-events-none");
-    toast.classList.remove("opacity-100", "scale-100");
-  }, 3000);
-}
 </script>
 </body>
 </html>
-
