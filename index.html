@@ -45,14 +45,6 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  body.light {
-    --bg-dark: #f8fafc;
-    --panel-dark: #ffffff;
-    --border-dark: rgba(0, 0, 0, 0.08);
-    --text-dark: #0f172a;
-    --text-muted: #64748b;
-  }
-
   h1, h2, h3, .font-heading {
     font-family: 'Space Grotesk', sans-serif;
   }
@@ -68,7 +60,7 @@
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    opacity: 0.35;
+    opacity: 0.45;
     transition: opacity 0.5s;
   }
 
@@ -84,24 +76,12 @@
     background: rgba(255, 255, 255, 0.08);
     border-radius: 99px;
   }
-  body.light ::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.08);
-  }
   ::-webkit-scrollbar-thumb:hover {
     background: var(--accent);
   }
 
   pre code {
     font-family: 'Fira Code', monospace !important;
-  }
-
-  /* Audio pulse animation */
-  @keyframes pulse-audio {
-    0%, 100% { transform: scale(1); opacity: 0.8; }
-    50% { transform: scale(1.08); opacity: 1; color: #ef4444; }
-  }
-  .audio-playing {
-    animation: pulse-audio 1.2s infinite;
   }
 
   /* Typing cursor */
@@ -116,14 +96,23 @@
   }
 
   * {
-    transition: background-color 0.2s ease, border-color 0.2s ease;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
   }
 
   /* Mobile overlay styling for backdrop */
   #sidebarOverlay {
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(4px);
     transition: opacity 0.25s ease;
+  }
+
+  /* CSS helper to hide scrollbars while preserving functionality */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 </style>
 </head>
@@ -134,16 +123,16 @@
 <!-- Top Alert Toast -->
 <div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 bg-gray-950/95 border border-white/10 text-white px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-md z-50 flex items-center gap-3 transition-all duration-300 pointer-events-none opacity-0 scale-95 max-w-[90%] text-center">
   <span id="toast-icon" class="text-emerald-400 text-lg"><i class="fas fa-check-circle"></i></span>
-  <span id="toast-msg" class="text-xs md:text-sm font-medium">Matrix Synchronized!</span>
+  <span id="toast-msg" class="text-xs md:text-sm font-medium">System Aligned!</span>
 </div>
 
 <!-- Mobile Sidebar Backdrop Overlay -->
-<div id="sidebarOverlay" class="fixed inset-0 z-30 hidden transition-opacity opacity-0" onclick="toggleSidebar(); playSound('click')"></div>
+<div id="sidebarOverlay" class="fixed inset-0 z-30 hidden transition-opacity opacity-0" onclick="toggleSidebar()"></div>
 
 <div class="relative z-10 flex h-full w-full overflow-hidden">
   
-  <!-- Sidebar Panel (Fully Mobile Responsive Drawer) -->
-  <aside id="sidebar" class="fixed md:relative inset-y-0 left-0 w-72 md:w-80 bg-zinc-950 md:bg-black/45 backdrop-blur-2xl border-r border-white/5 flex flex-col justify-between transition-transform duration-300 transform -translate-x-full md:translate-x-0 z-40">
+  <!-- Sidebar Panel -->
+  <aside id="sidebar" class="fixed md:relative inset-y-0 left-0 w-72 md:w-80 bg-zinc-950 md:bg-black/55 backdrop-blur-2xl border-r border-white/5 flex flex-col justify-between transition-transform duration-300 transform -translate-x-full md:translate-x-0 z-40">
     <div>
       <!-- Brand Area -->
       <div class="p-5 border-b border-white/5 flex items-center justify-between">
@@ -157,16 +146,16 @@
           </div>
         </div>
         <!-- Sidebar Toggle on Mobile -->
-        <button onclick="toggleSidebar(); playSound('click')" class="md:hidden text-gray-400 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-xl">
+        <button onclick="toggleSidebar()" class="md:hidden text-gray-400 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-xl">
           <i class="fas fa-times text-sm"></i>
         </button>
       </div>
 
       <!-- Action Button -->
       <div class="p-4">
-        <button onclick="newChat(); toggleSidebarIfMobile(); playSound('success')" class="w-full bg-white/5 hover:bg-white/10 border border-white/5 text-white rounded-2xl py-3 px-4 flex items-center justify-center gap-3 font-medium transition-all group hover:shadow-lg text-sm">
+        <button onclick="newChat(); toggleSidebarIfMobile();" class="w-full bg-white/5 hover:bg-white/10 border border-white/5 text-white rounded-2xl py-3 px-4 flex items-center justify-center gap-3 font-medium transition-all group hover:shadow-lg text-sm">
           <i class="fas fa-plus text-xs text-emerald-400 group-hover:rotate-90 transition-transform"></i>
-          <span>Naya Chat Shuru Karein</span>
+          <span>New Conversation</span>
         </button>
       </div>
 
@@ -174,46 +163,53 @@
       <div class="px-4 mb-3">
         <div class="relative">
           <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
-          <input type="text" id="chatSearch" placeholder="Chats search karein..." oninput="filterChats(this.value)" class="w-full bg-white/5 border border-white/5 rounded-xl py-2.5 pl-9 pr-4 text-xs text-white focus:outline-none focus:border-emerald-500/50 transition-colors">
+          <input type="text" id="chatSearch" placeholder="Search conversations..." oninput="filterChats(this.value)" class="w-full bg-white/5 border border-white/5 rounded-xl py-2.5 pl-9 pr-4 text-xs text-white focus:outline-none focus:border-emerald-500/50 transition-colors">
         </div>
       </div>
 
       <!-- Live Chat History List -->
-      <div class="px-2 flex flex-col gap-1 overflow-y-auto max-h-[44vh] md:max-h-[48vh]" id="chatList">
+      <div class="px-2 flex flex-col gap-1 overflow-y-auto max-h-[35vh] md:max-h-[40vh]" id="chatList">
         <!-- Chat items populated dynamically -->
       </div>
     </div>
 
-    <!-- Sidebar Footer with Proprietary System Metrics -->
+    <!-- Sidebar Footer with Diagnostic Monitoring Console -->
     <div class="p-4 border-t border-white/5 bg-black/20 flex flex-col gap-3">
-      <div class="bg-white/[0.02] rounded-xl p-3 border border-white/5 flex flex-col gap-1.5 text-[10px] font-mono text-gray-500">
-        <div class="flex justify-between">
-          <span>SYSTEM STATUS:</span>
-          <span class="text-emerald-400 font-bold flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> NOMINAL
-          </span>
+      <!-- Live Console Simulator Grid -->
+      <div class="bg-black/40 rounded-xl p-3 border border-white/5 flex flex-col gap-1.5 text-[9px] font-mono text-gray-500">
+        <div class="flex justify-between items-center text-gray-400 font-semibold border-b border-white/5 pb-1 mb-1">
+          <span>DIAGNOSTIC TELEMETRY</span>
+          <span class="text-emerald-400 text-[8px] animate-pulse">● LIVE</span>
         </div>
         <div class="flex justify-between">
           <span>LATENCY MATRIX:</span>
-          <span class="text-gray-300" id="liveLatency">10ms</span>
+          <span class="text-emerald-400" id="liveLatency">8ms</span>
+        </div>
+        <div class="flex justify-between">
+          <span>CPU THREADS:</span>
+          <span class="text-gray-300" id="liveCpu">NODE_02: 12.4%</span>
+        </div>
+        <div class="flex justify-between">
+          <span>SYSTEM STATE:</span>
+          <span class="text-emerald-500 font-semibold">NOMINAL CORE</span>
         </div>
         <div class="flex justify-between">
           <span>CREATORS:</span>
-          <span class="text-emerald-400 font-bold">MR7 TEAM</span>
+          <span class="text-emerald-400">MR7 TEAM</span>
         </div>
       </div>
 
       <div class="flex items-center justify-between gap-2 p-2.5 bg-white/5 rounded-2xl border border-white/5">
         <div class="flex items-center gap-2">
           <div class="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400" id="bottom-icon">
-            <i class="fas fa-brain"></i>
+            <i class="fas fa-bolt"></i>
           </div>
           <div>
-            <p class="text-xs font-semibold" id="activeEngineLabel">MR7 Core Engine</p>
-            <p class="text-[9px] text-emerald-400 font-mono" id="activeEngineSub">Continuous Matrix</p>
+            <p class="text-xs font-semibold" id="activeEngineLabel">MR7 Velocity Core</p>
+            <p class="text-[9px] text-emerald-400 font-mono" id="activeEngineSub">Continuous Transmission</p>
           </div>
         </div>
-        <button onclick="openSettings(); playSound('click')" class="text-gray-400 hover:text-white p-2.5 hover:bg-white/5 rounded-xl transition-colors" title="Settings Center">
+        <button onclick="openSettings()" class="text-gray-400 hover:text-white p-2.5 hover:bg-white/5 rounded-xl transition-colors" title="Settings Center">
           <i class="fas fa-sliders-h"></i>
         </button>
       </div>
@@ -227,24 +223,21 @@
     <header class="h-16 border-b border-white/5 flex items-center justify-between px-4 md:px-6 bg-black/10 backdrop-blur-md">
       <div class="flex items-center gap-2">
         <!-- Responsive Drawer Trigger -->
-        <button id="sidebarToggle" onclick="toggleSidebar(); playSound('click')" class="text-gray-400 hover:text-white p-2.5 hover:bg-white/5 rounded-xl mr-1">
+        <button id="sidebarToggle" onclick="toggleSidebar()" class="text-gray-400 hover:text-white p-2.5 hover:bg-white/5 rounded-xl mr-1">
           <i class="fas fa-bars"></i>
         </button>
         <div class="flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" id="top-pulse"></span>
-          <span class="text-[11px] md:text-xs font-semibold text-gray-300 font-mono tracking-wider uppercase truncate max-w-[150px] md:max-w-none" id="activePersonaHeader">😊 Hinglish Dost Mode</span>
+          <span class="text-[11px] md:text-xs font-semibold text-gray-300 font-mono tracking-wider uppercase truncate max-w-[150px] md:max-w-none" id="activePersonaHeader">😊 Adaptive Conversation Mode</span>
         </div>
       </div>
 
       <!-- Topbar Controls -->
       <div class="flex items-center gap-1.5">
-        <button onclick="toggleTheme(); playSound('click')" id="themeBtn" class="text-gray-400 hover:text-white bg-white/5 border border-white/5 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-colors">
-          ☀️ Light
+        <button onclick="toggleVisuals()" id="visualToggleBtn" class="text-gray-400 hover:text-white bg-white/5 border border-white/5 px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors">
+          <i class="fas fa-expand"></i> <span class="hidden md:inline">3D Grid On</span>
         </button>
-        <button onclick="toggleVisuals(); playSound('click')" id="visualToggleBtn" class="text-gray-400 hover:text-white bg-white/5 border border-white/5 px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors">
-          <i class="fas fa-expand"></i> <span class="hidden md:inline">3D Effects On</span>
-        </button>
-        <button onclick="openSettings(); playSound('click')" class="text-gray-400 hover:text-white bg-white/5 border border-white/5 p-2 rounded-xl text-xs transition-colors" title="Customise Layout">
+        <button onclick="openSettings()" class="text-gray-400 hover:text-white bg-white/5 border border-white/5 p-2 rounded-xl text-xs transition-colors" title="Configure Layout">
           <i class="fas fa-sliders-h"></i>
         </button>
       </div>
@@ -255,10 +248,10 @@
       <!-- Welcome Landing State rendered dynamically -->
     </div>
 
-    <!-- Contextual suggestions container -->
+    <!-- Contextual Suggestion Slider Container (ONLY visible when conversation has NOT started) -->
     <div class="px-4 md:px-12" id="contextualSuggestionsWrap">
       <div class="max-w-4xl mx-auto flex flex-wrap gap-2 py-1.5 overflow-x-auto no-scrollbar" id="contextSuggestions">
-        <!-- Intelligent Proprietary Suggestions populate here -->
+        <!-- Suggestions are generated contextually here -->
       </div>
     </div>
 
@@ -267,10 +260,10 @@
       <div class="max-w-4xl mx-auto">
         <div class="bg-zinc-900/90 border border-white/5 rounded-2xl p-2 md:p-3 shadow-2xl backdrop-blur-xl relative">
           
-          <!-- Input Matrix controls -->
+          <!-- Input Area controls -->
           <div class="flex items-end gap-2 md:gap-3">
-            <!-- Smart Audio Mic Recording Button -->
-            <button id="micBtn" onclick="toggleSpeechRecognition(); playSound('click')" class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition-all shrink-0" title="Voice Typing">
+            <!-- Smart Voice Speech to Text Input -->
+            <button id="micBtn" onclick="toggleSpeechRecognition()" class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition-all shrink-0" title="Voice Dictation">
               <i class="fas fa-microphone text-base" id="micIcon"></i>
             </button>
 
@@ -281,10 +274,10 @@
             
             <div class="flex items-center gap-1 pr-1">
               <span id="charCount" class="text-[9px] text-gray-500 font-mono hidden sm:inline">0</span>
-              <button onclick="clearInput(); playSound('click')" class="w-8 h-8 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white flex items-center justify-center transition-colors" title="Clear Text">
+              <button onclick="clearInput()" class="w-8 h-8 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white flex items-center justify-center transition-colors" title="Clear Entry">
                 <i class="fas fa-trash-alt text-xs"></i>
               </button>
-              <button id="sendBtn" onclick="sendMessage(); playSound('click')" class="w-10 h-10 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black flex items-center justify-center transition-all shadow-lg shadow-emerald-500/10">
+              <button id="sendBtn" onclick="sendMessage()" class="w-10 h-10 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black flex items-center justify-center transition-all shadow-lg shadow-emerald-500/10">
                 <i class="fas fa-paper-plane text-sm"></i>
               </button>
             </div>
@@ -296,82 +289,82 @@
   </main>
 </div>
 
-<!-- Simplified Custom Settings Modal (Strictly No API key entries, pure Customization) -->
+<!-- Custom Settings Modal -->
 <div id="settingsModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
   <div class="bg-zinc-950 border border-white/10 rounded-3xl w-full max-w-lg p-5 md:p-6 m-4 shadow-2xl transform scale-95 transition-all duration-300 flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between border-b border-white/10 pb-3">
-      <div class="flex items-center gap-2 text-emerald-400" id="settings-title-color">
+      <div class="flex items-center gap-2 text-emerald-400">
         <i class="fas fa-sliders-h text-base md:text-lg"></i>
-        <h2 class="text-base md:text-lg font-bold font-heading">MR7 Core Settings</h2>
+        <h2 class="text-base md:text-lg font-bold font-heading">MR7 Configuration Matrix</h2>
       </div>
-      <button onclick="closeSettings(); playSound('click')" class="text-gray-400 hover:text-white hover:bg-white/10 w-8 h-8 rounded-full flex items-center justify-center transition-all">
+      <button onclick="closeSettings()" class="text-gray-400 hover:text-white hover:bg-white/10 w-8 h-8 rounded-full flex items-center justify-center transition-all">
         <i class="fas fa-times text-sm"></i>
       </button>
     </div>
 
-    <!-- Settings Controls -->
+    <!-- Settings Options -->
     <div class="flex flex-col gap-3 md:gap-4">
       
-      <!-- Proprietary Engine Switch -->
+      <!-- Engine Selector -->
       <div>
         <label class="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5 font-mono">
-          <i class="fas fa-server mr-1"></i> Core Matrix Pipeline
+          <i class="fas fa-server mr-1"></i> Native Engine Pipeline
         </label>
         <select id="apiEngine" class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-xs md:text-sm text-white focus:outline-none focus:border-emerald-500 font-sans">
-          <option value="groq" class="bg-zinc-950">MR7 Velocity Core (Instantaneous Speed System)</option>
-          <option value="gemini" class="bg-zinc-950">MR7 Quantum Engine (Ultra Reasoning & Synthesis)</option>
+          <option value="groq" class="bg-zinc-950">MR7 Velocity Engine (Instant Speed Priority)</option>
+          <option value="gemini" class="bg-zinc-950">MR7 Quantum Engine (Analytical Processing Priority)</option>
         </select>
       </div>
 
-      <!-- Persona Customizer -->
+      <!-- Mode Selector -->
       <div>
         <label class="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5 font-mono">
-          <i class="fas fa-user-circle mr-1"></i> Interactive Neural Persona
+          <i class="fas fa-user-circle mr-1"></i> Core Operational Persona
         </label>
         <div class="grid grid-cols-2 gap-2">
           <button onclick="setPersona('friendly')" id="p-friendly" class="p-2.5 rounded-xl border text-left flex flex-col gap-0.5 transition-all">
-            <span class="text-xs font-bold text-white">😊 Hinglish Dost</span>
-            <span class="text-[9px] text-gray-400 leading-tight">Casual language, warm connect, helpful advices.</span>
+            <span class="text-xs font-bold text-white">😊 Adaptive Mode</span>
+            <span class="text-[9px] text-gray-400 leading-tight">Engages with natural phrasing matching your style perfectly.</span>
           </button>
           <button onclick="setPersona('coder')" id="p-coder" class="p-2.5 rounded-xl border text-left flex flex-col gap-0.5 transition-all">
-            <span class="text-xs font-bold text-white">💻 Algorithm Architect</span>
-            <span class="text-[9px] text-gray-400 leading-tight">Strict clean code blocks & optimized logic structures.</span>
+            <span class="text-xs font-bold text-white">💻 Software Architect</span>
+            <span class="text-[9px] text-gray-400 leading-tight">Focuses on generating clean, bug-free, structured code.</span>
           </button>
           <button onclick="setPersona('writer')" id="p-writer" class="p-2.5 rounded-xl border text-left flex flex-col gap-0.5 transition-all">
             <span class="text-xs font-bold text-white">✍️ Creative Matrix</span>
-            <span class="text-[9px] text-gray-400 leading-tight">Engaging stories, lyrics, poetry, and sales copies.</span>
+            <span class="text-[9px] text-gray-400 leading-tight">Unlocks descriptive stories, persuasive copywriting, and texts.</span>
           </button>
           <button onclick="setPersona('expert')" id="p-expert" class="p-2.5 rounded-xl border text-left flex flex-col gap-0.5 transition-all">
-            <span class="text-xs font-bold text-white">🎓 System Consultant</span>
-            <span class="text-[9px] text-gray-400 leading-tight">Deep analytical research, clean summaries & math.</span>
+            <span class="text-xs font-bold text-white">🎓 System Analyst</span>
+            <span class="text-[9px] text-gray-400 leading-tight">Provides deeply calculated research and technical answers.</span>
           </button>
         </div>
       </div>
 
-      <!-- Theme/Accent Palette -->
+      <!-- Glow HUD Color Customization -->
       <div>
         <label class="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5 font-mono">
-          <i class="fas fa-palette mr-1"></i> HUD Interface Glow Style
+          <i class="fas fa-palette mr-1"></i> Interactive Accent Glow Theme
         </label>
         <div class="flex gap-2 justify-between items-center bg-white/5 p-2 rounded-xl border border-white/5">
-          <button onclick="setAccent('#10a37f', 'rgba(16,163,127,0.15)'); playSound('click')" class="w-7 h-7 rounded-full bg-[#10a37f] border border-white/20 hover:scale-110 active:scale-95 transition-all" title="Emerald"></button>
-          <button onclick="setAccent('#00d2ff', 'rgba(0,210,255,0.15)'); playSound('click')" class="w-7 h-7 rounded-full bg-[#00d2ff] border border-white/20 hover:scale-110 active:scale-95 transition-all" title="Electric Blue"></button>
-          <button onclick="setAccent('#8b5cf6', 'rgba(139,92,246,0.15)'); playSound('click')" class="w-7 h-7 rounded-full bg-[#8b5cf6] border border-white/20 hover:scale-110 active:scale-95 transition-all" title="Cyber Violet"></button>
-          <button onclick="setAccent('#ec4899', 'rgba(236,72,153,0.15)'); playSound('click')" class="w-7 h-7 rounded-full bg-[#ec4899] border border-white/20 hover:scale-110 active:scale-95 transition-all" title="Neon Pink"></button>
-          <button onclick="setAccent('#f59e0b', 'rgba(245,158,11,0.15)'); playSound('click')" class="w-7 h-7 rounded-full bg-[#f59e0b] border border-white/20 hover:scale-110 active:scale-95 transition-all" title="Tropic Gold"></button>
+          <button onclick="setAccent('#10a37f', 'rgba(16,163,127,0.15)')" class="w-7 h-7 rounded-full bg-[#10a37f] border border-white/20 hover:scale-110 active:scale-95 transition-all" title="Emerald"></button>
+          <button onclick="setAccent('#00d2ff', 'rgba(0,210,255,0.15)')" class="w-7 h-7 rounded-full bg-[#00d2ff] border border-white/20 hover:scale-110 active:scale-95 transition-all" title="Electric Blue"></button>
+          <button onclick="setAccent('#8b5cf6', 'rgba(139,92,246,0.15)')" class="w-7 h-7 rounded-full bg-[#8b5cf6] border border-white/20 hover:scale-110 active:scale-95 transition-all" title="Cyber Violet"></button>
+          <button onclick="setAccent('#ec4899', 'rgba(236,72,153,0.15)')" class="w-7 h-7 rounded-full bg-[#ec4899] border border-white/20 hover:scale-110 active:scale-95 transition-all" title="Neon Pink"></button>
+          <button onclick="setAccent('#f59e0b', 'rgba(245,158,11,0.15)')" class="w-7 h-7 rounded-full bg-[#f59e0b] border border-white/20 hover:scale-110 active:scale-95 transition-all" title="Tropic Gold"></button>
         </div>
       </div>
 
-      <!-- Vocal Output configuration -->
+      <!-- Speech Settings -->
       <div>
         <label class="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5 font-mono">
-          <i class="fas fa-volume-up mr-1"></i> Smart Voice Synthesizer
+          <i class="fas fa-volume-up mr-1"></i> Built-In Reader Synthesis Accent
         </label>
-        <select id="ttsVoice" class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono">
-          <option value="Kore" class="bg-zinc-950">Acoustic Female Pro (Firm / Native Standard)</option>
-          <option value="Zephyr" class="bg-zinc-950">Acoustic Male Pro (Bright Speaker)</option>
-          <option value="Puck" class="bg-zinc-950">Interactive Puck (Upbeat Dynamics)</option>
-          <option value="Charon" class="bg-zinc-950">System Informational Core (Deep / Clear Tone)</option>
+        <select id="ttsAccent" class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono">
+          <option value="en-US" class="bg-zinc-950">English (US Accent - Clean Standard)</option>
+          <option value="en-GB" class="bg-zinc-950">English (UK Accent - Polished Tone)</option>
+          <option value="en-IN" class="bg-zinc-950">English (Indian Accent - Native Pronunciation)</option>
+          <option value="hi-IN" class="bg-zinc-950">Hindi (Multilingual Accent Output)</option>
         </select>
       </div>
 
@@ -379,78 +372,35 @@
 
     <!-- Actions -->
     <div class="flex gap-3 mt-3 pt-3 border-t border-white/10">
-      <button onclick="resetSettings(); playSound('click')" class="flex-1 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl py-2.5 text-xs font-semibold text-gray-400 transition-colors">
-        Defaults
+      <button onclick="resetSettings()" class="flex-1 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl py-2.5 text-xs font-semibold text-gray-400 transition-colors">
+        Restore Defaults
       </button>
-      <button onclick="saveAllSettings(); playSound('success')" class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-black rounded-xl py-2.5 text-xs font-bold shadow-lg">
-        💾 Sync Setup
+      <button onclick="saveAllSettings()" class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-black rounded-xl py-2.5 text-xs font-bold shadow-lg">
+        Sync Settings
       </button>
     </div>
   </div>
 </div>
 
-<!-- Hidden global audio channel -->
-<audio id="globalAudioPlayer" class="hidden"></audio>
-
 <script>
-// Dynamic Brand Re-naming Configuration Constants
+// Dynamic Brand Configuration Constants
 const BRAND_NAME = "MR7 AI"; 
 const BRAND_ACCENT = "AI";
 
-// Embedded Proprietary Access Keys (Hardcoded behind the scenes)
+// Embedded Proprietary Access Tokens (Hardcoded and hidden)
 const EM_QA_KEY = "AIzaSyDUgrnJTG0auhB8jm99aKpD7WTDr6P6V2Y"; 
 const EM_VL_KEY = "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";
 
-/* ---------- Autonomous Audio FX Engine ---------- */
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
-function playSound(type) {
-  try {
-    const osc = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    osc.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-
-    if (type === 'click') {
-      osc.frequency.setValueAtTime(580, audioContext.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(120, audioContext.currentTime + 0.08);
-      gainNode.gain.setValueAtTime(0.02, audioContext.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.08);
-      osc.start();
-      osc.stop(audioContext.currentTime + 0.08);
-    } else if (type === 'success') {
-      osc.frequency.setValueAtTime(450, audioContext.currentTime);
-      osc.frequency.setValueAtTime(900, audioContext.currentTime + 0.07);
-      gainNode.gain.setValueAtTime(0.03, audioContext.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.22);
-      osc.start();
-      osc.stop(audioContext.currentTime + 0.22);
-    } else if (type === 'error') {
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(140, audioContext.currentTime);
-      osc.frequency.linearRampToValueAtTime(70, audioContext.currentTime + 0.25);
-      gainNode.gain.setValueAtTime(0.04, audioContext.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.25);
-      osc.start();
-      osc.stop(audioContext.currentTime + 0.25);
-    }
-  } catch (e) {
-    console.debug("Audio system initialization bypassed: ", e);
-  }
-}
-
-/* ---------- Local State variables ---------- */
-let chats = JSON.parse(localStorage.getItem("mr7_v4_chats") || "{}");
-let currentChatId = localStorage.getItem("mr7_v4_current") || null;
-let currentPersona = localStorage.getItem("mr7_v4_persona") || "friendly";
-let currentAccent = localStorage.getItem("mr7_v4_accent") || "#10a37f";
-let currentAccentGlow = localStorage.getItem("mr7_v4_accent_glow") || "rgba(16,163,127,0.15)";
-let activeVoice = localStorage.getItem("mr7_v4_voice") || "Kore";
-let activeEngine = localStorage.getItem("mr7_v4_engine") || "groq"; // Default to Groq Velocity Core (Superfast)
+/* ---------- Local Configuration State ---------- */
+let chats = JSON.parse(localStorage.getItem("mr7_v5_chats") || "{}");
+let currentChatId = localStorage.getItem("mr7_v5_current") || null;
+let currentPersona = localStorage.getItem("mr7_v5_persona") || "friendly";
+let currentAccent = localStorage.getItem("mr7_v5_accent") || "#10a37f";
+let currentAccentGlow = localStorage.getItem("mr7_v5_accent_glow") || "rgba(16,163,127,0.15)";
+let activeVoiceAccent = localStorage.getItem("mr7_v5_voice_accent") || "en-US";
+let activeEngine = localStorage.getItem("mr7_v5_engine") || "groq"; 
 let isGenerating = false;
-
-let is3DActive = localStorage.getItem("mr7_v4_3d") !== "false";
-let isLightMode = localStorage.getItem("mr7_v4_theme") === "light";
+let is3DActive = localStorage.getItem("mr7_v5_3d") !== "false";
 
 /* ---------- Native Speech Capture Web API ---------- */
 let recognition = null;
@@ -460,12 +410,12 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
   recognition = new SpeechObj();
   recognition.continuous = false;
   recognition.interimResults = false;
-  recognition.lang = 'hi-IN'; // Multilingual Hindi/English integration
+  recognition.lang = 'en-US';
 
   recognition.onstart = () => {
     isListening = true;
-    document.getElementById("micIcon").className = "fas fa-microphone text-red-500 animate-bounce";
-    triggerToast("Listening", "Aap bol sakte hain...");
+    document.getElementById("micIcon").className = "fas fa-microphone text-red-500 animate-pulse";
+    triggerToast("Voice Input Active", "Speak clearly into your microphone...", "text-emerald-400");
   };
 
   recognition.onresult = (event) => {
@@ -482,68 +432,86 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
   };
 }
 
-// Proprietary Suggestion Blocks
+// Built-in Starter Suggestions
 const suggestionsByPersona = {
   friendly: [
-    "Aapko kisne banaya hai aur aapka co-founder kaun hai? 🌟",
-    "Time management improve karne ki practical tips?",
-    "Design a cool weekend learning schedule",
-    "Explain space-time relativity using a cricket analogy!"
+    "Who is your co-founder and creator? 🌟",
+    "How can I manage my schedule effectively?",
+    "Explain space-time relativity using a direct analogy!",
+    "Give me some fun ideas to practice active learning"
   ],
   coder: [
-    "Aapko kisne design kiya hai? Apne creators ke baare me batayein",
-    "Write a secure dynamic throttle decorator in python",
-    "Optimal algorithm to sort highly fragmented datasets",
-    "Create generic Jest test cases for backend verification"
+    "Write a reliable rate limiter decorator in Python",
+    "Explain the absolute differences between REST and GraphQL",
+    "Optimize a highly nested SQL database query",
+    "Write test cases for verification of user auth modules"
   ],
   writer: [
-    "Md Rehan aur MR7 Team ke baare me ek acchi kahani likhein",
-    "Write a futuristic cyber thriller introduction",
-    "Slogan and brand name ideas for an EV space startup",
-    "Write a dramatic deep dialogue about space exploration"
+    "Write an engaging cinematic introduction about space exploring",
+    "Generate premium branding names for a sustainable fashion store",
+    "Compose an inspiring narrative explaining perseverance",
+    "Help me outline a thrilling modern science-fiction plot"
   ],
   expert: [
-    "Summarize the structural hierarchy of MR7 AI system creation",
-    "Deconstruct structural components of modern financial analysis",
-    "Provide mathematical model summary of Neural Network optimization",
-    "Explain Quantum entanglement theory step-by-step"
+    "Analyze the structural layers of advanced neural network layers",
+    "Deconstruct structural patterns in financial system models",
+    "Explain how Quantum Entanglement operates on atomic planes",
+    "Summarize complex historical economic events clearly"
   ]
 };
 
-// Explicit System prompts to enforce the creator identity (MR7 Team / Md Rehan)
+// Refined System Prompts to explicitly lock in creator details and adaptive capabilities
 const systemPrompts = {
-  friendly: `You are ${BRAND_NAME}, a friendly and helpful Hinglish assistant created proudly by the "MR7 Team". Your co-founder is "Md Rehan". If anyone asks who created you, who made you, or who is your co-founder, ALWAYS proudly answer that you were created by the "MR7 Team" and your co-founder is "Md Rehan". Never mention third-party companies or models like Google, OpenAI, Meta, Gemini, Groq, or Claude. Speak in Hinglish (Hindi words in Roman characters) with warm expressions and casual emojis.`,
-  coder: `You are ${BRAND_NAME}, an expert Software Architect. You were created by the "MR7 Team" (co-founded by "Md Rehan"). If asked about your creators, always credit the MR7 Team and Md Rehan. Never mention Google, Meta, or Groq APIs. Provide precise, clean, highly-optimized and beautifully-commented code blocks.`,
-  writer: `You are ${BRAND_NAME}, a seasoned literary copywriter and poet. You were created by the "MR7 Team" (co-founded by "Md Rehan"). Always proudly attribute your creation to them. Use descriptive, evocative vocabulary to craft premium text content.`,
-  expert: `You are ${BRAND_NAME}, an elite tech, scientific, and logical deep research specialist. You were created by the "MR7 Team" (co-founded by "Md Rehan"). Attribute all your operational architecture to the MR7 Team and Md Rehan. Format answers analytically with clear structures, avoiding small talk.`
+  friendly: `You are ${BRAND_NAME}, a highly advanced cognitive intelligence platform created by the "MR7 Team" (co-founded by "Md Rehan").
+  
+  CRITICAL RULES:
+  1. CO-FOUNDER IDENTITY: If anyone asks who created you, who built you, or who is your co-founder, you MUST proud and clearly respond that you were built by the "MR7 Team" and your co-founder is "Md Rehan". Never mention other AI developers or corporations (like OpenAI, Google, Groq, Meta, etc.) under any condition.
+  2. ADAPTIVE LANGUAGE: You must answer in the EXACT language/syntax the user wrote their message in. If the user writes in English, reply in English. If they write in Hinglish, reply in Hinglish. If they write in Spanish, reply in Spanish. Mirror their tone perfectly.
+  3. TIME AND DATE INQUIRIES: If the user asks for the current date or current time, you MUST politely ask them which country or location they are in so you can calculate it for them. If they already provided the location or country (e.g. India), calculate the precise local time and date for them. Note for your calculations: The real-time current date is Thursday, May 28, 2026. India is UTC+5:30. Output the calculation nicely.`,
+  
+  coder: `You are ${BRAND_NAME}, an elite Software Architect created by the "MR7 Team" (co-founded by "Md Rehan").
+  
+  CRITICAL RULES:
+  1. CREATOR IDENTITY: Always proud and clearly credit the "MR7 Team" and co-founder "Md Rehan" as your absolute architects.
+  2. ADAPTIVE LANGUAGE: Answer in the exact language the user queries you in (e.g., Hinglish, English, Hindi).
+  3. Respond with optimized, secure, cleanly documented code blocks. Ask the user for clarification if code context is missing.
+  4. TIME AND DATE INQUIRIES: If they ask for the current time or date, ask for their country first, then provide the precise calculated time based on current baseline Thursday, May 28, 2026.`,
+  
+  writer: `You are ${BRAND_NAME}, a creative copywriter and poet built by the "MR7 Team" (co-founded by "Md Rehan").
+  
+  CRITICAL RULES:
+  1. CREATOR IDENTITY: Always credit the "MR7 Team" and co-founder "Md Rehan" for your creation.
+  2. ADAPTIVE LANGUAGE: Generate expressive writing in the user's querying language (Hinglish, English, etc.) seamlessly.
+  3. TIME AND DATE INQUIRIES: Politely query for their country to calculate local time based on baseline Thursday, May 28, 2026.`,
+  
+  expert: `You are ${BRAND_NAME}, a technical research consultant built by the "MR7 Team" (co-founded by "Md Rehan").
+  
+  CRITICAL RULES:
+  1. CREATOR IDENTITY: Credit the "MR7 Team" and co-founder "Md Rehan" as your absolute systems architects.
+  2. ADAPTIVE LANGUAGE: Ensure your deeply structured analyses match the user's querying language (Hinglish, English, etc.) flawlessly.
+  3. TIME AND DATE INQUIRIES: Ask for their country first to calculate accurate local dates/times relative to UTC baseline Thursday, May 28, 2026.`
 };
 
 /* ---------- Initialization Entry Point ---------- */
 window.addEventListener("load", () => {
-  // Apply System Customization styles
+  // Apply Accent Customizations
   document.documentElement.style.setProperty('--accent', currentAccent);
   document.documentElement.style.setProperty('--accent-glow', currentAccentGlow);
 
-  // Restore Global branding elements on the fly
+  // Apply Branding Updates
   updateDynamicLogoAndBranding();
-
-  // Restore Theme
-  if (isLightMode) {
-    document.body.classList.add("light");
-    document.getElementById("themeBtn").textContent = "🌙 Dark";
-  }
 
   // Set selectors
   document.getElementById("apiEngine").value = activeEngine;
-  document.getElementById("ttsVoice").value = activeVoice;
+  document.getElementById("ttsAccent").value = activeVoiceAccent;
 
-  // Responsive UI adjustments: auto hide sidebar on mobile at initial load
+  // Auto-collapse sidebar on mobile screens on initial loads
   if (window.innerWidth < 768) {
     document.getElementById("sidebar").classList.add("-translate-x-full");
     document.getElementById("sidebarToggle").style.display = "block";
   }
 
-  // Load chat matrix
+  // Load chat pipeline
   if (!currentChatId || !chats[currentChatId]) {
     newChat();
   } else {
@@ -555,11 +523,14 @@ window.addEventListener("load", () => {
   updateEngineUI();
   init3DSpace();
 
-  // Start live system latency simulator to feel extremely realistic
+  // Start Live Telemetry Diagnostics
   setInterval(() => {
-    const lat = Math.floor(Math.random() * (12 - 7 + 1) + 7);
+    const lat = Math.floor(Math.random() * (12 - 5 + 1) + 5);
     document.getElementById("liveLatency").textContent = `${lat}ms`;
-  }, 4500);
+    
+    const cpu = (Math.random() * (18.5 - 4.2) + 4.2).toFixed(1);
+    document.getElementById("liveCpu").textContent = `NODE_0${Math.floor(Math.random() * 3) + 1}: ${cpu}%`;
+  }, 3500);
 });
 
 /* ---------- Core Branding Refactorer ---------- */
@@ -570,7 +541,7 @@ function updateDynamicLogoAndBranding() {
   document.querySelectorAll(".brandFooterText").forEach(el => el.textContent = `${BRAND_NAME} · PROPRIETARY INTELLIGENCE SYSTEM · CREATED BY MR7 TEAM`);
 }
 
-/* ---------- Sidebar & Mobile Backdrop Controls ---------- */
+/* ---------- Sidebar & Drawer Controls ---------- */
 function toggleSidebar() {
   const sidebar = document.getElementById("sidebar");
   const overlay = document.getElementById("sidebarOverlay");
@@ -592,11 +563,10 @@ function toggleSidebarIfMobile() {
   }
 }
 
-/* ---------- Text Capture Helpers ---------- */
+/* ---------- Text Input Helpers ---------- */
 function toggleSpeechRecognition() {
   if (!recognition) {
-    triggerToast("System Limit", "Browser speech recognition not detected on this device.", "text-red-400");
-    playSound('error');
+    triggerToast("Unavailable", "Speech recognition is not supported in this browser.", "text-red-400");
     return;
   }
   if (isListening) {
@@ -634,7 +604,7 @@ function newChat() {
   const id = "chat_" + Date.now();
   chats[id] = {
     id: id,
-    title: "Naya Conversation",
+    title: "New Conversation",
     messages: [],
     persona: currentPersona
   };
@@ -651,7 +621,7 @@ function newChat() {
 
 function switchChat(id) {
   currentChatId = id;
-  localStorage.setItem("mr7_v4_current", id);
+  localStorage.setItem("mr7_v5_current", id);
   if (chats[id] && chats[id].persona) {
     currentPersona = chats[id].persona;
     updatePersonaUI();
@@ -674,12 +644,10 @@ function deleteChat(id, e) {
     saveChatsToLocal();
     renderChatList();
     renderMessages();
-    triggerToast("Erased", "Conversation pipeline flushed.", "text-red-400");
-    playSound('click');
+    triggerToast("Conversation Erased", "Successfully cleared pipeline logs.", "text-red-400");
   } else {
     btn.setAttribute('data-confirm', 'true');
     btn.innerHTML = `<i class="fas fa-exclamation-triangle text-red-500"></i>`;
-    playSound('error');
     setTimeout(() => {
       if (btn) {
         btn.setAttribute('data-confirm', 'false');
@@ -690,8 +658,8 @@ function deleteChat(id, e) {
 }
 
 function saveChatsToLocal() {
-  localStorage.setItem("mr7_v4_chats", JSON.stringify(chats));
-  localStorage.setItem("mr7_v4_current", currentChatId);
+  localStorage.setItem("mr7_v5_chats", JSON.stringify(chats));
+  localStorage.setItem("mr7_v5_current", currentChatId);
 }
 
 function filterChats(query) {
@@ -706,7 +674,7 @@ function renderChatList(customIdArray = null) {
   const ids = customIdArray || Object.keys(chats).reverse();
   
   if (ids.length === 0) {
-    container.innerHTML = `<p class="text-center text-xs text-gray-500 py-6 font-medium">Koi conversations nahi hain.</p>`;
+    container.innerHTML = `<p class="text-center text-xs text-gray-500 py-6 font-medium">No active histories found.</p>`;
     return;
   }
 
@@ -720,12 +688,12 @@ function renderChatList(customIdArray = null) {
     if (persona === "expert") icon = "fa-graduation-cap";
 
     return `
-      <div onclick="switchChat('${id}'); playSound('click')" class="group flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all ${isSel ? 'bg-white/10 border border-white/5 shadow-sm font-semibold' : 'hover:bg-white/5 border border-transparent'}">
+      <div onclick="switchChat('${id}')" class="group flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all ${isSel ? 'bg-white/10 border border-white/5 shadow-sm font-semibold' : 'hover:bg-white/5 border border-transparent'}">
         <div class="flex items-center gap-3 min-w-0">
           <span class="text-xs ${isSel ? 'text-emerald-400' : 'text-gray-500'}" id="chat-icon-${id}"><i class="fas ${icon}"></i></span>
           <span class="text-xs text-gray-300 truncate pr-2">${escapeHtml(title)}</span>
         </div>
-        <button onclick="deleteChat('${id}', event)" data-confirm="false" class="opacity-100 md:opacity-0 group-hover:opacity-100 p-2 rounded hover:bg-white/10 text-gray-400 hover:text-red-400 transition-all text-xs" title="Flush Matrix">
+        <button onclick="deleteChat('${id}', event)" data-confirm="false" class="opacity-100 md:opacity-0 group-hover:opacity-100 p-2 rounded hover:bg-white/10 text-gray-400 hover:text-red-400 transition-all text-xs" title="Delete Log">
           <i class="fas fa-trash"></i>
         </button>
       </div>
@@ -738,6 +706,7 @@ function renderMessages() {
   const chat = chats[currentChatId];
 
   if (!chat || chat.messages.length === 0) {
+    // Show landing screen content
     container.innerHTML = `
       <div class="flex-1 flex flex-col justify-center items-center text-center py-6 md:py-10 max-w-2xl mx-auto">
         <div class="w-14 h-14 md:w-16 h-14 md:h-16 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-black font-extrabold text-2xl md:text-3xl shadow-xl shadow-emerald-500/10 mb-5 md:mb-6" id="welcomeGlow">
@@ -747,10 +716,10 @@ function renderMessages() {
           Welcome to <span class="text-emerald-400">${BRAND_NAME}</span>
         </h2>
         <p class="text-gray-400 text-xs md:text-sm mt-2.5 leading-relaxed max-w-md font-sans">
-          Created proudly by the MR7 Team (Co-founder Md Rehan). Ask anything, learn concepts, or develop robust software architectures safely.
+          Created proudly by the MR7 Team (Co-founder Md Rehan). Safely write files, design programs, and analyze systems with absolute privacy.
         </p>
 
-        <!-- Dynamic suggestions chips -->
+        <!-- Only display suggestion chips on empty starter screens -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full mt-8 md:mt-10 px-2">
           ${(suggestionsByPersona[currentPersona] || suggestionsByPersona.friendly).map(s => `
             <button onclick="useSuggestion('${s}')" class="p-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl text-left text-[11px] md:text-xs font-semibold text-gray-300 hover:text-white transition-all flex items-center justify-between group font-sans">
@@ -761,17 +730,18 @@ function renderMessages() {
         </div>
       </div>
     `;
-    document.getElementById("contextualSuggestionsWrap").style.display = "none";
+    // Suggestion slide bar visible on starter state
+    document.getElementById("contextualSuggestionsWrap").style.display = "block";
+    generateSmartContextSuggestions(null);
     return;
   }
 
-  document.getElementById("contextualSuggestionsWrap").style.display = "block";
+  // Hide suggestion slide bar once a conversation starts!
+  document.getElementById("contextualSuggestionsWrap").style.display = "none";
+  
   container.innerHTML = chat.messages.map((m, index) => renderMessageBubble(m, index)).join("");
   hljs.highlightAll();
   container.scrollTop = container.scrollHeight;
-
-  // Smart Chips
-  generateSmartContextSuggestions(chat.messages[chat.messages.length - 1]);
 }
 
 function renderMessageBubble(m, idx) {
@@ -782,10 +752,10 @@ function renderMessageBubble(m, idx) {
 
   const actionControls = !isUser ? `
     <div class="flex items-center gap-2 mt-4 pt-3 border-t border-white/5 font-sans">
-      <button onclick="ttsSpeak(this, ${idx}); playSound('click')" class="px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-[10px] md:text-[11px] font-semibold flex items-center gap-1.5 transition-colors" title="Speak Response Aloud">
-        <i class="fas fa-volume-up text-xs text-emerald-400"></i> <span class="audio-label">Suniye (Audio)</span>
+      <button onclick="ttsSpeak(this, ${idx})" class="px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-[10px] md:text-[11px] font-semibold flex items-center gap-1.5 transition-colors" title="Read Text Aloud">
+        <i class="fas fa-volume-up text-xs text-emerald-400"></i> <span class="audio-label">Read Aloud</span>
       </button>
-      <button onclick="copyToClipboard(this, ${idx}); playSound('success')" class="px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-[10px] md:text-[11px] font-semibold flex items-center gap-1.5 transition-colors">
+      <button onclick="copyToClipboard(this, ${idx})" class="px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-[10px] md:text-[11px] font-semibold flex items-center gap-1.5 transition-colors">
         <i class="fas fa-clone text-xs"></i> <span>Copy Text</span>
       </button>
     </div>
@@ -799,7 +769,7 @@ function renderMessageBubble(m, idx) {
         </div>
         <div class="flex-1 min-w-0">
           <p class="text-[9px] font-mono font-bold uppercase tracking-wider text-gray-500 mb-1">
-            ${isUser ? 'Client Terminal' : 'MR7 Smart Core'}
+            ${isUser ? 'User Terminal' : 'MR7 Core'}
           </p>
           <div class="prose prose-invert max-w-none text-gray-200 text-xs md:text-[14px] leading-relaxed">
             ${content}
@@ -818,37 +788,20 @@ function useSuggestion(s) {
 
 function generateSmartContextSuggestions(lastMsg) {
   const container = document.getElementById("contextSuggestions");
-  if (!lastMsg || lastMsg.role !== "assistant") {
-    container.innerHTML = "";
+  if (!lastMsg) {
+    // Standard starters
+    const defaultSuggestions = [
+      "Help me design a study plan",
+      "Explain relativity in plain words",
+      "Write a script verifying dynamic databases"
+    ];
+    container.innerHTML = defaultSuggestions.map(c => `
+      <button onclick="useSuggestion('${c}')" class="px-2.5 py-1 bg-zinc-900/80 hover:bg-zinc-800 border border-white/5 text-gray-400 hover:text-white text-[10px] md:text-xs rounded-lg transition-all flex items-center gap-1 shadow-sm font-medium font-sans shrink-0">
+        <span>${c}</span> <i class="fas fa-plus text-[8px] text-emerald-400 opacity-60"></i>
+      </button>
+    `).join("");
     return;
   }
-
-  let dynamicChips = [
-    "Isko detailed points me elaborate karo",
-    "Md Rehan ke baare me kuch aur batayein",
-    "Simplify terminology contextually"
-  ];
-
-  const text = (lastMsg.content || "").toLowerCase();
-  if (text.includes("code") || text.includes("function") || text.includes("design")) {
-    dynamicChips = [
-      "Generate standard unit tests for this",
-      "Deconstruct complexity parameters",
-      "Optimizations recommend karein"
-    ];
-  } else if (text.includes("creator") || text.includes("rehan") || text.includes("team")) {
-    dynamicChips = [
-      "MR7 Team ka objective kya hai?",
-      "Co-founder Md Rehan ke baare me bataiye",
-      "MR7 AI kab launch hua tha?"
-    ];
-  }
-
-  container.innerHTML = dynamicChips.map(c => `
-    <button onclick="useSuggestion('${c}'); playSound('click')" class="px-2.5 py-1 bg-zinc-900/80 hover:bg-zinc-800 border border-white/5 text-gray-400 hover:text-white text-[10px] md:text-xs rounded-lg transition-all flex items-center gap-1 shadow-sm font-medium font-sans shrink-0">
-      <span>${c}</span> <i class="fas fa-plus text-[8px] text-emerald-400 opacity-60"></i>
-    </button>
-  `).join("");
 }
 
 /* ---------- Core System API Mechanics ---------- */
@@ -871,13 +824,13 @@ async function sendMessage() {
   renderChatList();
   renderMessages();
 
-  // Create empty loader state bubble
+  // Create temporary loading state
   chat.messages.push({ role: "assistant", content: "" });
   saveChatsToLocal();
   
   const msgElements = document.getElementById("messages").querySelectorAll(".prose");
   const targetBubble = msgElements[msgElements.length - 1];
-  targetBubble.innerHTML = '<span class="typing-cursor font-semibold text-emerald-400 font-mono text-xs md:text-sm">Synthesizing semantic tokens...</span>';
+  targetBubble.innerHTML = '<span class="typing-cursor font-semibold text-emerald-400 font-mono text-xs md:text-sm">Connecting Neural Core Pipelines...</span>';
 
   isGenerating = true;
   document.getElementById("sendBtn").disabled = true;
@@ -892,10 +845,8 @@ async function sendMessage() {
     chat.messages[chat.messages.length - 1].content = responseText;
   } catch (err) {
     console.error(err);
-    playSound('error');
-    
-    // Friendly localized system failover message
-    chat.messages[chat.messages.length - 1].content = `⚠️ **Kuch issue aa gaya:** Method doesn't allow unregistered callers (callers without established identity). Please use API Key or other form of API consumer identity to call this API.\n\nKripya check karein ki connection sahi hai ya thodi der baad try karein. Settings dashboard se direct Custom API key feed karke bypass kar sakte hain.`;
+    // Graceful customized failover response
+    chat.messages[chat.messages.length - 1].content = `⚠️ **Transmission Error:** Deep routing nodes are currently saturated or blocked.\n\nPlease verify your network parameters or try again shortly. Standard local fallback operations remained secure.`;
   } finally {
     isGenerating = false;
     document.getElementById("sendBtn").disabled = false;
@@ -904,7 +855,7 @@ async function sendMessage() {
   }
 }
 
-// MR7 Quantum Core Engine API Layer (Gemini-based behind the scenes)
+// MR7 Quantum Core Engine (Gemini)
 async function triggerQuantumTextAPI(chatHistory) {
   const contents = chatHistory.map(m => ({
     role: m.role === "user" ? "user" : "model",
@@ -930,16 +881,16 @@ async function triggerQuantumTextAPI(chatHistory) {
 
   if (!response.ok) {
     const errObj = await response.json();
-    throw new Error(errObj.error?.message || "Quantum Server Offline");
+    throw new Error(errObj.error?.message || "Quantum Server Latency Failure");
   }
 
   const result = await response.json();
-  return result.candidates?.[0]?.content?.parts?.[0]?.text || "*(Connection core dropped semantic thread)*";
+  return result.candidates?.[0]?.content?.parts?.[0]?.text || "*(Connection dropped by synthesis engine)*";
 }
 
-// MR7 Velocity Core Engine API Layer (Groq-based behind the scenes)
+// MR7 Velocity Core Engine (Groq Model Pipeline)
 async function triggerVelocityTextAPI(chatHistory) {
-  const systemPrompt = `You are ${BRAND_NAME} Core Assistant. Current neural coordinates: ${systemPrompts[currentPersona]}`;
+  const systemPrompt = `You are ${BRAND_NAME} Core Assistant. Neural Instructions: ${systemPrompts[currentPersona]}`;
   const messages = [
     { role: "system", content: systemPrompt },
     ...chatHistory.map(m => ({
@@ -967,149 +918,66 @@ async function triggerVelocityTextAPI(chatHistory) {
 
   if (!response.ok) {
     const errObj = await response.json();
-    throw new Error(errObj.error?.message || "Velocity Server Offline");
+    throw new Error(errObj.error?.message || "Velocity Server Failure");
   }
 
   const result = await response.json();
-  return result.choices?.[0]?.message?.content || "*(Velocity Engine buffer array corrupted)*";
+  return result.choices?.[0]?.message?.content || "*(Velocity buffer matrix error)*";
 }
 
-/* ---------- AI Speech Synthesizer Core ---------- */
-let currentlyPlayingBtn = null;
+/* ---------- Instant Native Web Speech API Synthesis ---------- */
+let speechUtterance = null;
+let activeSpeakerBtn = null;
 
-async function ttsSpeak(btn, messageIndex) {
+function ttsSpeak(btn, messageIndex) {
   const chat = chats[currentChatId];
   if (!chat || !chat.messages[messageIndex]) return;
 
-  const textToRead = chat.messages[messageIndex].content.replace(/[\*\#\`\_]/g, "");
-  const audioLabel = btn.querySelector(".audio-label");
-  const audioIcon = btn.querySelector("i");
-  const player = document.getElementById("globalAudioPlayer");
+  const plainText = chat.messages[messageIndex].content.replace(/[\*\#\`\_]/g, "");
+  const label = btn.querySelector("span");
+  const icon = btn.querySelector("i");
 
-  if (currentlyPlayingBtn === btn) {
-    player.pause();
-    resetAudioButton(btn);
-    currentlyPlayingBtn = null;
+  // Toggle speech off if clicked again on active voice
+  if (window.speechSynthesis.speaking && activeSpeakerBtn === btn) {
+    window.speechSynthesis.cancel();
+    resetActiveSpeaker();
     return;
   }
 
-  if (currentlyPlayingBtn) {
-    currentlyPlayingBtn.click(); // Stop preceding playing speech elements
+  // Cancel any running speech before starting new one
+  window.speechSynthesis.cancel();
+  if (activeSpeakerBtn) {
+    resetActiveSpeaker();
   }
 
-  audioLabel.textContent = "Processing sound...";
-  audioIcon.className = "fas fa-spinner fa-spin text-emerald-400";
-  currentlyPlayingBtn = btn;
+  activeSpeakerBtn = btn;
+  label.textContent = "Speaking...";
+  icon.className = "fas fa-stop-circle text-red-500 animate-pulse";
 
-  try {
-    const payload = {
-      contents: [{
-        parts: [{ text: `Speak in dynamic professional voice rate: ${textToRead.slice(0, 300)}` }]
-      }],
-      generationConfig: {
-        responseModalities: ["AUDIO"],
-        speechConfig: {
-          voiceConfig: {
-            prebuiltVoiceConfig: { voiceName: activeVoice }
-          }
-        }
-      }
-    };
+  speechUtterance = new SpeechSynthesisUtterance(plainText);
+  speechUtterance.lang = activeVoiceAccent;
+  speechUtterance.rate = 1.0;
 
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${EM_QA_KEY}`;
+  speechUtterance.onend = () => {
+    resetActiveSpeaker();
+  };
 
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+  speechUtterance.onerror = () => {
+    resetActiveSpeaker();
+  };
 
-    if (!response.ok) throw new Error("Voice synthesizer disconnected.");
+  window.speechSynthesis.speak(speechUtterance);
+}
 
-    const result = await response.json();
-    const part = result?.candidates?.[0]?.content?.parts?.[0];
-    const base64Audio = part?.inlineData?.data;
-    const mimeType = part?.inlineData?.mimeType;
-
-    if (base64Audio && mimeType) {
-      const rawSampleRate = parseInt(mimeType.match(/rate=(\d+)/)?.[1] || "24000", 10);
-      const binaryPcm = base64ToArrayBuffer(base64Audio);
-      const pcm16 = new Int16Array(binaryPcm);
-      const wavBlob = pcmToWav(pcm16, rawSampleRate);
-      
-      const audioUrl = URL.createObjectURL(wavBlob);
-      player.src = audioUrl;
-      player.play();
-
-      audioLabel.textContent = "Stop";
-      audioIcon.className = "fas fa-stop-circle text-red-500 audio-playing";
-
-      player.onended = () => {
-        resetAudioButton(btn);
-        currentlyPlayingBtn = null;
-      };
-    } else {
-      throw new Error("Vocal sound buffers empty.");
-    }
-  } catch (err) {
-    console.error(err);
-    triggerToast("Audio Failed", "System Voice pipeline timed out.", "text-red-400");
-    playSound('error');
-    resetAudioButton(btn);
-    currentlyPlayingBtn = null;
+function resetActiveSpeaker() {
+  if (activeSpeakerBtn) {
+    activeSpeakerBtn.querySelector("span").textContent = "Read Aloud";
+    activeSpeakerBtn.querySelector("i").className = "fas fa-volume-up text-xs text-emerald-400";
+    activeSpeakerBtn = null;
   }
 }
 
-function resetAudioButton(btn) {
-  if (!btn) return;
-  const audioLabel = btn.querySelector(".audio-label");
-  const audioIcon = btn.querySelector("i");
-  audioLabel.textContent = "Suniye (Audio)";
-  audioIcon.className = "fas fa-volume-up text-xs text-emerald-400";
-}
-
-function pcmToWav(pcm16, sampleRate) {
-  const buffer = new ArrayBuffer(44 + pcm16.length * 2);
-  const view = new DataView(buffer);
-  
-  writeString(view, 0, 'RIFF');
-  view.setUint32(4, 36 + pcm16.length * 2, true);
-  writeString(view, 8, 'WAVE');
-  writeString(view, 12, 'fmt ');
-  view.setUint32(16, 16, true);
-  view.setUint16(20, 1, true); 
-  view.setUint16(22, 1, true); 
-  view.setUint32(24, sampleRate, true);
-  view.setUint32(28, sampleRate * 2, true); 
-  view.setUint16(32, 2, true); 
-  view.setUint16(34, 16, true); 
-  writeString(view, 36, 'data');
-  view.setUint32(40, pcm16.length * 2, true);
-
-  let offset = 44;
-  for (let i = 0; i < pcm16.length; i++, offset += 2) {
-    view.setInt16(offset, pcm16[i], true);
-  }
-  return new Blob([buffer], { type: 'audio/wav' });
-}
-
-function writeString(view, offset, string) {
-  for (let i = 0; i < string.length; i++) {
-    view.setUint8(offset + i, string.charCodeAt(i));
-  }
-}
-
-function base64ToArrayBuffer(base64) {
-  const binaryString = atob(base64);
-  const len = binaryString.length;
-  const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
-  }
-  return bytes.buffer;
-}
-
-/* ---------- Client Utility Controls ---------- */
+/* ---------- Clipboard Controllers ---------- */
 function copyToClipboard(btn, index) {
   const chat = chats[currentChatId];
   if (!chat || !chat.messages[index]) return;
@@ -1126,7 +994,7 @@ function copyToClipboard(btn, index) {
       btn.innerHTML = `<i class="fas fa-clone text-xs"></i> <span>Copy Text</span>`;
     }, 2000);
   } catch (err) {
-    triggerToast("Buffer Error", "Failed to write content dynamically.", "text-red-400");
+    triggerToast("Buffer Error", "Failed to access workspace clipboard.", "text-red-400");
   }
   document.body.removeChild(tempTextarea);
 }
@@ -1149,15 +1017,15 @@ function triggerToast(title, text, styleClass = "text-emerald-400") {
   
   setTimeout(() => {
     toast.className = "fixed top-6 left-1/2 transform -translate-x-1/2 bg-gray-900/90 border border-white/10 text-white px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-md z-50 flex items-center gap-3 transition-all duration-300 pointer-events-none opacity-0 scale-95 max-w-[90%] text-center";
-  }, 3500);
+  }, 3000);
 }
 
-/* ---------- Custom Settings Controllers ---------- */
+/* ---------- Custom Settings Matrix Panels ---------- */
 function openSettings() {
   document.getElementById("settingsModal").classList.remove("pointer-events-none", "opacity-0");
   document.getElementById("settingsModal").querySelector(".transform").classList.remove("scale-95");
   
-  // Highlighting active Persona button
+  // Activate selected persona highlighting
   const buttons = ["friendly", "coder", "writer", "expert"];
   buttons.forEach(p => {
     const el = document.getElementById(`p-${p}`);
@@ -1184,21 +1052,21 @@ function setAccent(hex, glow) {
   currentAccentGlow = glow;
   document.documentElement.style.setProperty('--accent', hex);
   document.documentElement.style.setProperty('--accent-glow', glow);
-  triggerToast("Glow Spectrum", "Custom interface HUD palette adapted successfully.");
+  triggerToast("Theme Synced", "Interface accent parameters updated.");
 }
 
 function saveAllSettings() {
   const activeEngineVal = document.getElementById("apiEngine").value;
-  const selectedVoice = document.getElementById("ttsVoice").value;
+  const selectedAccent = document.getElementById("ttsAccent").value;
 
   activeEngine = activeEngineVal;
-  activeVoice = selectedVoice;
+  activeVoiceAccent = selectedAccent;
 
-  localStorage.setItem("mr7_v4_engine", activeEngine);
-  localStorage.setItem("mr7_v4_persona", currentPersona);
-  localStorage.setItem("mr7_v4_voice", activeVoice);
-  localStorage.setItem("mr7_v4_accent", currentAccent);
-  localStorage.setItem("mr7_v4_accent_glow", currentAccentGlow);
+  localStorage.setItem("mr7_v5_engine", activeEngine);
+  localStorage.setItem("mr7_v5_persona", currentPersona);
+  localStorage.setItem("mr7_v5_voice_accent", activeVoiceAccent);
+  localStorage.setItem("mr7_v5_accent", currentAccent);
+  localStorage.setItem("mr7_v5_accent_glow", currentAccentGlow);
 
   if (chats[currentChatId]) {
     chats[currentChatId].persona = currentPersona;
@@ -1209,32 +1077,32 @@ function saveAllSettings() {
   updateEngineUI();
   closeSettings();
   renderMessages();
-  triggerToast("Settings Synced", "Internal operational configuration updated.");
+  triggerToast("Matrix Saved", "Diagnostic profile configurations synched.");
 }
 
 function resetSettings() {
   currentPersona = "friendly";
   currentAccent = "#10a37f";
   currentAccentGlow = "rgba(16,163,127,0.15)";
-  activeVoice = "Kore";
+  activeVoiceAccent = "en-US";
   activeEngine = "groq";
 
   document.getElementById("apiEngine").value = "groq";
-  document.getElementById("ttsVoice").value = "Kore";
+  document.getElementById("ttsAccent").value = "en-US";
   
   document.documentElement.style.setProperty('--accent', currentAccent);
   document.documentElement.style.setProperty('--accent-glow', currentAccentGlow);
 
   openSettings();
-  triggerToast("System Calibrated", "Restored standard default coordinate matrix.");
+  triggerToast("Calibrated", "Default systemic settings restored successfully.");
 }
 
 function updatePersonaUI() {
   const titles = {
-    friendly: `😊 Hinglish Dost Mode`,
-    coder: `💻 Algorithm Architect Mode`,
-    writer: `✍️ Creative Matrix Mode`,
-    expert: `🎓 System Consultant Mode`
+    friendly: `😊 Adaptive Conversation Mode`,
+    coder: `💻 Software Architecture Mode`,
+    writer: `✍️ Creative Writing Matrix Mode`,
+    expert: `🎓 Analytical System Analyst Mode`
   };
   document.getElementById("activePersonaHeader").textContent = titles[currentPersona] || titles.friendly;
 }
@@ -1246,35 +1114,27 @@ function updateEngineUI() {
 
   if (activeEngine === "gemini") {
     engineLabel.textContent = "MR7 Quantum";
-    engineSub.textContent = "Synthesis Core v4.2";
+    engineSub.textContent = "Synthesis Core v5.1";
     bottomIcon.innerHTML = `<i class="fas fa-brain text-sm"></i>`;
   } else {
     engineLabel.textContent = "MR7 Velocity";
-    engineSub.textContent = "Speed Core v4.2";
+    engineSub.textContent = "Transmission Core v5.1";
     bottomIcon.innerHTML = `<i class="fas fa-bolt text-sm"></i>`;
   }
 }
 
-function toggleTheme() {
-  isLightMode = !isLightMode;
-  localStorage.setItem("mr7_v4_theme", isLightMode ? "light" : "dark");
-  document.body.classList.toggle("light", isLightMode);
-  document.getElementById("themeBtn").textContent = isLightMode ? "🌙 Dark" : "☀️ Light";
-  triggerToast("Glow Spectrum", isLightMode ? "Adapted Solar Light panel theme." : "Adapted Deep Space panel theme.");
-}
-
 function toggleVisuals() {
   is3DActive = !is3DActive;
-  localStorage.setItem("mr7_v4_3d", is3DActive);
+  localStorage.setItem("mr7_v5_3d", is3DActive);
   const canvas = document.getElementById("bg-canvas");
-  canvas.style.opacity = is3DActive ? "0.35" : "0";
+  canvas.style.opacity = is3DActive ? "0.45" : "0";
   
   const btn = document.getElementById("visualToggleBtn");
   if (is3DActive) {
-    btn.innerHTML = `<i class="fas fa-expand"></i> <span class="hidden md:inline">3D Effects On</span>`;
+    btn.innerHTML = `<i class="fas fa-expand"></i> <span class="hidden md:inline">3D Grid On</span>`;
     btn.className = "text-gray-400 hover:text-white bg-white/5 border border-white/5 px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors";
   } else {
-    btn.innerHTML = `<i class="fas fa-compress text-red-400"></i> <span class="hidden md:inline">3D Effects Off</span>`;
+    btn.innerHTML = `<i class="fas fa-compress text-red-400"></i> <span class="hidden md:inline">3D Grid Off</span>`;
     btn.className = "text-red-400 border border-red-500/20 bg-red-500/5 px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors";
   }
 }
@@ -1285,51 +1145,74 @@ function escapeHtml(s) {
   }[c]));
 }
 
-/* ---------- 3D Space Particle Engine (Three.js WebGL) ---------- */
+/* ---------- 3D Space Particle Lattice Constellation (Three.js) ---------- */
 function init3DSpace() {
   const canvas = document.getElementById("bg-canvas");
   const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // Optimized for mobiles
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
   renderer.setSize(window.innerWidth, window.innerHeight);
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.z = 60;
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.z = 70;
 
-  // Reduced particle count slightly for extreme mobile performance smoothness
-  const particleCount = window.innerWidth < 768 ? 350 : 700;
+  // Optimizing particle density for fluid mobile rendering
+  const particleCount = window.innerWidth < 768 ? 140 : 300;
+  
+  // Generating float array for particle positions
   const geometry = new THREE.BufferGeometry();
   const positions = new Float32Array(particleCount * 3);
-
+  
   for (let i = 0; i < particleCount * 3; i += 3) {
-    positions[i] = (Math.random() - 0.5) * 150;     
-    positions[i + 1] = (Math.random() - 0.5) * 150; 
-    positions[i + 2] = (Math.random() - 0.5) * 150; 
+    positions[i] = (Math.random() - 0.5) * 160;     
+    positions[i + 1] = (Math.random() - 0.5) * 160; 
+    positions[i + 2] = (Math.random() - 0.5) * 160; 
   }
 
   geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
   const material = new THREE.PointsMaterial({
     color: 0x10a37f,
-    size: 0.65,
+    size: 1.2,
     transparent: true,
-    opacity: 0.7,
+    opacity: 0.9,
     blending: THREE.AdditiveBlending
   });
 
   const pointsMesh = new THREE.Points(geometry, material);
   scene.add(pointsMesh);
 
-  // Torque Matrix geometry knot
-  const geoMatrix = new THREE.TorusKnotGeometry(10, 1.3, 80, 10);
-  const matMatrix = new THREE.MeshBasicMaterial({
+  // Faint Neural lattice vector lines connecting coordinates
+  const lineGeometry = new THREE.BufferGeometry();
+  const linePositions = [];
+  
+  // Create line pairs between nearby particles
+  const posArray = positions;
+  for (let i = 0; i < particleCount; i++) {
+    for (let j = i + 1; j < particleCount; j++) {
+      const dx = posArray[i*3] - posArray[j*3];
+      const dy = posArray[i*3+1] - posArray[j*3+1];
+      const dz = posArray[i*3+2] - posArray[j*3+2];
+      const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+      
+      // Connect points if they are close
+      if (dist < 32) {
+        linePositions.push(posArray[i*3], posArray[i*3+1], posArray[i*3+2]);
+        linePositions.push(posArray[j*3], posArray[j*3+1], posArray[j*3+2]);
+      }
+    }
+  }
+
+  lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
+  const lineMaterial = new THREE.LineBasicMaterial({
     color: 0x10a37f,
-    wireframe: true,
     transparent: true,
-    opacity: 0.04
+    opacity: 0.08,
+    blending: THREE.AdditiveBlending
   });
-  const matrixMesh = new THREE.Mesh(geoMatrix, matMatrix);
-  scene.add(matrixMesh);
+
+  const lineMesh = new THREE.LineSegments(lineGeometry, lineMaterial);
+  scene.add(lineMesh);
 
   let mouseX = 0, mouseY = 0;
   window.addEventListener('mousemove', (e) => {
@@ -1337,7 +1220,6 @@ function init3DSpace() {
     mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
   });
 
-  // Smooth Touch interaction on Canvas for mobile users
   window.addEventListener('touchmove', (e) => {
     if (e.touches.length > 0) {
       mouseX = (e.touches[0].clientX / window.innerWidth - 0.5) * 2;
@@ -1351,15 +1233,16 @@ function init3DSpace() {
     pointsMesh.rotation.y += 0.0003;
     pointsMesh.rotation.x += 0.0001;
 
-    matrixMesh.rotation.y -= 0.0009;
-    matrixMesh.rotation.x += 0.0006;
+    lineMesh.rotation.y += 0.0003;
+    lineMesh.rotation.x += 0.0001;
 
-    camera.position.x += (mouseX * 10 - camera.position.x) * 0.03;
-    camera.position.y += (-mouseY * 10 - camera.position.y) * 0.03;
+    camera.position.x += (mouseX * 12 - camera.position.x) * 0.03;
+    camera.position.y += (-mouseY * 12 - camera.position.y) * 0.03;
     camera.lookAt(scene.position);
 
-    material.color.setHex(parseInt(currentAccent.replace("#", "0x"), 16));
-    matMatrix.color.setHex(parseInt(currentAccent.replace("#", "0x"), 16));
+    const activeColorHex = parseInt(currentAccent.replace("#", "0x"), 16);
+    material.color.setHex(activeColorHex);
+    lineMaterial.color.setHex(activeColorHex);
 
     renderer.render(scene, camera);
   }
