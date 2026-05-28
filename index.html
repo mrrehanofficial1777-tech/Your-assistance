@@ -3,761 +3,1317 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>MR7 AI</title>
+<title>MR7 AI - Next-Gen Smart Assistant</title>
 
+<!-- Tailwind CSS for modern premium layouts -->
+<script src="https://cdn.tailwindcss.com"></script>
 
-<!-- Highlight.js for code highlighting -->
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- Highlight.js for beautiful code blocks -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-dark.min.css">
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
-<!-- Marked for markdown -->
+
+<!-- Marked for Markdown Parsing -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<!-- Three.js for 3D background -->
+
+<!-- Three.js for Interactive 3D Particles -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
+<!-- FontAwesome Icons for clean aesthetic look -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  :root{
-    --bg:#0d0d0d;
-    --panel:#171717;
-    --panel-2:#202020;
-    --border:#2a2a2a;
-    --text:#ececec;
-    --muted:#9a9a9a;
-    --accent:#10a37f;
-    --user-bubble:#2f2f2f;
-  }
-  html,body{height:100%;}
-  body{
-    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
-    background:var(--bg);
-    color:var(--text);
-    overflow:hidden;
-  }
-  #bg-canvas{
-    position:fixed;inset:0;z-index:0;opacity:.45;
-  }
-  .app{
-    position:relative;z-index:1;
-    display:flex;height:100vh;width:100vw;
+  :root {
+    --accent: #10a37f;
+    --accent-glow: rgba(16, 163, 127, 0.15);
+    --bg-dark: #0a0a0c;
+    --panel-dark: #121216;
+    --border-dark: rgba(255, 255, 255, 0.08);
+    --text-dark: #f3f4f6;
+    --text-muted: #9ca3af;
   }
 
-  /* Sidebar */
-  .sidebar{
-    width:260px;background:rgba(10,10,10,.85);
-    backdrop-filter:blur(8px);
-    border-right:1px solid var(--border);
-    display:flex;flex-direction:column;
-    transition:margin-left .25s;
-  }
-  .sidebar.hidden{margin-left:-260px;}
-  .sb-header{padding:12px;border-bottom:1px solid var(--border);}
-  .new-chat-btn{
-    width:100%;padding:10px 12px;background:transparent;
-    color:var(--text);border:1px solid var(--border);
-    border-radius:8px;cursor:pointer;font-size:14px;
-    display:flex;align-items:center;gap:8px;justify-content:center;
-    transition:background .15s;
-  }
-  .new-chat-btn:hover{background:var(--panel-2);}
-  .chat-list{flex:1;overflow-y:auto;padding:8px;}
-  .chat-item{
-    padding:10px 12px;border-radius:8px;cursor:pointer;
-    font-size:13px;color:var(--muted);
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-    display:flex;align-items:center;justify-content:space-between;gap:6px;
-    margin-bottom:2px;
-  }
-  .chat-item:hover{background:var(--panel-2);color:var(--text);}
-  .chat-item.active{background:var(--panel-2);color:var(--text);}
-  .chat-item .del{
-    opacity:0;background:none;border:none;color:var(--muted);
-    cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px;
-  }
-  .chat-item:hover .del{opacity:1;}
-  .chat-item .del:hover{background:#3a1f1f;color:#ff6b6b;}
-  .sb-footer{
-    padding:10px 12px;border-top:1px solid var(--border);
-    font-size:11px;color:var(--muted);text-align:center;
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-dark);
+    overflow: hidden;
   }
 
-  /* Main */
-  .main{flex:1;display:flex;flex-direction:column;min-width:0;}
-  .topbar{
-    height:52px;border-bottom:1px solid var(--border);
-    display:flex;align-items:center;padding:0 16px;gap:12px;
-    background:rgba(13,13,13,.7);backdrop-filter:blur(8px);
-  }
-  .icon-btn{
-    background:none;border:none;color:var(--text);
-    cursor:pointer;padding:6px 10px;border-radius:6px;font-size:18px;
-  }
-  .icon-btn:hover{background:var(--panel-2);}
-  .brand{font-weight:600;letter-spacing:.5px;}
-  .brand span{color:var(--accent);}
-
-  /* Messages */
-  .messages{
-    flex:1;overflow-y:auto;padding:24px 0;
-  }
-  .msg-wrap{
-    width:100%;padding:18px 16px;
-  }
-  .msg-wrap.assistant{background:rgba(255,255,255,.02);}
-  .msg{
-    max-width:760px;margin:0 auto;display:flex;gap:14px;align-items:flex-start;
-  }
-  .avatar{
-    width:30px;height:30px;border-radius:6px;
-    display:flex;align-items:center;justify-content:center;
-    font-size:13px;font-weight:700;flex-shrink:0;
-  }
-  .avatar.user{background:#5436da;color:#fff;}
-  .avatar.assistant{background:var(--accent);color:#fff;}
-  .msg-body{flex:1;min-width:0;line-height:1.65;font-size:15px;}
-  .msg-body p{margin:0 0 10px;}
-  .msg-body p:last-child{margin-bottom:0;}
-  .msg-body ul,.msg-body ol{margin:8px 0 8px 22px;}
-  .msg-body code{
-    background:#1f1f1f;padding:2px 6px;border-radius:4px;
-    font-family:'Consolas',monospace;font-size:13.5px;
-  }
-  .msg-body pre{
-    background:#0a0a0a;border:1px solid var(--border);
-    border-radius:8px;padding:14px;overflow-x:auto;margin:10px 0;
-  }
-  .msg-body pre code{background:transparent;padding:0;font-size:13px;}
-  .msg-body a{color:var(--accent);}
-  .typing{display:inline-block;width:8px;height:16px;background:var(--text);animation:blink 1s infinite;vertical-align:middle;}
-  @keyframes blink{50%{opacity:0;}}
-
-  /* Welcome */
-  .welcome{
-    height:100%;display:flex;flex-direction:column;
-    align-items:center;justify-content:center;text-align:center;padding:20px;
-  }
-  .welcome h1{
-    font-size:42px;font-weight:700;margin-bottom:12px;
-    background:linear-gradient(135deg,#fff,#10a37f);
-    -webkit-background-clip:text;background-clip:text;color:transparent;
-  }
-  .welcome p{color:var(--muted);max-width:480px;}
-  .suggestions{
-    display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:30px;
-    max-width:600px;width:100%;
-  }
-  .sg{
-    padding:14px;background:var(--panel);border:1px solid var(--border);
-    border-radius:10px;cursor:pointer;text-align:left;font-size:13.5px;
-    color:var(--muted);transition:all .15s;
-  }
-  .sg:hover{background:var(--panel-2);color:var(--text);}
-
-  /* Composer */
-  .composer-wrap{
-    padding:14px 16px 18px;background:linear-gradient(to top,var(--bg) 70%,transparent);
-  }
-  .composer{
-    max-width:760px;margin:0 auto;
-    display:flex;align-items:flex-end;gap:8px;
-    background:var(--panel);border:1px solid var(--border);
-    border-radius:14px;padding:10px 10px 10px 14px;
-  }
-  .composer textarea{
-    flex:1;background:transparent;border:none;color:var(--text);
-    resize:none;outline:none;font-family:inherit;font-size:15px;
-    max-height:200px;min-height:24px;line-height:1.5;padding:4px 0;
-  }
-  .send-btn{
-    background:var(--accent);border:none;color:#fff;
-    width:34px;height:34px;border-radius:8px;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;font-size:16px;
-    transition:opacity .15s;
-  }
-  .send-btn:disabled{background:#444;cursor:not-allowed;}
-  .composer-hint{
-    text-align:center;font-size:11px;color:var(--muted);
-    margin-top:8px;
+  h1, h2, h3, .font-heading {
+    font-family: 'Space Grotesk', sans-serif;
   }
 
-  /* API key banner */
-  .api-banner{
-    background:#3a2118;color:#ffb4a2;
-    padding:10px 16px;text-align:center;font-size:13px;
-    border-bottom:1px solid #5a2f24;
-  }
-  .api-banner code{background:rgba(0,0,0,.3);padding:2px 6px;border-radius:4px;}
+  /* Accent Color Classes dynamically handled */
+  .color-accent { color: var(--accent); }
+  .bg-accent { background-color: var(--accent); }
+  .border-accent { border-color: var(--accent); }
+  .shadow-accent-glow { box-shadow: 0 0 20px var(--accent-glow); }
 
-  /* Scrollbar */
-  ::-webkit-scrollbar{width:8px;height:8px;}
-  ::-webkit-scrollbar-thumb{background:#333;border-radius:4px;}
-  ::-webkit-scrollbar-thumb:hover{background:#444;}
-
-  /* ---- Light Theme ---- */
-  body.light{
-    --bg:#f5f5f5;
-    --panel:#ffffff;
-    --panel-2:#ebebeb;
-    --border:#d9d9d9;
-    --text:#111111;
-    --muted:#666666;
-    --accent:#10a37f;
-    --user-bubble:#e8e8e8;
-  }
-  body.light #bg-canvas{opacity:.12;}
-  body.light .sidebar{background:rgba(240,240,240,.92);}
-  body.light .topbar{background:rgba(245,245,245,.85);}
-  body.light .msg-wrap.assistant{background:rgba(0,0,0,.03);}
-  body.light .msg-body code{background:#e8e8e8;}
-  body.light .msg-body pre{background:#f0f0f0;}
-  body.light .api-banner{background:#ffecd6;color:#a3330b;border-color:#f5c3a0;}
-
-  /* ---- Theme toggle btn ---- */
-  .theme-btn{
-    margin-left:auto;background:none;border:1px solid var(--border);
-    color:var(--text);cursor:pointer;padding:5px 10px;border-radius:6px;
-    font-size:14px;transition:background .15s;
-  }
-  .theme-btn:hover{background:var(--panel-2);}
-
-  /* ---- Topbar right buttons ---- */
-  .topbar-right{display:flex;align-items:center;gap:6px;margin-left:auto;}
-
-  /* ---- Copy button on messages ---- */
-  .msg-wrap{position:relative;}
-  .copy-btn{
-    position:absolute;top:10px;right:16px;
-    background:var(--panel-2);border:1px solid var(--border);
-    color:var(--muted);border-radius:6px;padding:3px 9px;
-    font-size:11px;cursor:pointer;opacity:0;transition:opacity .15s;
-  }
-  .msg-wrap:hover .copy-btn{opacity:1;}
-  .copy-btn.copied{color:var(--accent);}
-
-  /* ---- Search bar in sidebar ---- */
-  .sb-search{padding:8px 12px;border-bottom:1px solid var(--border);}
-  .sb-search input{
-    width:100%;background:var(--panel-2);border:1px solid var(--border);
-    color:var(--text);padding:7px 10px;border-radius:7px;font-size:13px;outline:none;
-  }
-  .sb-search input::placeholder{color:var(--muted);}
-
-  /* ---- Settings Modal ---- */
-  .modal-overlay{
-    display:none;position:fixed;inset:0;z-index:100;
-    background:rgba(0,0,0,.6);backdrop-filter:blur(4px);
-    align-items:center;justify-content:center;
-  }
-  .modal-overlay.open{display:flex;}
-  .modal{
-    background:var(--panel);border:1px solid var(--border);
-    border-radius:14px;padding:28px 28px 24px;
-    width:min(460px,92vw);box-shadow:0 16px 48px rgba(0,0,0,.5);
-    position:relative;
-  }
-  .modal h2{font-size:18px;margin-bottom:20px;font-weight:600;}
-  .modal label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;}
-  .modal input,.modal select{
-    width:100%;background:var(--panel-2);border:1px solid var(--border);
-    color:var(--text);padding:9px 12px;border-radius:8px;font-size:14px;outline:none;
-    margin-bottom:16px;font-family:inherit;
-  }
-  .modal input:focus,.modal select:focus{border-color:var(--accent);}
-  .modal-close{
-    position:absolute;top:14px;right:16px;
-    background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px;
-  }
-  .modal-save{
-    background:var(--accent);border:none;color:#fff;
-    padding:9px 22px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;
-    transition:opacity .15s;
-  }
-  .modal-save:hover{opacity:.85;}
-
-  /* ---- Character counter ---- */
-  .char-count{
-    font-size:11px;color:var(--muted);align-self:center;padding:0 4px;
-    white-space:nowrap;
+  /* 3D Canvas style */
+  #bg-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.6;
+    transition: opacity 0.5s;
   }
 
-  /* ---- Export toast ---- */
-  .toast{
-    position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);
-    background:var(--accent);color:#fff;padding:9px 20px;border-radius:8px;
-    font-size:13px;z-index:200;transition:transform .3s;pointer-events:none;
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
   }
-  .toast.show{transform:translateX(-50%) translateY(0);}
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 99px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+  }
 
-  @media(max-width:768px){
-    .sidebar{position:absolute;height:100%;z-index:5;}
-    .welcome h1{font-size:32px;}
-    .suggestions{grid-template-columns:1fr;}
+  /* Code Block Styling */
+  pre code {
+    font-family: 'Fira Code', monospace !important;
+  }
+
+  /* Audio playing pulse animation */
+  @keyframes pulse-audio {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.2); opacity: 1; color: #ef4444; }
+  }
+  .audio-playing {
+    animation: pulse-audio 1.2s infinite;
+  }
+
+  /* Typing cursor */
+  .typing-cursor::after {
+    content: '|';
+    animation: blink-cursor 0.8s infinite;
+    color: var(--accent);
+    font-weight: bold;
+  }
+  @keyframes blink-cursor {
+    50% { opacity: 0; }
+  }
+
+  /* Smooth transition for theme colors */
+  * {
+    transition: background-color 0.2s ease, border-color 0.2s ease;
   }
 </style>
 </head>
-<body>
+<body class="relative h-screen w-screen overflow-hidden flex flex-col">
 
+<!-- Interactive 3D Space Background -->
 <canvas id="bg-canvas"></canvas>
 
-<div class="app">
+<!-- Top Alert Toast -->
+<div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 bg-gray-900/90 border border-white/10 text-white px-5 py-3 rounded-xl shadow-2xl backdrop-blur-md z-50 flex items-center gap-3 transition-all duration-300 pointer-events-none opacity-0 scale-95">
+  <span id="toast-icon" class="text-emerald-400 text-lg"><i class="fas fa-check-circle"></i></span>
+  <span id="toast-msg" class="text-sm font-medium">Settings Applied Successfully!</span>
+</div>
+
+<div class="relative z-10 flex h-full w-full overflow-hidden">
+  
   <!-- Sidebar -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sb-header">
-      <button class="new-chat-btn" onclick="newChat()">＋ New chat</button>
+  <aside id="sidebar" class="w-80 bg-black/40 backdrop-blur-xl border-r border-white/10 flex flex-col justify-between transition-all duration-300">
+    <div>
+      <!-- Brand Area -->
+      <div class="p-6 border-b border-white/10 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-black font-extrabold text-xl shadow-lg shadow-emerald-500/20">
+            M
+          </div>
+          <div>
+            <h1 class="text-lg font-bold tracking-tight">MR7 <span class="text-emerald-400">AI</span></h1>
+            <p class="text-[10px] text-gray-500 font-mono tracking-wider uppercase">Super Intelligence</p>
+          </div>
+        </div>
+        <button onclick="toggleSidebar()" class="text-gray-400 hover:text-white transition-colors p-1.5 hover:bg-white/5 rounded-lg">
+          <i class="fas fa-chevron-left text-sm"></i>
+        </button>
+      </div>
+
+      <!-- Action Button -->
+      <div class="p-4">
+        <button onclick="newChat()" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl py-3 px-4 flex items-center justify-center gap-3 font-medium transition-all group shadow-sm hover:shadow-emerald-500/5">
+          <i class="fas fa-plus text-xs text-emerald-400 group-hover:rotate-90 transition-transform"></i>
+          <span>Naya Chat Shuru Karein</span>
+        </button>
+      </div>
+
+      <!-- Live Search Chats -->
+      <div class="px-4 mb-2">
+        <div class="relative">
+          <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
+          <input type="text" id="chatSearch" placeholder="Chats search karein..." oninput="filterChats(this.value)" class="w-full bg-white/5 border border-white/5 rounded-lg py-2 pl-9 pr-4 text-xs text-white focus:outline-none focus:border-emerald-500/50 transition-colors">
+        </div>
+      </div>
+
+      <!-- Chat History Container -->
+      <div class="px-2 flex flex-col gap-1 overflow-y-auto max-h-[50vh]" id="chatList">
+        <!-- Dynamic chat items insert here -->
+      </div>
     </div>
-    <div class="sb-search">
-      <input type="text" id="chatSearch" placeholder="🔍 Chats search karo..." oninput="filterChats(this.value)">
+
+    <!-- Sidebar Bottom controls -->
+    <div class="p-4 border-t border-white/10 bg-black/20">
+      <div class="flex items-center justify-between gap-2 p-2 bg-white/5 rounded-xl border border-white/5">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400">
+            <i class="fas fa-robot"></i>
+          </div>
+          <div>
+            <p class="text-xs font-semibold">Gemini 3.1 Pro</p>
+            <p class="text-[10px] text-emerald-400 font-mono">Active (Free Tier)</p>
+          </div>
+        </div>
+        <button onclick="openSettings()" class="text-gray-400 hover:text-white p-2 hover:bg-white/5 rounded-lg transition-colors" title="Settings Center">
+          <i class="fas fa-cog"></i>
+        </button>
+      </div>
     </div>
-    <div class="chat-list" id="chatList"></div>
-    <div class="sb-footer">MR7 AI · v2.0</div>
   </aside>
 
-  <!-- Main -->
-  <main class="main">
-    <div class="topbar">
-      <button class="icon-btn" onclick="toggleSidebar()" title="Toggle sidebar">☰</button>
-      <div class="brand">MR7<span> AI</span></div>
-      <div class="topbar-right">
-        <button class="icon-btn" onclick="exportChat()" title="Export chat">⬇️</button>
-        <button class="icon-btn" onclick="openSettings()" title="Settings">⚙️</button>
-        <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☀️ Light</button>
+  <!-- Main View Area -->
+  <main class="flex-1 flex flex-col min-w-0 bg-transparent relative z-10">
+    
+    <!-- Topbar Navigation -->
+    <header class="h-16 border-b border-white/10 flex items-center justify-between px-6 bg-black/20 backdrop-blur-md">
+      <div class="flex items-center gap-3">
+        <button id="sidebarToggle" onclick="toggleSidebar()" class="text-gray-400 hover:text-white p-2 hover:bg-white/5 rounded-lg mr-2" style="display:none;">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span class="text-xs font-semibold text-gray-300 font-mono tracking-wider uppercase" id="activePersonaHeader">Global AI Mode</span>
+        </div>
+      </div>
+
+      <!-- Control actions -->
+      <div class="flex items-center gap-3">
+        <button onclick="toggleVisuals()" id="visualToggleBtn" class="text-gray-400 hover:text-white bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-colors" title="Toggle 3D visual density">
+          <i class="fas fa-expand"></i> <span class="hidden md:inline">3D Effects On</span>
+        </button>
+        <button onclick="exportChat()" class="text-gray-400 hover:text-white bg-white/5 border border-white/10 p-2 rounded-xl text-xs transition-colors" title="Download Text Chat">
+          <i class="fas fa-download"></i>
+        </button>
+        <button onclick="openSettings()" class="text-gray-400 hover:text-white bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-colors">
+          <i class="fas fa-sliders-h"></i> <span>Customise</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Chat Messages Screen -->
+    <div class="flex-1 overflow-y-auto px-4 md:px-12 py-8 flex flex-col gap-6" id="messages">
+      <!-- Dynamic messages or Welcome Screen -->
+    </div>
+
+    <!-- Contextual suggestions banner -->
+    <div class="px-4 md:px-12" id="contextualSuggestionsWrap">
+      <div class="max-w-4xl mx-auto flex flex-wrap gap-2 py-2" id="contextSuggestions">
+        <!-- AI Smart Suggestions populate dynamically here -->
       </div>
     </div>
 
-    <!-- API key warning banner (auto shows if key missing) -->
-    <div class="api-banner" id="apiBanner" style="display:none;">
-      ⚠️ Groq API key missing. Settings ⚙️ mein jaake key paste karo. Key yahan se lo: <a href="https://console.groq.com/keys" target="_blank" style="color:#ffb4a2">console.groq.com/keys</a>
-    </div>
+    <!-- Input Form & Composer -->
+    <div class="p-4 md:p-6 bg-gradient-to-t from-black/80 to-transparent">
+      <div class="max-w-4xl mx-auto">
+        <div class="bg-zinc-900/90 border border-white/10 rounded-2xl p-3 shadow-2xl backdrop-blur-xl relative">
+          
+          <!-- Mode toggles -->
+          <div class="flex items-center justify-between px-2 pb-2 mb-2 border-b border-white/5">
+            <div class="flex gap-2">
+              <button id="btnTextMode" onclick="setComposeMode('text')" class="px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 transition-all">
+                <i class="fas fa-comment-dots"></i> <span>Chat Assistant</span>
+              </button>
+              <button id="btnImageMode" onclick="setComposeMode('image')" class="px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 hover:bg-white/5 text-gray-400 transition-all border border-transparent hover:border-white/10">
+                <i class="fas fa-paint-brush"></i> <span>Imagine (AI Painting)</span>
+              </button>
+            </div>
+            
+            <!-- Key hints -->
+            <div class="hidden sm:flex items-center gap-2 text-[11px] text-gray-500">
+              <span>Shuruaat karein <b>/draw</b> se to instantly generate custom images!</span>
+            </div>
+          </div>
 
-    <div class="messages" id="messages"></div>
-
-    <div class="composer-wrap">
-      <div class="composer">
-        <textarea id="input" placeholder="Message MR7 AI..." rows="1"
-          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}"
-          oninput="autoGrow(this);updateCharCount(this)"></textarea>
-        <span class="char-count" id="charCount">0</span>
-        <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+          <!-- Main Input Controls -->
+          <div class="flex items-end gap-3">
+            <textarea id="input" rows="1" placeholder="Kuch poochiye, AI se baatein karein..." 
+              onkeydown="handleTextareaKey(event)"
+              oninput="autoGrow(this); updateCharCount(this)" 
+              class="flex-1 bg-transparent border-0 text-white placeholder-gray-500 focus:ring-0 focus:outline-none text-[15px] resize-none max-h-40 min-h-[24px] py-1 pl-2"></textarea>
+            
+            <div class="flex items-center gap-2 pr-1">
+              <span id="charCount" class="text-[10px] text-gray-500 font-mono">0</span>
+              <button onclick="clearInput()" class="w-8 h-8 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white flex items-center justify-center transition-colors" title="Clear input">
+                <i class="fas fa-trash-alt text-sm"></i>
+              </button>
+              <button id="sendBtn" onclick="sendMessage()" class="w-9 h-9 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black flex items-center justify-center transition-all shadow-lg shadow-emerald-500/10">
+                <i class="fas fa-paper-plane text-sm"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <p class="text-center text-[10px] text-gray-500 mt-3 font-medium">MR7 AI runs premium Google Gemini & Audio TTS models natively. Accuracy guaranteed.</p>
       </div>
-      <div class="composer-hint">MR7 AI can make mistakes. Verify important info.</div>
     </div>
   </main>
 </div>
 
-<!-- Settings Modal -->
-<div class="modal-overlay" id="settingsModal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeSettings()">✕</button>
-    <h2>⚙️ Settings</h2>
-    <label>Groq API Key</label>
-    <input type="password" id="settingsKey" placeholder="gsk_..." autocomplete="off">
-    <label>Model</label>
-    <select id="settingsModel">
-      <option value="claude-sonnet-4-20250514">claude-sonnet-4-20250514 (Fast & Free)</option>
-      <option value="llama-3.1-8b-instant">llama-3.1-8b-instant (Super Fast)</option>
-      <option value="gemma2-9b-it">gemma2-9b-it (Google Gemma)</option>
-    </select>
-    <button class="modal-save" onclick="saveSettings()">💾 Save</button>
+<!-- Dynamic Settings Modal -->
+<div id="settingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
+  <div class="bg-zinc-950 border border-white/10 rounded-2xl w-full max-w-lg p-6 m-4 shadow-2xl transform scale-95 transition-all duration-300 flex flex-col gap-5 max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between border-b border-white/10 pb-4">
+      <div class="flex items-center gap-2 text-emerald-400">
+        <i class="fas fa-sliders-h text-lg"></i>
+        <h2 class="text-lg font-bold font-heading">MR7 AI Settings Dashboard</h2>
+      </div>
+      <button onclick="closeSettings()" class="text-gray-400 hover:text-white hover:bg-white/10 w-8 h-8 rounded-full flex items-center justify-center transition-all">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Main settings settings content -->
+    <div class="flex flex-col gap-4">
+      
+      <!-- Persona selector -->
+      <div>
+        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          <i class="fas fa-user-circle mr-1"></i> Choose AI Persona (Behavior)
+        </label>
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="setPersona('friendly')" id="p-friendly" class="p-3 rounded-xl border text-left flex flex-col gap-1 transition-all">
+            <span class="text-xs font-bold text-white">😊 Hinglish Friend</span>
+            <span class="text-[10px] text-gray-400 leading-tight">Casual friendly talks & native advices</span>
+          </button>
+          <button onclick="setPersona('coder')" id="p-coder" class="p-3 rounded-xl border text-left flex flex-col gap-1 transition-all">
+            <span class="text-xs font-bold text-white">💻 Coding Master</span>
+            <span class="text-[10px] text-gray-400 leading-tight">Strict clean code & logic optimization</span>
+          </button>
+          <button onclick="setPersona('writer')" id="p-writer" class="p-3 rounded-xl border text-left flex flex-col gap-1 transition-all">
+            <span class="text-xs font-bold text-white">✍️ Creative Writer</span>
+            <span class="text-[10px] text-gray-400 leading-tight">Savage lyrics, essays, scripts & stories</span>
+          </button>
+          <button onclick="setPersona('expert')" id="p-expert" class="p-3 rounded-xl border text-left flex flex-col gap-1 transition-all">
+            <span class="text-xs font-bold text-white">🎓 Deep Tech Guru</span>
+            <span class="text-[10px] text-gray-400 leading-tight">Highly analytical responses & calculations</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Accent Color customization -->
+      <div>
+        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          <i class="fas fa-palette mr-1"></i> Brand Accent Color
+        </label>
+        <div class="flex gap-3 justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
+          <button onclick="setAccent('#10a37f', 'rgba(16,163,127,0.15)')" class="w-8 h-8 rounded-full bg-[#10a37f] border-2 border-transparent hover:scale-110 active:scale-95 transition-transform" title="Emerald"></button>
+          <button onclick="setAccent('#3b82f6', 'rgba(59,130,246,0.15)')" class="w-8 h-8 rounded-full bg-[#3b82f6] border-2 border-transparent hover:scale-110 active:scale-95 transition-transform" title="Blue Electric"></button>
+          <button onclick="setAccent('#a855f7', 'rgba(168,85,247,0.15)')" class="w-8 h-8 rounded-full bg-[#a855f7] border-2 border-transparent hover:scale-110 active:scale-95 transition-transform" title="Purple Neon"></button>
+          <button onclick="setAccent('#ec4899', 'rgba(236,72,153,0.15)')" class="w-8 h-8 rounded-full bg-[#ec4899] border-2 border-transparent hover:scale-110 active:scale-95 transition-transform" title="Cyber Pink"></button>
+          <button onclick="setAccent('#eab308', 'rgba(234,179,8,0.15)')" class="w-8 h-8 rounded-full bg-[#eab308] border-2 border-transparent hover:scale-110 active:scale-95 transition-transform" title="Sun Yellow"></button>
+        </div>
+      </div>
+
+      <!-- Text to speech options -->
+      <div>
+        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          <i class="fas fa-volume-up mr-1"></i> AI Speaking Voice (TTS Reader)
+        </label>
+        <select id="ttsVoice" class="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm text-white focus:outline-none focus:border-emerald-500">
+          <option value="Zephyr" class="bg-zinc-950">Zephyr (Bright Speaker)</option>
+          <option value="Puck" class="bg-zinc-950">Puck (Upbeat Energy)</option>
+          <option value="Charon" class="bg-zinc-950">Charon (Informative Voice)</option>
+          <option value="Kore" class="bg-zinc-950" selected>Kore (Firm / Normal)</option>
+          <option value="Fenrir" class="bg-zinc-950">Fenrir (Excitable)</option>
+        </select>
+      </div>
+
+      <!-- Free API Key overrides (Optional) -->
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">
+            <i class="fas fa-key mr-1"></i> Custom Gemini API Key (Optional)
+          </label>
+          <span class="text-[10px] text-gray-500">Keep blank to use canvas key</span>
+        </div>
+        <input type="password" id="customApiKey" placeholder="AI Studio key: AIzaSy..." class="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500">
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex gap-3 mt-4 pt-4 border-t border-white/10">
+      <button onclick="resetSettings()" class="flex-1 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl py-3 text-sm font-semibold text-gray-400 transition-colors">
+        Restore Defaults
+      </button>
+      <button onclick="saveAllSettings()" class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-black rounded-xl py-3 text-sm font-bold shadow-lg shadow-emerald-500/20">
+        💾 Save settings
+      </button>
+    </div>
   </div>
 </div>
 
-<!-- Toast notification -->
-<div class="toast" id="toast">✅ Done!</div>
+<!-- Audio element (Hidden helper) -->
+<audio id="globalAudioPlayer" class="hidden"></audio>
 
 <script>
-/* =========================================================
-   ⚠️  YAHA APNI CLAUDE (ANTHROPIC) API KEY DALO  ⚠️
-   Without API key the chatbot will NOT work.
-   Get key from: https://console.anthropic.com/settings/keys
-   ========================================================= */
-const CLAUDE_API_KEY = "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";  // Groq API Key
-const CLAUDE_MODEL   = "llama-3.3-70b-versatile"; // Groq model
-/* ========================================================= */
+// State Management
+let chats = JSON.parse(localStorage.getItem("mr7_v3_chats") || "{}");
+let currentChatId = localStorage.getItem("mr7_v3_current") || null;
+let currentPersona = localStorage.getItem("mr7_v3_persona") || "friendly";
+let currentAccent = localStorage.getItem("mr7_v3_accent") || "#10a37f";
+let currentAccentGlow = localStorage.getItem("mr7_v3_accent_glow") || "rgba(16,163,127,0.15)";
+let activeVoice = localStorage.getItem("mr7_v3_voice") || "Kore";
+let activeComposeMode = "text"; // text or image
+let isGenerating = false;
+let customKey = localStorage.getItem("mr7_v3_custom_key") || "";
+let is3DActive = localStorage.getItem("mr7_v3_3d") !== "false";
 
+// Preset default suggestions based on current active Persona
+const suggestionsByPersona = {
+  friendly: [
+    "Ek mast joke sunao Hinglish mein 😄",
+    "Mera aaj mood off hai, kya karun?",
+    "Give me advice on starting a Youtube channel",
+    "Simple terms mein space black holes kya hote hain?"
+  ],
+  coder: [
+    "JavaScript recursion explain karo with examples",
+    "Clean standard python script to fetch HTML page",
+    "Optimal search solution using Binary Search",
+    "SQL query to find second highest salary in database"
+  ],
+  writer: [
+    "Write a catchy poetic rap verse on cyber war",
+    "Suggest unique naming ideas for an Indian AI agency",
+    "Write a gripping suspense thriller movie introduction",
+    "Compose an email asking boss for medical leaves"
+  ],
+  expert: [
+    "Calculate the compound interest rate logic dynamically",
+    "Summarize Einstein's Special Theory of Relativity",
+    "Tell me key elements of financial budget optimization",
+    "Outline structural components of space rockets"
+  ]
+};
 
-/* ---------- State ---------- */
-let chats = JSON.parse(localStorage.getItem("mr7_chats") || "{}");
-let currentChatId = localStorage.getItem("mr7_current") || null;
-let isStreaming = false;
+// System instruction prompt variations for different personalities
+const systemPrompts = {
+  friendly: "You are MR7 AI, a helpful, cheerful, and super-friendly Hinglish-speaking virtual friend. Use casual tone, emojis, and explain things using clear real-life metaphors. Write in Hinglish (Hindi text in Latin script) as much as possible for emotional and casual connect.",
+  coder: "You are MR7 AI, an expert Senior Software Engineer and computer science mentor. Be straight, highly professional, and precise. Always write clean, well-commented, optimized code blocks and explain execution flows.",
+  writer: "You are MR7 AI, a master creative storyteller, copywriter, and professional lyricist. Give expressive, metaphorical, and high-impact descriptions. Think deep and generate unique lyrics or stories.",
+  expert: "You are MR7 AI, an extremely knowledgeable and logical research analyst. Provide deep structure, use accurate facts, formulas, or academic summaries without unnecessary small talk."
+};
 
-/* ---------- Init ---------- */
-window.addEventListener("DOMContentLoaded", () => {
-  if (!CLAUDE_API_KEY || !CLAUDE_API_KEY.startsWith("gsk_")) {
-    document.getElementById("apiBanner").style.display = "block";
+/* ---------- Initialization Entrypoint ---------- */
+window.addEventListener("load", () => {
+  // Setup CSS Accent parameters
+  document.documentElement.style.setProperty('--accent', currentAccent);
+  document.documentElement.style.setProperty('--accent-glow', currentAccentGlow);
+
+  // Load Settings options
+  document.getElementById("customApiKey").value = customKey;
+  document.getElementById("ttsVoice").value = activeVoice;
+
+  // Restore sidebar visibility state
+  if (window.innerWidth < 768) {
+    document.getElementById("sidebar").classList.add("hidden");
+    document.getElementById("sidebarToggle").style.display = "block";
   }
+
+  // Load chat histories or bootstrap first session
   if (!currentChatId || !chats[currentChatId]) {
     newChat();
   } else {
     renderChatList();
     renderMessages();
   }
+
+  // Visual highlights setup
+  updatePersonaUI();
+  init3DSpace();
 });
 
-/* ---------- Chat management ---------- */
-function newChat(){
-  const id = "c_" + Date.now();
-  chats[id] = { id, title: "New chat", messages: [] };
-  currentChatId = id;
-  persist();
-  renderChatList();
-  renderMessages();
-  document.getElementById("input").focus();
-}
-
-function switchChat(id){
-  currentChatId = id;
-  localStorage.setItem("mr7_current", id);
-  renderChatList();
-  renderMessages();
-}
-
-function deleteChat(id, ev){
-  ev.stopPropagation();
-  if(!confirm("Delete this chat?")) return;
-  delete chats[id];
-  if(currentChatId === id){
-    const ids = Object.keys(chats);
-    currentChatId = ids[0] || null;
-    if(!currentChatId) newChat();
-  }
-  persist();
-  renderChatList();
-  renderMessages();
-}
-
-function persist(){
-  localStorage.setItem("mr7_chats", JSON.stringify(chats));
-  localStorage.setItem("mr7_current", currentChatId);
-}
-
-/* ---------- Renderers ---------- */
-function renderChatList(){
-  const list = document.getElementById("chatList");
-  const ids = Object.keys(chats).reverse();
-  list.innerHTML = ids.map(id => `
-    <div class="chat-item ${id===currentChatId?'active':''}" onclick="switchChat('${id}')">
-      <span>💬 ${escapeHtml(chats[id].title)}</span>
-      <button class="del" onclick="deleteChat('${id}',event)">✕</button>
-    </div>
-  `).join("");
-}
-
-function renderMessages(){
-  const box = document.getElementById("messages");
-  const chat = chats[currentChatId];
-  if(!chat || chat.messages.length === 0){
-    box.innerHTML = `
-      <div class="welcome">
-        <h1>MR7 AI</h1>
-        <p>Your futuristic AI assistant. Ask anything — code, ideas, explanations.</p>
-        <div class="suggestions">
-          <div class="sg" onclick="useSg(this)">Explain quantum computing simply</div>
-          <div class="sg" onclick="useSg(this)">Write a Python script to scrape a webpage</div>
-          <div class="sg" onclick="useSg(this)">Give me 5 startup ideas for 2026</div>
-          <div class="sg" onclick="useSg(this)">Help me plan a 3-day Goa trip</div>
-        </div>
-      </div>`;
-    return;
-  }
-  box.innerHTML = chat.messages.map(m => renderMsg(m)).join("");
-  hljs.highlightAll();
-  box.scrollTop = box.scrollHeight;
-}
-
-function renderMsg(m){
-  const isUser = m.role === "user";
-  const content = isUser ? `<p>${escapeHtml(m.content).replace(/\n/g,"<br>")}</p>` : marked.parse(m.content||"");
-  const copyBtn = !isUser ? `<button class="copy-btn" onclick="copyMsg(this, ${JSON.stringify(m.content||'')})">📋 Copy</button>` : "";
-  return `
-    <div class="msg-wrap ${isUser?'user':'assistant'}">
-      ${copyBtn}
-      <div class="msg">
-        <div class="avatar ${isUser?'user':'assistant'}">${isUser?'You':'AI'}</div>
-        <div class="msg-body">${content}</div>
-      </div>
-    </div>`;
-}
-
-function useSg(el){
-  document.getElementById("input").value = el.textContent;
-  sendMessage();
-}
-
-/* ---------- Send ---------- */
-async function sendMessage(){
-  if(isStreaming) return;
-  const inp = document.getElementById("input");
-  const text = inp.value.trim();
-  if(!text) return;
-
-  if(!CLAUDE_API_KEY || !CLAUDE_API_KEY.startsWith("gsk_")){
-    alert("⚠️ API key missing!\n\nSettings ⚙️ mein jaake Gemini API key paste karo.\n\nKey lene ke liye: https://aistudio.google.com/apikey");
-    return;
-  }
-
-  const chat = chats[currentChatId];
-  chat.messages.push({ role:"user", content:text });
-  if(chat.messages.length === 1){
-    chat.title = text.slice(0, 30) + (text.length>30?"...":"");
-  }
-  inp.value = ""; autoGrow(inp);
-  persist();
-  renderChatList();
-  renderMessages();
-
-  // Add empty assistant message
-  chat.messages.push({ role:"assistant", content:"" });
-  renderMessages();
-  const box = document.getElementById("messages");
-  const lastBody = box.querySelectorAll(".msg-body");
-  const targetEl = lastBody[lastBody.length-1];
-  targetEl.innerHTML = '<span class="typing"></span>';
-
-  isStreaming = true;
-  document.getElementById("sendBtn").disabled = true;
-
-  try{
-    // Build Groq messages array (OpenAI-compatible format)
-    const history = chat.messages.filter(m => m.content);
-    const messages = [
-      { role: "system", content: "You are MR7 AI, a helpful, friendly and concise AI assistant. Use markdown formatting and code blocks when appropriate." },
-      ...history.map(m => ({
-        role: m.role === "assistant" ? "assistant" : "user",
-        content: m.content
-      }))
-    ];
-
-    const apiKey = (localStorage.getItem("mr7_apikey") || CLAUDE_API_KEY);
-    const model  = (localStorage.getItem("mr7_model")  || CLAUDE_MODEL);
-
-    const resp = await fetch(
-      "https://api.groq.com/openai/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model,
-          max_tokens: 4096,
-          stream: true,
-          messages
-        })
-      }
-    );
-
-    if(!resp.ok){
-      const err = await resp.text();
-      throw new Error(`API error ${resp.status}: ${err}`);
-    }
-
-    const reader = resp.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = "";
-    let assistantText = "";
-
-    while(true){
-      const { done, value } = await reader.read();
-      if(done) break;
-      buffer += decoder.decode(value, { stream:true });
-      let idx;
-      while((idx = buffer.indexOf("\n")) !== -1){
-        let line = buffer.slice(0, idx).trim();
-        buffer = buffer.slice(idx+1);
-        if(!line.startsWith("data:")) continue;
-        const data = line.slice(5).trim();
-        if(!data || data === "[DONE]") continue;
-        try{
-          const json = JSON.parse(data);
-          // Groq / OpenAI streaming format
-          const delta = json.choices?.[0]?.delta?.content;
-          if(delta){
-            assistantText += delta;
-            chat.messages[chat.messages.length-1].content = assistantText;
-            targetEl.innerHTML = marked.parse(assistantText) + '<span class="typing"></span>';
-            box.scrollTop = box.scrollHeight;
-          }
-        }catch(e){ /* partial */ }
-      }
-    }
-
-    targetEl.innerHTML = marked.parse(assistantText || "*(no response)*");
-    hljs.highlightAll();
-    persist();
-  }catch(err){
-    console.error(err);
-    chat.messages[chat.messages.length-1].content = `❌ **Error:** ${err.message}\n\nAPI key check karo ya internet connection dekho.\n\nGroq API key lene ke liye: https://console.groq.com/keys`;
-    targetEl.innerHTML = marked.parse(chat.messages[chat.messages.length-1].content);
-    persist();
-  }finally{
-    isStreaming = false;
-    document.getElementById("sendBtn").disabled = false;
+/* ---------- Sidebar Toggle handlers ---------- */
+function toggleSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  const isHidden = sidebar.classList.toggle("hidden");
+  const toggleBtn = document.getElementById("sidebarToggle");
+  
+  if (window.innerWidth < 768) {
+    toggleBtn.style.display = "block";
+  } else {
+    toggleBtn.style.display = isHidden ? "block" : "none";
   }
 }
 
-/* ---------- Theme Toggle ---------- */
-function toggleTheme(){
-  const isLight = document.body.classList.toggle("light");
-  document.getElementById("themeBtn").textContent = isLight ? "🌙 Dark" : "☀️ Light";
-  localStorage.setItem("mr7_theme", isLight ? "light" : "dark");
-}
-(function applyTheme(){
-  if(localStorage.getItem("mr7_theme") === "light"){
-    document.body.classList.add("light");
-    document.getElementById("themeBtn").textContent = "🌙 Dark";
+/* ---------- Smart Prompt Controls ---------- */
+function handleTextareaKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
   }
-})();
-
-/* ---------- Copy Message ---------- */
-function copyMsg(btn, text){
-  navigator.clipboard.writeText(text).then(()=>{
-    btn.textContent = "✅ Copied!";
-    btn.classList.add("copied");
-    setTimeout(()=>{ btn.textContent = "📋 Copy"; btn.classList.remove("copied"); }, 1800);
-  });
 }
 
-/* ---------- Chat Search / Filter ---------- */
-function filterChats(query){
-  const q = query.trim().toLowerCase();
-  const list = document.getElementById("chatList");
-  const ids = Object.keys(chats).reverse();
-  const filtered = q ? ids.filter(id => chats[id].title.toLowerCase().includes(q)) : ids;
-  list.innerHTML = filtered.map(id => `
-    <div class="chat-item ${id===currentChatId?'active':''}" onclick="switchChat('${id}')">
-      <span>💬 ${escapeHtml(chats[id].title)}</span>
-      <button class="del" onclick="deleteChat('${id}',event)">✕</button>
-    </div>
-  `).join("") || `<div style="padding:12px;color:var(--muted);font-size:13px;text-align:center">Koi chat nahi mila</div>`;
+function autoGrow(el) {
+  el.style.height = "auto";
+  el.style.height = Math.min(el.scrollHeight, 160) + "px";
 }
 
-/* ---------- Settings Modal ---------- */
-function openSettings(){
-  document.getElementById("settingsKey").value = localStorage.getItem("mr7_apikey") || CLAUDE_API_KEY || "";
-  document.getElementById("settingsModel").value = localStorage.getItem("mr7_model") || CLAUDE_MODEL || "llama-3.3-70b-versatile";
-  document.getElementById("settingsModal").classList.add("open");
-}
-function closeSettings(){
-  document.getElementById("settingsModal").classList.remove("open");
-}
-function saveSettings(){
-  const key = document.getElementById("settingsKey").value.trim();
-  const model = document.getElementById("settingsModel").value;
-  if(key) { localStorage.setItem("mr7_apikey", key); }
-  localStorage.setItem("mr7_model", model);
-  closeSettings();
-  showToast("✅ Settings saved!");
-  document.getElementById("apiBanner").style.display = (key && key.startsWith("gsk_")) ? "none" : "block";
-}
-// Load saved settings
-(function loadSettings(){
-  // Settings localStorage se load honge automatically sendMessage mein
-})();
-// Close modal on overlay click
-document.getElementById("settingsModal").addEventListener("click", function(e){
-  if(e.target === this) closeSettings();
-});
-
-/* ---------- Export Chat ---------- */
-function exportChat(){
-  const chat = chats[currentChatId];
-  if(!chat || !chat.messages.length){ showToast("⚠️ Koi message nahi hai!"); return; }
-  let txt = `MR7 AI — Chat Export\n${chat.title}\n${"=".repeat(40)}\n\n`;
-  chat.messages.forEach(m => {
-    txt += `[${m.role === "user" ? "You" : "MR7 AI"}]\n${m.content}\n\n`;
-  });
-  const a = document.createElement("a");
-  a.href = "data:text/plain;charset=utf-8," + encodeURIComponent(txt);
-  a.download = `mr7-chat-${Date.now()}.txt`;
-  a.click();
-  showToast("📥 Chat exported!");
-}
-
-/* ---------- Toast ---------- */
-function showToast(msg){
-  const t = document.getElementById("toast");
-  t.textContent = msg;
-  t.classList.add("show");
-  setTimeout(()=> t.classList.remove("show"), 2400);
-}
-
-/* ---------- Character Counter ---------- */
-function updateCharCount(el){
+function updateCharCount(el) {
   document.getElementById("charCount").textContent = el.value.length;
 }
 
-/* ---------- Helpers ---------- */
-function autoGrow(el){
-  el.style.height = "auto";
-  el.style.height = Math.min(el.scrollHeight, 200) + "px";
+function clearInput() {
+  const inp = document.getElementById("input");
+  inp.value = "";
+  autoGrow(inp);
+  updateCharCount(inp);
 }
-function toggleSidebar(){
-  document.getElementById("sidebar").classList.toggle("hidden");
+
+function setComposeMode(mode) {
+  activeComposeMode = mode;
+  const btnText = document.getElementById("btnTextMode");
+  const btnImage = document.getElementById("btnImageMode");
+  const inp = document.getElementById("input");
+
+  if (mode === "image") {
+    btnImage.className = "px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-purple-500/20 text-purple-400 border border-purple-500/30 transition-all";
+    btnText.className = "px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 hover:bg-white/5 text-gray-400 transition-all border border-transparent hover:border-white/10";
+    inp.placeholder = "Mujhe batayein kis tarah ki painting draw karni hai... (e.g., A cyber dog on mars in pixel art)";
+  } else {
+    btnText.className = "px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 transition-all";
+    btnImage.className = "px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 hover:bg-white/5 text-gray-400 transition-all border border-transparent hover:border-white/10";
+    inp.placeholder = "Kuch poochiye, AI se baatein karein...";
+  }
 }
-function escapeHtml(s){
-  return (s||"").replace(/[&<>"']/g, c => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+
+/* ---------- STREAMING_CHUNK: Managing chat histories and persistent data... ---------- */
+function newChat() {
+  const id = "chat_" + Date.now();
+  chats[id] = {
+    id: id,
+    title: "Naya Chat Conversation",
+    messages: [],
+    persona: currentPersona
+  };
+  currentChatId = id;
+  saveChatsToLocal();
+  renderChatList();
+  renderMessages();
+  
+  const inp = document.getElementById("input");
+  if (inp) {
+    inp.focus();
+  }
+}
+
+function switchChat(id) {
+  currentChatId = id;
+  localStorage.setItem("mr7_v3_current", id);
+  if (chats[id] && chats[id].persona) {
+    currentPersona = chats[id].persona;
+    updatePersonaUI();
+  }
+  renderChatList();
+  renderMessages();
+}
+
+function deleteChat(id, e) {
+  e.stopPropagation();
+  // Premium modal fallback instead of browser confirm
+  triggerToast("Confirm Deletion...", "🗑️ Dobara click karein to delete completely!", "text-yellow-400");
+  
+  // Custom double tap handler to protect delete actions
+  const btn = e.target.closest('button');
+  if (btn.getAttribute('data-confirm') === 'true') {
+    delete chats[id];
+    if (currentChatId === id) {
+      const remainingIds = Object.keys(chats);
+      currentChatId = remainingIds[0] || null;
+      if (!currentChatId) newChat();
+    }
+    saveChatsToLocal();
+    renderChatList();
+    renderMessages();
+    triggerToast("Deleted", "Chat has been erased.", "text-red-400");
+  } else {
+    btn.setAttribute('data-confirm', 'true');
+    btn.innerHTML = `<i class="fas fa-exclamation-triangle text-red-500"></i>`;
+    setTimeout(() => {
+      if (btn) {
+        btn.setAttribute('data-confirm', 'false');
+        btn.innerHTML = `<i class="fas fa-trash"></i>`;
+      }
+    }, 3000);
+  }
+}
+
+function saveChatsToLocal() {
+  localStorage.setItem("mr7_v3_chats", JSON.stringify(chats));
+  localStorage.setItem("mr7_v3_current", currentChatId);
+}
+
+function filterChats(query) {
+  const val = query.trim().toLowerCase();
+  const list = document.getElementById("chatList");
+  const filteredIds = Object.keys(chats).reverse().filter(id => chats[id].title.toLowerCase().includes(val));
+  
+  renderChatList(filteredIds);
+}
+
+/* ---------- STREAMING_CHUNK: Building UI render templates... ---------- */
+function renderChatList(customIdArray = null) {
+  const container = document.getElementById("chatList");
+  const ids = customIdArray || Object.keys(chats).reverse();
+  
+  if (ids.length === 0) {
+    container.innerHTML = `<p class="text-center text-xs text-gray-500 py-6 font-medium">Koi conversations nahi mili</p>`;
+    return;
+  }
+
+  container.innerHTML = ids.map(id => {
+    const isSel = id === currentChatId;
+    const title = chats[id].title;
+    const persona = chats[id].persona || "friendly";
+    let icon = "fa-comment-dots";
+    if (persona === "coder") icon = "fa-code";
+    if (persona === "writer") icon = "fa-pencil-alt";
+    if (persona === "expert") icon = "fa-graduation-cap";
+
+    return `
+      <div onclick="switchChat('${id}')" class="group flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all ${isSel ? 'bg-white/10 border border-white/10 shadow-sm' : 'hover:bg-white/5 border border-transparent'}">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="text-xs ${isSel ? 'text-emerald-400' : 'text-gray-500'}"><i class="fas ${icon}"></i></span>
+          <span class="text-xs font-medium text-gray-300 truncate pr-2">${escapeHtml(title)}</span>
+        </div>
+        <button onclick="deleteChat('${id}', event)" data-confirm="false" class="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-white/10 text-gray-400 hover:text-red-400 transition-all text-xs" title="Delete">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderMessages() {
+  const container = document.getElementById("messages");
+  const chat = chats[currentChatId];
+
+  if (!chat || chat.messages.length === 0) {
+    // Generate Welcome Landing State
+    container.innerHTML = `
+      <div class="flex-1 flex flex-col justify-center items-center text-center py-12 max-w-2xl mx-auto">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-black font-extrabold text-3xl shadow-xl shadow-emerald-500/10 mb-6">
+          M
+        </div>
+        <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white font-heading">
+          MR7 <span class="text-emerald-400">AI</span> Intelligence
+        </h2>
+        <p class="text-gray-400 text-sm mt-3 leading-relaxed max-w-md">
+          A native intelligent dashboard powered by premium Gemini-3 Pro. Try asking programming tasks, logical solutions or creative visuals directly!
+        </p>
+
+        <!-- Prompt Suggestions Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 w-full mt-10">
+          ${(suggestionsByPersona[currentPersona] || suggestionsByPersona.friendly).map(s => `
+            <button onclick="useSuggestion('${s}')" class="p-3.5 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 rounded-xl text-left text-xs font-semibold text-gray-300 hover:text-white transition-all flex items-center justify-between group">
+              <span>${s}</span>
+              <i class="fas fa-arrow-right text-[10px] text-emerald-400 opacity-0 group-hover:opacity-100 transition-all transform translate-x-[-4px] group-hover:translate-x-0"></i>
+            </button>
+          `).join("")}
+        </div>
+      </div>
+    `;
+    document.getElementById("contextualSuggestionsWrap").style.display = "none";
+    return;
+  }
+
+  document.getElementById("contextualSuggestionsWrap").style.display = "block";
+  container.innerHTML = chat.messages.map((m, index) => renderMessageBubble(m, index)).join("");
+  hljs.highlightAll();
+  container.scrollTop = container.scrollHeight;
+
+  // Populate dynamic context recommendations for smart next responses
+  generateSmartContextSuggestions(chat.messages[chat.messages.length - 1]);
+}
+
+function renderMessageBubble(m, idx) {
+  const isUser = m.role === "user";
+  const content = isUser 
+    ? `<p class="whitespace-pre-wrap">${escapeHtml(m.content)}</p>` 
+    : marked.parse(m.content || "");
+
+  // Render Image attachment markup if image generation output detected
+  let mediaBlock = "";
+  if (m.imageUrl) {
+    mediaBlock = `
+      <div class="mt-4 rounded-xl overflow-hidden border border-white/10 shadow-2xl relative group bg-black/40">
+        <img src="${m.imageUrl}" alt="Generated AI Visual" class="w-full max-h-96 object-contain hover:scale-[1.01] transition-transform duration-300" onerror="this.onerror=null; this.src='https://placehold.co/600x400/222/aaa?text=Error+Loading+Image'">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-4 flex items-end justify-between">
+          <span class="text-xs text-emerald-400 font-semibold"><i class="fas fa-check-circle mr-1"></i> Generated Real-Time</span>
+          <a href="${m.imageUrl}" download="mr7-ai-render.png" class="px-3 py-1.5 bg-white text-black text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-lg active:scale-95 transition-all">
+            <i class="fas fa-download"></i> Download Image
+          </a>
+        </div>
+      </div>
+    `;
+  }
+
+  // Interactive controls for assistant messages
+  const actionControls = !isUser ? `
+    <div class="flex items-center gap-2 mt-4 pt-3 border-t border-white/5">
+      <button onclick="ttsSpeak(this, ${idx})" class="px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-[11px] font-semibold flex items-center gap-1.5 transition-colors" title="Speak Response aloud">
+        <i class="fas fa-volume-up text-xs text-emerald-400"></i> <span class="audio-label">Suniye (Audio)</span>
+      </button>
+      <button onclick="copyToClipboard(this, ${idx})" class="px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-[11px] font-semibold flex items-center gap-1.5 transition-colors">
+        <i class="fas fa-clone text-xs"></i> <span>Copy Text</span>
+      </button>
+    </div>
+  ` : "";
+
+  return `
+    <div class="w-full ${isUser ? 'bg-transparent' : 'bg-white/[0.02] border-y border-white/[0.02]'} py-6 px-4 md:px-6 rounded-2xl">
+      <div class="max-w-4xl mx-auto flex gap-4 md:gap-6 items-start">
+        <div class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold shrink-0 ${isUser ? 'bg-[#3b82f6]/20 text-[#3b82f6] border border-[#3b82f6]/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}">
+          ${isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>'}
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-1">
+            ${isUser ? 'User Pro' : 'MR7 Smart Core'}
+          </p>
+          <div class="prose prose-invert max-w-none text-gray-200 text-sm md:text-[15px] leading-relaxed">
+            ${content}
+          </div>
+          ${mediaBlock}
+          ${actionControls}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function useSuggestion(s) {
+  document.getElementById("input").value = s;
+  sendMessage();
+}
+
+/* ---------- STREAMING_CHUNK: Dynamic Smart suggestions generator... ---------- */
+function generateSmartContextSuggestions(lastMsg) {
+  const container = document.getElementById("contextSuggestions");
+  if (!lastMsg || lastMsg.role !== "assistant") {
+    container.innerHTML = "";
+    return;
+  }
+
+  // Base smart dynamic continuation prompts based on AI's last reply
+  let dynamicChips = [
+    "Isko thoda aur details me batao",
+    "Kuch solid examples ke sath clarify karo",
+    "Iska mathematical/logical calculation dikhao",
+    "Generate code logic for this structure"
+  ];
+
+  // Specific triggers based on content patterns
+  const text = lastMsg.content.toLowerCase();
+  if (text.includes("code") || text.includes("function") || text.includes("api")) {
+    dynamicChips = [
+      "Is logic ki test cases likhein",
+      "Explain the time/space complexity",
+      "Is logic ko JavaScript framework me adjust karo",
+      "Refactor code to optimize execution speed"
+    ];
+  } else if (text.includes("image") || text.includes("draw") || text.includes("photo")) {
+    dynamicChips = [
+      "Ise cartoonish pixel style me draw karo",
+      "Iski color palette me dramatic lighting lagao",
+      "Make it look like a sci-fi cinema masterpiece",
+      "Add glowing futuristic holographic symbols"
+    ];
+  }
+
+  container.innerHTML = dynamicChips.map(c => `
+    <button onclick="useSuggestion('${c}')" class="px-3 py-1.5 bg-zinc-900/80 hover:bg-zinc-800 border border-white/5 text-gray-400 hover:text-white text-xs rounded-lg transition-all flex items-center gap-1 shadow-sm font-medium">
+      <span>${c}</span> <i class="fas fa-plus text-[8px] text-emerald-400 opacity-60"></i>
+    </button>
+  `).join("");
+}
+
+/* ---------- STREAMING_CHUNK: Integrating Core Gemini Text & TTS APIs... ---------- */
+async function sendMessage() {
+  if (isGenerating) return;
+
+  const inp = document.getElementById("input");
+  let text = inp.value.trim();
+  if (!text) return;
+
+  // Automatic Command Triggers
+  if (text.startsWith("/draw ")) {
+    activeComposeMode = "image";
+    text = text.replace("/draw ", "");
+  }
+
+  const chat = chats[currentChatId];
+  
+  // Append User message
+  chat.messages.push({ role: "user", content: text });
+  
+  // Title upgrade on first conversational trigger
+  if (chat.messages.length === 1) {
+    chat.title = text.length > 28 ? text.slice(0, 26) + "..." : text;
+  }
+
+  clearInput();
+  saveChatsToLocal();
+  renderChatList();
+  renderMessages();
+
+  // Create empty bot bubble with typing indicator
+  chat.messages.push({ role: "assistant", content: "" });
+  saveChatsToLocal();
+  
+  const msgElements = document.getElementById("messages").querySelectorAll(".prose");
+  const targetBubble = msgElements[msgElements.length - 1];
+  targetBubble.innerHTML = '<span class="typing-cursor font-medium text-emerald-400">Thinking deeply...</span>';
+
+  isGenerating = true;
+  document.getElementById("sendBtn").disabled = true;
+
+  try {
+    const key = customKey || ""; // Canvas resolves to runtime API automatically if blank
+    
+    if (activeComposeMode === "image") {
+      // Execute Image Generation Pipeline via Imagen model
+      targetBubble.innerHTML = '<span class="typing-cursor font-medium text-purple-400">Rendering digital details...</span>';
+      const imgUrl = await generateAiImage(text, key);
+      
+      chat.messages[chat.messages.length - 1].content = `Maine aapke liye beautiful visual rendering complete kar li hai! "${escapeHtml(text)}" ka optimized output screen par attached hai:`;
+      chat.messages[chat.messages.length - 1].imageUrl = imgUrl;
+    } else {
+      // Execute Text Completion Pipeline via standard Gemini Pro Chat API
+      const responseStream = await triggerGeminiTextAPI(chat.messages.slice(0, -1), key);
+      chat.messages[chat.messages.length - 1].content = responseStream;
+    }
+
+    // Reset Compose state
+    setComposeMode('text');
+  } catch (err) {
+    console.error(err);
+    chat.messages[chat.messages.length - 1].content = `⚠️ **Kuch issue aa gaya:** ${err.message}\n\nKripya check karein ki connection sahi hai ya thodi der baad try karein. Settings dashboard se direct Custom API key feed karke bypass kar sakte hain.`;
+  } finally {
+    isGenerating = false;
+    document.getElementById("sendBtn").disabled = false;
+    saveChatsToLocal();
+    renderMessages();
+  }
+}
+
+// Gemini Text Completion API Fetch Handler
+async function triggerGeminiTextAPI(chatHistory, apiKey) {
+  // Format history logs matching standard Gemini structural format
+  const contents = chatHistory.map(m => ({
+    role: m.role === "user" ? "user" : "model",
+    parts: [{ text: m.content }]
+  }));
+
+  const systemInstructionText = systemPrompts[currentPersona] || systemPrompts.friendly;
+
+  const payload = {
+    contents: contents,
+    systemInstruction: {
+      parts: [{ text: systemInstructionText }]
+    }
+  };
+
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+  const response = await fetch(apiUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    const errObj = await response.json();
+    throw new Error(errObj.error?.message || "Internal Engine Error");
+  }
+
+  const result = await response.json();
+  return result.candidates?.[0]?.content?.parts?.[0]?.text || "*(No response received)*";
+}
+
+// Imagen AI Image Generation Call
+async function generateAiImage(prompt, apiKey) {
+  const payload = {
+    instances: [{ prompt: prompt }],
+    parameters: { sampleCount: 1 }
+  };
+
+  // Using premium imagen generation pipeline
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
+
+  const response = await fetch(apiUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    // If Imagen-4-0 fails or is unavailable, fallback gracefully to gemini-2.5-flash-image-preview
+    return await fallbackImageGenerator(prompt, apiKey);
+  }
+
+  const result = await response.json();
+  const rawBase64 = result.predictions?.[0]?.bytesBase64Encoded;
+  if (!rawBase64) {
+    throw new Error("Failed to resolve image stream");
+  }
+  return `data:image/png;base64,${rawBase64}`;
+}
+
+async function fallbackImageGenerator(prompt, apiKey) {
+  const payload = {
+    contents: [{
+      parts: [{ text: prompt }]
+    }],
+    generationConfig: {
+      responseModalities: ['IMAGE']
+    }
+  };
+
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${apiKey}`;
+
+  const response = await fetch(apiUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    throw new Error("Dono standard image engines response nahi de paaye. Check credits/limits.");
+  }
+
+  const result = await response.json();
+  const rawBase = result.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+  if (!rawBase) throw new Error("Base64 visual stream empty");
+  return `data:image/png;base64,${rawBase}`;
+}
+
+/* ---------- STREAMING_CHUNK: Setting up the Text-To-Speech audio converter... ---------- */
+let currentlyPlayingBtn = null;
+
+async function ttsSpeak(btn, messageIndex) {
+  const chat = chats[currentChatId];
+  if (!chat || !chat.messages[messageIndex]) return;
+
+  const textToRead = chat.messages[messageIndex].content.replace(/[\*\#\`\_]/g, ""); // Clean markdown
+  const audioLabel = btn.querySelector(".audio-label");
+  const audioIcon = btn.querySelector("i");
+  const player = document.getElementById("globalAudioPlayer");
+
+  // Toggle Playback behavior
+  if (currentlyPlayingBtn === btn) {
+    player.pause();
+    resetAudioButton(btn);
+    currentlyPlayingBtn = null;
+    return;
+  }
+
+  if (currentlyPlayingBtn) {
+    // Stop previous speakers
+    currentlyPlayingBtn.click();
+  }
+
+  audioLabel.textContent = "Loading Audio...";
+  audioIcon.className = "fas fa-spinner fa-spin text-emerald-400";
+  currentlyPlayingBtn = btn;
+
+  try {
+    const key = customKey || "";
+    const payload = {
+      contents: [{
+        parts: [{ text: `Say clearly in a professional voice matching our configuration: ${textToRead.slice(0, 400)}` }] // limit chars for latency performance
+      }],
+      generationConfig: {
+        responseModalities: ["AUDIO"],
+        speechConfig: {
+          voiceConfig: {
+            prebuiltVoiceConfig: { voiceName: activeVoice }
+          }
+        }
+      }
+    };
+
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${key}`;
+
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) throw new Error("TTS Engine overloaded or key missing.");
+
+    const result = await response.json();
+    const part = result?.candidates?.[0]?.content?.parts?.[0];
+    const base64Audio = part?.inlineData?.data;
+    const mimeType = part?.inlineData?.mimeType;
+
+    if (base64Audio && mimeType) {
+      // Decode raw PCM signed 16-bit sound output to playable WAV format
+      const rawSampleRate = parseInt(mimeType.match(/rate=(\d+)/)?.[1] || "24000", 10);
+      const binaryPcm = base64ToArrayBuffer(base64Audio);
+      const pcm16 = new Int16Array(binaryPcm);
+      const wavBlob = pcmToWav(pcm16, rawSampleRate);
+      
+      const audioUrl = URL.createObjectURL(wavBlob);
+      player.src = audioUrl;
+      player.play();
+
+      audioLabel.textContent = "Listening... (Pause)";
+      audioIcon.className = "fas fa-stop-circle text-red-500 audio-playing";
+
+      player.onended = () => {
+        resetAudioButton(btn);
+        currentlyPlayingBtn = null;
+      };
+    } else {
+      throw new Error("No audio stream received");
+    }
+  } catch (err) {
+    console.error(err);
+    triggerToast("Audio Error", "Sound reader failed to generate output.", "text-red-400");
+    resetAudioButton(btn);
+    currentlyPlayingBtn = null;
+  }
+}
+
+function resetAudioButton(btn) {
+  if (!btn) return;
+  const audioLabel = btn.querySelector(".audio-label");
+  const audioIcon = btn.querySelector("i");
+  audioLabel.textContent = "Suniye (Audio)";
+  audioIcon.className = "fas fa-volume-up text-xs text-emerald-400";
+}
+
+// PCM-to-WAV Array Buffer helper converter
+function pcmToWav(pcm16, sampleRate) {
+  const buffer = new ArrayBuffer(44 + pcm16.length * 2);
+  const view = new DataView(buffer);
+  
+  // Write structural WAV header
+  writeString(view, 0, 'RIFF');
+  view.setUint32(4, 36 + pcm16.length * 2, true);
+  writeString(view, 8, 'WAVE');
+  writeString(view, 12, 'fmt ');
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true); // Linear integer PCM
+  view.setUint16(22, 1, true); // Mono channel config
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * 2, true); // Mono 16-bit byte rate
+  view.setUint16(32, 2, true); // Block alignment
+  view.setUint16(34, 16, true); // Sign-depth
+  writeString(view, 36, 'data');
+  view.setUint32(40, pcm16.length * 2, true);
+
+  let offset = 44;
+  for (let i = 0; i < pcm16.length; i++, offset += 2) {
+    view.setInt16(offset, pcm16[i], true);
+  }
+  return new Blob([buffer], { type: 'audio/wav' });
+}
+
+function writeString(view, offset, string) {
+  for (let i = 0; i < string.length; i++) {
+    view.setUint8(offset + i, string.charCodeAt(i));
+  }
+}
+
+function base64ToArrayBuffer(base64) {
+  const binaryString = atob(base64);
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes.buffer;
+}
+
+/* ---------- STREAMING_CHUNK: User Interface Helpers ---------- */
+function copyToClipboard(btn, index) {
+  const chat = chats[currentChatId];
+  if (!chat || !chat.messages[index]) return;
+  
+  const text = chat.messages[index].content;
+  
+  // Fallback Copy utility for reliable compatibility within frameworks
+  const tempTextarea = document.createElement("textarea");
+  tempTextarea.value = text;
+  document.body.appendChild(tempTextarea);
+  tempTextarea.select();
+  try {
+    document.execCommand('copy');
+    btn.innerHTML = `<i class="fas fa-check text-emerald-400"></i> <span>Copied!</span>`;
+    setTimeout(() => {
+      btn.innerHTML = `<i class="fas fa-clone text-xs"></i> <span>Copy Text</span>`;
+    }, 2000);
+  } catch (err) {
+    triggerToast("Error Copying", "Niche selector block support missing.", "text-red-400");
+  }
+  document.body.removeChild(tempTextarea);
+}
+
+function triggerToast(title, text, styleClass = "text-emerald-400") {
+  const toast = document.getElementById("toast");
+  const icon = document.getElementById("toast-icon");
+  const msg = document.getElementById("toast-msg");
+  
+  if (styleClass.includes("red")) {
+    icon.innerHTML = `<i class="fas fa-exclamation-circle text-red-400"></i>`;
+  } else if (styleClass.includes("yellow")) {
+    icon.innerHTML = `<i class="fas fa-info-circle text-yellow-400"></i>`;
+  } else {
+    icon.innerHTML = `<i class="fas fa-check-circle text-emerald-400"></i>`;
+  }
+
+  msg.innerHTML = `<b>${title}</b>: ${text}`;
+  toast.className = "fixed top-6 left-1/2 transform -translate-x-1/2 bg-gray-900/95 border border-white/10 text-white px-5 py-3 rounded-xl shadow-2xl backdrop-blur-md z-50 flex items-center gap-3 transition-all duration-300 pointer-events-auto opacity-100 scale-100";
+  
+  setTimeout(() => {
+    toast.className = "fixed top-6 left-1/2 transform -translate-x-1/2 bg-gray-900/90 border border-white/10 text-white px-5 py-3 rounded-xl shadow-2xl backdrop-blur-md z-50 flex items-center gap-3 transition-all duration-300 pointer-events-none opacity-0 scale-95";
+  }, 3500);
+}
+
+/* ---------- STREAMING_CHUNK: Handling Settings Dashboard Logic... ---------- */
+function openSettings() {
+  document.getElementById("settingsModal").classList.remove("pointer-events-none", "opacity-0");
+  document.getElementById("settingsModal").querySelector(".modal").classList.remove("scale-95");
+  
+  // Highlighting active Persona button
+  const buttons = ["friendly", "coder", "writer", "expert"];
+  buttons.forEach(p => {
+    const el = document.getElementById(`p-${p}`);
+    if (p === currentPersona) {
+      el.className = "p-3 rounded-xl border border-emerald-500 bg-emerald-500/10 text-left flex flex-col gap-1 transition-all shadow-md";
+    } else {
+      el.className = "p-3 rounded-xl border border-white/5 hover:border-white/20 bg-white/5 text-left flex flex-col gap-1 transition-all";
+    }
+  });
+}
+
+function closeSettings() {
+  document.getElementById("settingsModal").classList.add("pointer-events-none", "opacity-0");
+  document.getElementById("settingsModal").querySelector(".modal").classList.add("scale-95");
+}
+
+function setPersona(p) {
+  currentPersona = p;
+  // Refresh settings layout highlights
+  openSettings();
+}
+
+function setAccent(hex, glow) {
+  currentAccent = hex;
+  currentAccentGlow = glow;
+  document.documentElement.style.setProperty('--accent', hex);
+  document.documentElement.style.setProperty('--accent-glow', glow);
+  triggerToast("Accent Updated", "Realtime brand theme switched.", "text-emerald-400");
+}
+
+function saveAllSettings() {
+  const customKeyValue = document.getElementById("customApiKey").value.trim();
+  const selectedVoice = document.getElementById("ttsVoice").value;
+
+  customKey = customKeyValue;
+  activeVoice = selectedVoice;
+
+  localStorage.setItem("mr7_v3_persona", currentPersona);
+  localStorage.setItem("mr7_v3_accent", currentAccent);
+  localStorage.setItem("mr7_v3_accent_glow", currentAccentGlow);
+  localStorage.setItem("mr7_v3_voice", activeVoice);
+  localStorage.setItem("mr7_v3_custom_key", customKey);
+
+  // Sync with active conversation context
+  if (chats[currentChatId]) {
+    chats[currentChatId].persona = currentPersona;
+    saveChatsToLocal();
+  }
+
+  updatePersonaUI();
+  closeSettings();
+  renderMessages();
+  triggerToast("Settings Applied", "Engine parameters re-compiled dynamically.");
+}
+
+function resetSettings() {
+  currentPersona = "friendly";
+  currentAccent = "#10a37f";
+  currentAccentGlow = "rgba(16,163,127,0.15)";
+  activeVoice = "Kore";
+  customKey = "";
+
+  document.getElementById("customApiKey").value = "";
+  document.getElementById("ttsVoice").value = "Kore";
+  document.documentElement.style.setProperty('--accent', currentAccent);
+  document.documentElement.style.setProperty('--accent-glow', currentAccentGlow);
+
+  openSettings();
+  triggerToast("Restored", "Standard settings restored.");
+}
+
+function updatePersonaUI() {
+  const titles = {
+    friendly: "😊 Hinglish Dost Mode",
+    coder: "💻 Senior Dev Mode",
+    writer: "✍️ Creative Writer Mode",
+    expert: "🎓 Deep Tech Guru Mode"
+  };
+  document.getElementById("activePersonaHeader").textContent = titles[currentPersona] || titles.friendly;
+}
+
+function toggleVisuals() {
+  is3DActive = !is3DActive;
+  localStorage.setItem("mr7_v3_3d", is3DActive);
+  const canvas = document.getElementById("bg-canvas");
+  canvas.style.opacity = is3DActive ? "0.6" : "0";
+  
+  const btn = document.getElementById("visualToggleBtn");
+  if (is3DActive) {
+    btn.innerHTML = `<i class="fas fa-expand"></i> <span class="hidden md:inline">3D Effects On</span>`;
+    btn.className = "text-gray-400 hover:text-white bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-colors";
+  } else {
+    btn.innerHTML = `<i class="fas fa-compress text-red-400"></i> <span class="hidden md:inline">3D Effects Off</span>`;
+    btn.className = "text-red-400 border border-red-500/20 bg-red-500/5 px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-colors";
+  }
+}
+
+function exportChat() {
+  const chat = chats[currentChatId];
+  if (!chat || chat.messages.length === 0) {
+    triggerToast("Empty Chat", "Naye conversation me messages likhein tabhi save hoga.", "text-yellow-400");
+    return;
+  }
+
+  let formattedText = `==============================\n   MR7 AI SMART ASSISTANT CHAT EXPORT\n==============================\nChat Title: ${chat.title}\nBehavior Persona: ${chat.persona}\nGenerated On: ${new Date().toLocaleString()}\n\n`;
+
+  chat.messages.forEach(m => {
+    const speaker = m.role === "user" ? "YOU" : "MR7 INTEL CORE";
+    formattedText += `[${speaker}]:\n${m.content}\n`;
+    if (m.imageUrl) {
+      formattedText += `[ATTACHED IMAGE URL]: ${m.imageUrl}\n`;
+    }
+    formattedText += `\n------------------------------\n\n`;
+  });
+
+  const tempLink = document.createElement("a");
+  tempLink.href = "data:text/plain;charset=utf-8," + encodeURIComponent(formattedText);
+  tempLink.download = `mr7-conversation-${chat.id}.txt`;
+  tempLink.click();
+  triggerToast("Export Saved", "Plain text transcript downloaded successfully.");
+}
+
+function escapeHtml(s) {
+  return (s || "").replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
   }[c]));
 }
 
-/* =========================================================
-   3D BACKGROUND (Three.js — floating particles)
-   ========================================================= */
-(function init3D(){
+/* ---------- STREAMING_CHUNK: Initializing Interactive 3D Particles... ---------- */
+function init3DSpace() {
   const canvas = document.getElementById("bg-canvas");
-  const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true });
-  renderer.setPixelRatio(window.devicePixelRatio);
+  const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(window.innerWidth, window.innerHeight);
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
-  camera.position.z = 50;
+  const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.z = 60;
 
-  // Particles
-  const count = 800;
-  const geo = new THREE.BufferGeometry();
-  const positions = new Float32Array(count*3);
-  for(let i=0;i<count*3;i++) positions[i] = (Math.random()-0.5)*120;
-  geo.setAttribute("position", new THREE.BufferAttribute(positions,3));
+  // Render dense glowing space particles
+  const particleCount = 1200;
+  const geometry = new THREE.BufferGeometry();
+  const positions = new Float32Array(particleCount * 3);
+  const scales = new Float32Array(particleCount);
 
-  const mat = new THREE.PointsMaterial({
-    color:0x10a37f, size:0.35, transparent:true, opacity:0.85,
-    blending:THREE.AdditiveBlending
-  });
-  const points = new THREE.Points(geo, mat);
-  scene.add(points);
+  for (let i = 0; i < particleCount * 3; i += 3) {
+    positions[i] = (Math.random() - 0.5) * 160;     // X dimension
+    positions[i + 1] = (Math.random() - 0.5) * 160; // Y dimension
+    positions[i + 2] = (Math.random() - 0.5) * 160; // Z dimension
+  }
 
-  // Floating wireframe shape
-  const torusGeo = new THREE.TorusKnotGeometry(8, 1.8, 100, 12);
-  const torusMat = new THREE.MeshBasicMaterial({ color:0x10a37f, wireframe:true, transparent:true, opacity:0.15 });
-  const torus = new THREE.Mesh(torusGeo, torusMat);
-  scene.add(torus);
+  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
-  let mouseX=0, mouseY=0;
-  window.addEventListener("mousemove", e=>{
-    mouseX = (e.clientX/window.innerWidth - 0.5)*2;
-    mouseY = (e.clientY/window.innerHeight - 0.5)*2;
+  const material = new THREE.PointsMaterial({
+    color: 0x10a37f,
+    size: 0.65,
+    transparent: true,
+    opacity: 0.75,
+    blending: THREE.AdditiveBlending
   });
 
-  function animate(){
-    requestAnimationFrame(animate);
-    points.rotation.y += 0.0008;
-    points.rotation.x += 0.0004;
-    torus.rotation.x += 0.002;
-    torus.rotation.y += 0.003;
-    camera.position.x += (mouseX*3 - camera.position.x)*0.02;
-    camera.position.y += (-mouseY*3 - camera.position.y)*0.02;
+  const pointsMesh = new THREE.Points(geometry, material);
+  scene.add(pointsMesh);
+
+  // Floating Wireframe Matrix geometric object
+  const geoMatrix = new THREE.IcosahedronGeometry(12, 1);
+  const matMatrix = new THREE.MeshBasicMaterial({
+    color: 0x10a37f,
+    wireframe: true,
+    transparent: true,
+    opacity: 0.12
+  });
+  const matrixMesh = new THREE.Mesh(geoMatrix, matMatrix);
+  scene.add(matrixMesh);
+
+  // Mouse interactivity warp
+  let mouseX = 0;
+  let mouseY = 0;
+  window.addEventListener('mousemove', (e) => {
+    mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+    mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+  });
+
+  function renderLoop() {
+    requestAnimationFrame(renderLoop);
+    
+    // Smooth translation rotations
+    pointsMesh.rotation.y += 0.0006;
+    pointsMesh.rotation.x += 0.0003;
+
+    matrixMesh.rotation.y -= 0.002;
+    matrixMesh.rotation.x += 0.001;
+
+    // Camera inertia follows cursor gently
+    camera.position.x += (mouseX * 15 - camera.position.x) * 0.03;
+    camera.position.y += (-mouseY * 15 - camera.position.y) * 0.03;
     camera.lookAt(scene.position);
+
+    // Dynamic accent color syncing for WebGL material
+    material.color.setHex(parseInt(currentAccent.replace("#", "0x"), 16));
+    matMatrix.color.setHex(parseInt(currentAccent.replace("#", "0x"), 16));
+
     renderer.render(scene, camera);
   }
-  animate();
 
-  window.addEventListener("resize", ()=>{
-    camera.aspect = window.innerWidth/window.innerHeight;
+  // Handle system resizing dynamic adjusts
+  window.addEventListener("resize", () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
-})();
+
+  renderLoop();
+}
 </script>
 </body>
 </html>
