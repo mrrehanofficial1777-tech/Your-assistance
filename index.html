@@ -192,6 +192,101 @@
   ::-webkit-scrollbar-thumb{background:#333;border-radius:4px;}
   ::-webkit-scrollbar-thumb:hover{background:#444;}
 
+  /* ---- Light Theme ---- */
+  body.light{
+    --bg:#f5f5f5;
+    --panel:#ffffff;
+    --panel-2:#ebebeb;
+    --border:#d9d9d9;
+    --text:#111111;
+    --muted:#666666;
+    --accent:#10a37f;
+    --user-bubble:#e8e8e8;
+  }
+  body.light #bg-canvas{opacity:.12;}
+  body.light .sidebar{background:rgba(240,240,240,.92);}
+  body.light .topbar{background:rgba(245,245,245,.85);}
+  body.light .msg-wrap.assistant{background:rgba(0,0,0,.03);}
+  body.light .msg-body code{background:#e8e8e8;}
+  body.light .msg-body pre{background:#f0f0f0;}
+  body.light .api-banner{background:#ffecd6;color:#a3330b;border-color:#f5c3a0;}
+
+  /* ---- Theme toggle btn ---- */
+  .theme-btn{
+    margin-left:auto;background:none;border:1px solid var(--border);
+    color:var(--text);cursor:pointer;padding:5px 10px;border-radius:6px;
+    font-size:14px;transition:background .15s;
+  }
+  .theme-btn:hover{background:var(--panel-2);}
+
+  /* ---- Topbar right buttons ---- */
+  .topbar-right{display:flex;align-items:center;gap:6px;margin-left:auto;}
+
+  /* ---- Copy button on messages ---- */
+  .msg-wrap{position:relative;}
+  .copy-btn{
+    position:absolute;top:10px;right:16px;
+    background:var(--panel-2);border:1px solid var(--border);
+    color:var(--muted);border-radius:6px;padding:3px 9px;
+    font-size:11px;cursor:pointer;opacity:0;transition:opacity .15s;
+  }
+  .msg-wrap:hover .copy-btn{opacity:1;}
+  .copy-btn.copied{color:var(--accent);}
+
+  /* ---- Search bar in sidebar ---- */
+  .sb-search{padding:8px 12px;border-bottom:1px solid var(--border);}
+  .sb-search input{
+    width:100%;background:var(--panel-2);border:1px solid var(--border);
+    color:var(--text);padding:7px 10px;border-radius:7px;font-size:13px;outline:none;
+  }
+  .sb-search input::placeholder{color:var(--muted);}
+
+  /* ---- Settings Modal ---- */
+  .modal-overlay{
+    display:none;position:fixed;inset:0;z-index:100;
+    background:rgba(0,0,0,.6);backdrop-filter:blur(4px);
+    align-items:center;justify-content:center;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal{
+    background:var(--panel);border:1px solid var(--border);
+    border-radius:14px;padding:28px 28px 24px;
+    width:min(460px,92vw);box-shadow:0 16px 48px rgba(0,0,0,.5);
+    position:relative;
+  }
+  .modal h2{font-size:18px;margin-bottom:20px;font-weight:600;}
+  .modal label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;}
+  .modal input,.modal select{
+    width:100%;background:var(--panel-2);border:1px solid var(--border);
+    color:var(--text);padding:9px 12px;border-radius:8px;font-size:14px;outline:none;
+    margin-bottom:16px;font-family:inherit;
+  }
+  .modal input:focus,.modal select:focus{border-color:var(--accent);}
+  .modal-close{
+    position:absolute;top:14px;right:16px;
+    background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px;
+  }
+  .modal-save{
+    background:var(--accent);border:none;color:#fff;
+    padding:9px 22px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;
+    transition:opacity .15s;
+  }
+  .modal-save:hover{opacity:.85;}
+
+  /* ---- Character counter ---- */
+  .char-count{
+    font-size:11px;color:var(--muted);align-self:center;padding:0 4px;
+    white-space:nowrap;
+  }
+
+  /* ---- Export toast ---- */
+  .toast{
+    position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);
+    background:var(--accent);color:#fff;padding:9px 20px;border-radius:8px;
+    font-size:13px;z-index:200;transition:transform .3s;pointer-events:none;
+  }
+  .toast.show{transform:translateX(-50%) translateY(0);}
+
   @media(max-width:768px){
     .sidebar{position:absolute;height:100%;z-index:5;}
     .welcome h1{font-size:32px;}
@@ -209,8 +304,11 @@
     <div class="sb-header">
       <button class="new-chat-btn" onclick="newChat()">＋ New chat</button>
     </div>
+    <div class="sb-search">
+      <input type="text" id="chatSearch" placeholder="🔍 Chats search karo..." oninput="filterChats(this.value)">
+    </div>
     <div class="chat-list" id="chatList"></div>
-    <div class="sb-footer">MR7 AI · v1.0</div>
+    <div class="sb-footer">MR7 AI · v2.0</div>
   </aside>
 
   <!-- Main -->
@@ -218,11 +316,16 @@
     <div class="topbar">
       <button class="icon-btn" onclick="toggleSidebar()" title="Toggle sidebar">☰</button>
       <div class="brand">MR7<span> AI</span></div>
+      <div class="topbar-right">
+        <button class="icon-btn" onclick="exportChat()" title="Export chat">⬇️</button>
+        <button class="icon-btn" onclick="openSettings()" title="Settings">⚙️</button>
+        <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☀️ Light</button>
+      </div>
     </div>
 
     <!-- API key warning banner (auto shows if key missing) -->
     <div class="api-banner" id="apiBanner" style="display:none;">
-      ⚠️ API key missing. Open <code>index.html</code> and paste your OpenAI API key in the <code>OPENAI_API_KEY</code> variable at the top of the &lt;script&gt; section.
+      ⚠️ Groq API key missing. Settings ⚙️ mein jaake key paste karo. Key yahan se lo: <a href="https://console.groq.com/keys" target="_blank" style="color:#ffb4a2">console.groq.com/keys</a>
     </div>
 
     <div class="messages" id="messages"></div>
@@ -231,7 +334,8 @@
       <div class="composer">
         <textarea id="input" placeholder="Message MR7 AI..." rows="1"
           onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}"
-          oninput="autoGrow(this)"></textarea>
+          oninput="autoGrow(this);updateCharCount(this)"></textarea>
+        <span class="char-count" id="charCount">0</span>
         <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
       </div>
       <div class="composer-hint">MR7 AI can make mistakes. Verify important info.</div>
@@ -239,14 +343,34 @@
   </main>
 </div>
 
+<!-- Settings Modal -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeSettings()">✕</button>
+    <h2>⚙️ Settings</h2>
+    <label>Groq API Key</label>
+    <input type="password" id="settingsKey" placeholder="gsk_..." autocomplete="off">
+    <label>Model</label>
+    <select id="settingsModel">
+      <option value="claude-sonnet-4-20250514">claude-sonnet-4-20250514 (Fast & Free)</option>
+      <option value="llama-3.1-8b-instant">llama-3.1-8b-instant (Super Fast)</option>
+      <option value="gemma2-9b-it">gemma2-9b-it (Google Gemma)</option>
+    </select>
+    <button class="modal-save" onclick="saveSettings()">💾 Save</button>
+  </div>
+</div>
+
+<!-- Toast notification -->
+<div class="toast" id="toast">✅ Done!</div>
+
 <script>
 /* =========================================================
-   ⚠️  YAHA APNI OPENAI API KEY DALO  ⚠️
+   ⚠️  YAHA APNI CLAUDE (ANTHROPIC) API KEY DALO  ⚠️
    Without API key the chatbot will NOT work.
-   Get key from: https://platform.openai.com/api-keys
+   Get key from: https://console.anthropic.com/settings/keys
    ========================================================= */
-const OPENAI_API_KEY = "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"; // <-- YAHA API KEY PASTE KARO (e.g. "sk-...")
-const OPENAI_MODEL   = "gpt-4o-mini"; // change if needed: gpt-4o, gpt-3.5-turbo, etc.
+const CLAUDE_API_KEY = "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";  // Groq API Key
+const CLAUDE_MODEL   = "llama-3.3-70b-versatile"; // Groq model
 /* ========================================================= */
 
 
@@ -257,7 +381,7 @@ let isStreaming = false;
 
 /* ---------- Init ---------- */
 window.addEventListener("DOMContentLoaded", () => {
-  if (!OPENAI_API_KEY || !OPENAI_API_KEY.startsWith("sk-")) {
+  if (!CLAUDE_API_KEY || !CLAUDE_API_KEY.startsWith("gsk_")) {
     document.getElementById("apiBanner").style.display = "block";
   }
   if (!currentChatId || !chats[currentChatId]) {
@@ -342,8 +466,10 @@ function renderMessages(){
 function renderMsg(m){
   const isUser = m.role === "user";
   const content = isUser ? `<p>${escapeHtml(m.content).replace(/\n/g,"<br>")}</p>` : marked.parse(m.content||"");
+  const copyBtn = !isUser ? `<button class="copy-btn" onclick="copyMsg(this, ${JSON.stringify(m.content||'')})">📋 Copy</button>` : "";
   return `
     <div class="msg-wrap ${isUser?'user':'assistant'}">
+      ${copyBtn}
       <div class="msg">
         <div class="avatar ${isUser?'user':'assistant'}">${isUser?'You':'AI'}</div>
         <div class="msg-body">${content}</div>
@@ -363,8 +489,8 @@ async function sendMessage(){
   const text = inp.value.trim();
   if(!text) return;
 
-  if(!OPENAI_API_KEY || !OPENAI_API_KEY.startsWith("sk-")){
-    alert("⚠️ API key missing!\n\nOpen index.html and paste your OpenAI API key in the OPENAI_API_KEY variable at the top of the <script> section.\n\nGet key from: https://platform.openai.com/api-keys");
+  if(!CLAUDE_API_KEY || !CLAUDE_API_KEY.startsWith("gsk_")){
+    alert("⚠️ API key missing!\n\nSettings ⚙️ mein jaake Gemini API key paste karo.\n\nKey lene ke liye: https://aistudio.google.com/apikey");
     return;
   }
 
@@ -390,21 +516,35 @@ async function sendMessage(){
   document.getElementById("sendBtn").disabled = true;
 
   try{
-    const resp = await fetch("https://api.openai.com/v1/chat/completions", {
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json",
-        "Authorization":`Bearer ${OPENAI_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: OPENAI_MODEL,
-        stream: true,
-        messages: [
-          { role:"system", content:"You are MR7 AI, a helpful, friendly and concise AI assistant. Use markdown formatting and code blocks when appropriate." },
-          ...chat.messages.filter(m=>m.content).map(m=>({role:m.role,content:m.content}))
-        ]
-      })
-    });
+    // Build Groq messages array (OpenAI-compatible format)
+    const history = chat.messages.filter(m => m.content);
+    const messages = [
+      { role: "system", content: "You are MR7 AI, a helpful, friendly and concise AI assistant. Use markdown formatting and code blocks when appropriate." },
+      ...history.map(m => ({
+        role: m.role === "assistant" ? "assistant" : "user",
+        content: m.content
+      }))
+    ];
+
+    const apiKey = (localStorage.getItem("mr7_apikey") || CLAUDE_API_KEY);
+    const model  = (localStorage.getItem("mr7_model")  || CLAUDE_MODEL);
+
+    const resp = await fetch(
+      "https://api.groq.com/openai/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model,
+          max_tokens: 4096,
+          stream: true,
+          messages
+        })
+      }
+    );
 
     if(!resp.ok){
       const err = await resp.text();
@@ -426,9 +566,10 @@ async function sendMessage(){
         buffer = buffer.slice(idx+1);
         if(!line.startsWith("data:")) continue;
         const data = line.slice(5).trim();
-        if(data === "[DONE]") continue;
+        if(!data || data === "[DONE]") continue;
         try{
           const json = JSON.parse(data);
+          // Groq / OpenAI streaming format
           const delta = json.choices?.[0]?.delta?.content;
           if(delta){
             assistantText += delta;
@@ -445,13 +586,104 @@ async function sendMessage(){
     persist();
   }catch(err){
     console.error(err);
-    chat.messages[chat.messages.length-1].content = `❌ **Error:** ${err.message}\n\nCheck your API key and internet connection.`;
+    chat.messages[chat.messages.length-1].content = `❌ **Error:** ${err.message}\n\nAPI key check karo ya internet connection dekho.\n\nGroq API key lene ke liye: https://console.groq.com/keys`;
     targetEl.innerHTML = marked.parse(chat.messages[chat.messages.length-1].content);
     persist();
   }finally{
     isStreaming = false;
     document.getElementById("sendBtn").disabled = false;
   }
+}
+
+/* ---------- Theme Toggle ---------- */
+function toggleTheme(){
+  const isLight = document.body.classList.toggle("light");
+  document.getElementById("themeBtn").textContent = isLight ? "🌙 Dark" : "☀️ Light";
+  localStorage.setItem("mr7_theme", isLight ? "light" : "dark");
+}
+(function applyTheme(){
+  if(localStorage.getItem("mr7_theme") === "light"){
+    document.body.classList.add("light");
+    document.getElementById("themeBtn").textContent = "🌙 Dark";
+  }
+})();
+
+/* ---------- Copy Message ---------- */
+function copyMsg(btn, text){
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent = "✅ Copied!";
+    btn.classList.add("copied");
+    setTimeout(()=>{ btn.textContent = "📋 Copy"; btn.classList.remove("copied"); }, 1800);
+  });
+}
+
+/* ---------- Chat Search / Filter ---------- */
+function filterChats(query){
+  const q = query.trim().toLowerCase();
+  const list = document.getElementById("chatList");
+  const ids = Object.keys(chats).reverse();
+  const filtered = q ? ids.filter(id => chats[id].title.toLowerCase().includes(q)) : ids;
+  list.innerHTML = filtered.map(id => `
+    <div class="chat-item ${id===currentChatId?'active':''}" onclick="switchChat('${id}')">
+      <span>💬 ${escapeHtml(chats[id].title)}</span>
+      <button class="del" onclick="deleteChat('${id}',event)">✕</button>
+    </div>
+  `).join("") || `<div style="padding:12px;color:var(--muted);font-size:13px;text-align:center">Koi chat nahi mila</div>`;
+}
+
+/* ---------- Settings Modal ---------- */
+function openSettings(){
+  document.getElementById("settingsKey").value = localStorage.getItem("mr7_apikey") || CLAUDE_API_KEY || "";
+  document.getElementById("settingsModel").value = localStorage.getItem("mr7_model") || CLAUDE_MODEL || "llama-3.3-70b-versatile";
+  document.getElementById("settingsModal").classList.add("open");
+}
+function closeSettings(){
+  document.getElementById("settingsModal").classList.remove("open");
+}
+function saveSettings(){
+  const key = document.getElementById("settingsKey").value.trim();
+  const model = document.getElementById("settingsModel").value;
+  if(key) { localStorage.setItem("mr7_apikey", key); }
+  localStorage.setItem("mr7_model", model);
+  closeSettings();
+  showToast("✅ Settings saved!");
+  document.getElementById("apiBanner").style.display = (key && key.startsWith("gsk_")) ? "none" : "block";
+}
+// Load saved settings
+(function loadSettings(){
+  // Settings localStorage se load honge automatically sendMessage mein
+})();
+// Close modal on overlay click
+document.getElementById("settingsModal").addEventListener("click", function(e){
+  if(e.target === this) closeSettings();
+});
+
+/* ---------- Export Chat ---------- */
+function exportChat(){
+  const chat = chats[currentChatId];
+  if(!chat || !chat.messages.length){ showToast("⚠️ Koi message nahi hai!"); return; }
+  let txt = `MR7 AI — Chat Export\n${chat.title}\n${"=".repeat(40)}\n\n`;
+  chat.messages.forEach(m => {
+    txt += `[${m.role === "user" ? "You" : "MR7 AI"}]\n${m.content}\n\n`;
+  });
+  const a = document.createElement("a");
+  a.href = "data:text/plain;charset=utf-8," + encodeURIComponent(txt);
+  a.download = `mr7-chat-${Date.now()}.txt`;
+  a.click();
+  showToast("📥 Chat exported!");
+}
+
+/* ---------- Toast ---------- */
+function showToast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(()=> t.classList.remove("show"), 2400);
+}
+
+/* ---------- Character Counter ---------- */
+function updateCharCount(el){
+  document.getElementById("charCount").textContent = el.value.length;
 }
 
 /* ---------- Helpers ---------- */
@@ -529,4 +761,3 @@ function escapeHtml(s){
 </script>
 </body>
 </html>
-
