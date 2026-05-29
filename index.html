@@ -127,7 +127,7 @@
   }
 
   #sidebarOverlay {
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.65);
     transition: opacity 0.2s linear;
   }
 
@@ -172,7 +172,7 @@
       border-top-left-radius: 1.5rem;
       border-top-right-radius: 1.5rem;
       transform: translateY(100%);
-      z-index: 50;
+      z-index: 60; /* Higher than sidebar layout stack logic to push menu filters up front */
     }
     #personaMenu.open {
       transform: translateY(0);
@@ -231,7 +231,7 @@
   <span id="toast-msg" class="text-xs md:text-sm font-medium">System Aligned!</span>
 </div>
 
-<div id="sidebarOverlay" class="fixed inset-0 z-40 hidden opacity-0" onclick="toggleSidebar()"></div>
+<div id="sidebarOverlay" class="fixed inset-0 z-30 hidden opacity-0" onclick="toggleSidebar()"></div>
 
 <div class="relative z-10 flex h-full w-full overflow-hidden">
   
@@ -617,11 +617,11 @@ const systemPrompts = {
 let speechUtterance = null;
 let activeSpeakerBtn = null;
 
-function hapticFeedback() {
+ hapticFeedback() {
   if (navigator.vibrate) navigator.vibrate(12);
 }
 
-function forceMobileAudioResume() {
+ forceMobileAudioResume() {
   if (window.speechSynthesis && window.speechSynthesis.speaking) return;
   try {
     const dummyUtterance = new SpeechSynthesisUtterance("");
@@ -862,7 +862,7 @@ function importChatMatrixLogs(event) {
   event.target.value = ''; 
 }
 
-/* Reconfigured display loop matrix to make sure mobile layers unroll cleanly on touch triggers */
+/* Fixed display loop logic to allow proper unrolling of front layers on touch triggers without collision */
 function toggleSidebar() {
   hapticFeedback();
   const sidebar = document.getElementById("sidebar");
@@ -879,11 +879,17 @@ function toggleSidebar() {
   if (isHidden) {
     sidebar.classList.remove("-translate-x-full");
     overlay.classList.remove("hidden");
-    overlay.style.opacity = "1";
+    // Explicit trigger lock to prevent backdrop overlapping interaction bugs
+    requestAnimationFrame(() => {
+      overlay.style.opacity = "1";
+    });
   } else {
-    sidebar.classList.add("-translate-x-full");
     overlay.style.opacity = "0";
-    overlay.classList.add("hidden");
+    sidebar.classList.add("-translate-x-full");
+    // Small timeout to match fast opacity transition curves perfectly
+    setTimeout(() => {
+      overlay.classList.add("hidden");
+    }, 200);
   }
 }
 
