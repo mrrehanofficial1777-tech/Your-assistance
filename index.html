@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>MR7 AI - Next-Gen Autonomous Workspace</title>
 <link class="rounded-full" rel="icon" type="image/png" href="logo.png">
+<link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIk1SNyBBSSIsCiAgInNob3J0X25hbWUiOiAiTVI3IEFJIiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMwNjA2MDgiLAogICJ0aGVtZV9jb2xvciI6ICIjMTBhMzdmIiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAibG9nby5wbmciLAogICAgICAic2l6ZXMiOiAiMTkyeDE5MiIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIKICAgIH0KICBdCn0=">
 <script src="https://cdn.tailwindcss.com"></script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,9 +16,7 @@
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
@@ -43,7 +42,6 @@
     font-family: 'Space Grotesk', sans-serif;
   }
 
-  /* Accent Color Classes */
   .color-accent { color: var(--accent); }
   .bg-accent { background-color: var(--accent); }
   .border-accent { border-color: var(--accent); }
@@ -58,7 +56,13 @@
     transition: opacity 0.5s;
   }
 
-  /* Custom Scrollbar */
+  header {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  header.hide-nav {
+    transform: translateY(-100%);
+  }
+
   ::-webkit-scrollbar {
     width: 4px;
     height: 4px;
@@ -78,7 +82,6 @@
     font-family: 'Fira Code', monospace !important;
   }
 
-  /* Advanced Prose Custom Formatting for Code Blocks with Header */
   .prose pre {
     background-color: #010103 !important;
     border: 1px solid rgba(255, 255, 255, 0.05);
@@ -89,7 +92,6 @@
     margin-bottom: 0.75rem;
   }
 
-  /* Typing Indicator Pulse Wave Animation */
   @keyframes shimmer {
     0% { background-position: -200% 0; }
     100% { background-position: 200% 0; }
@@ -102,7 +104,6 @@
     -webkit-text-fill-color: transparent;
   }
 
-  /* Typing cursor */
   .typing-cursor::after {
     content: '_';
     animation: blink-cursor 0.8s infinite;
@@ -113,19 +114,24 @@
     50% { opacity: 0; }
   }
 
-  /* Fast property transitions */
+  .breathing-glow-input {
+    animation: inputBreathe 3s infinite ease-in-out;
+  }
+  @keyframes inputBreathe {
+    0%, 100% { border-color: rgba(255, 255, 255, 0.05); box-shadow: none; }
+    50% { border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
+  }
+
   * {
     transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
   }
 
-  /* Mobile overlay styling for backdrop */
   #sidebarOverlay {
     background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(4px);
     transition: opacity 0.25s ease;
   }
 
-  /* CSS helper to hide scrollbars while preserving functionality */
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
@@ -134,9 +140,27 @@
     scrollbar-width: none;
   }
 
-  /* Mobile-first Dynamic Persona menu drawer styles */
   #personaMenu {
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease, visibility 0.2s;
+  }
+
+  .swipe-chat-item {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+  }
+
+  #pull-indicator {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateY(-100%);
+    transition: transform 0.1s ease;
+    z-index: 50;
+    background: linear-gradient(to bottom, rgba(6,6,8,0.95), transparent);
   }
 
   @media (max-width: 767px) {
@@ -156,7 +180,6 @@
       pointer-events: auto;
     }
 
-    /* Mobile: bigger tap targets for all buttons */
     button {
       min-height: 36px;
     }
@@ -164,11 +187,9 @@
       width: 44px !important;
       height: 44px !important;
     }
-    /* Mobile: sidebar full height scroll fix */
     #sidebar {
       height: 100dvh;
     }
-    /* Mobile: chat area uses dvh for proper keyboard handling */
     body {
       height: 100dvh;
     }
@@ -198,6 +219,13 @@
 <canvas id="bg-canvas"></canvas>
 
 <input type="file" id="importChatLogsInput" class="hidden" accept=".json" onchange="importChatMatrixLogs(event)">
+
+<div id="pull-indicator" class="pointer-events-none">
+  <div class="flex items-center gap-2 text-xs font-mono text-emerald-400">
+    <i class="fas fa-sync-alt animate-spin" id="pull-icon"></i>
+    <span id="pull-text">Pull down to open a new chat</span>
+  </div>
+</div>
 
 <div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 bg-gray-950/95 border border-white/10 text-white px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-md z-50 flex items-center gap-3 transition-all duration-300 pointer-events-none opacity-0 scale-95 max-w-[90%] text-center">
   <span id="toast-icon" class="text-emerald-400 text-lg"><i class="fas fa-check-circle"></i></span>
@@ -239,8 +267,7 @@
         </div>
       </div>
 
-      <div class="px-2 flex flex-col gap-1 overflow-y-auto max-h-[35vh] md:max-h-[40vh]" id="chatList">
-        </div>
+      <div class="px-2 flex flex-col gap-1 overflow-y-auto max-h-[35vh] md:max-h-[40vh]" id="chatList"></div>
     </div>
 
     <div class="p-4 border-t border-white/5 bg-black/20 flex flex-col gap-3">
@@ -286,7 +313,7 @@
 
   <main class="flex-1 flex flex-col min-w-0 bg-transparent relative z-10">
     
-    <header class="h-16 border-b border-white/5 flex items-center justify-between px-4 md:px-6 bg-black/10 backdrop-blur-md">
+    <header id="mainHeader" class="fixed md:sticky top-0 left-0 right-0 h-16 border-b border-white/5 flex items-center justify-between px-4 md:px-6 bg-black/10 backdrop-blur-md z-30 w-full">
       <div class="flex items-center gap-2">
         <button id="sidebarToggle" onclick="toggleSidebar()" class="text-gray-400 hover:text-white p-2.5 hover:bg-white/5 rounded-xl mr-1">
           <i class="fas fa-bars"></i>
@@ -307,17 +334,21 @@
       </div>
     </header>
 
-    <div class="flex-1 overflow-y-auto px-4 md:px-12 py-6 flex flex-col gap-5" id="messages">
-      </div>
+    <div class="flex-1 overflow-y-auto px-4 md:px-12 pt-20 pb-6 md:pt-6 flex flex-col gap-5" id="messages"></div>
+
+    <div id="scrollToBottomWrap" class="fixed bottom-24 right-6 z-20 hidden">
+      <button onclick="scrollToBottomDirect()" class="w-9 h-9 rounded-full bg-zinc-900/90 border border-white/10 text-emerald-400 flex items-center justify-center shadow-2xl active:scale-90 transition-transform">
+        <i class="fas fa-arrow-down text-sm"></i>
+      </button>
+    </div>
 
     <div class="px-4 md:px-12" id="contextualSuggestionsWrap">
-      <div class="max-w-4xl mx-auto flex flex-wrap gap-2 py-1.5 overflow-x-auto no-scrollbar" id="contextSuggestions">
-        </div>
+      <div class="max-w-4xl mx-auto flex flex-wrap gap-2 py-1.5 overflow-x-auto no-scrollbar" id="contextSuggestions"></div>
     </div>
 
     <div class="p-3 md:p-6 bg-gradient-to-t from-black/80 to-transparent">
       <div class="max-w-4xl mx-auto">
-        <div class="bg-zinc-900/90 border border-white/5 rounded-2xl p-2 md:p-3 shadow-2xl backdrop-blur-xl relative">
+        <div id="inputContainer" class="bg-zinc-900/90 border border-white/5 rounded-2xl p-2 md:p-3 shadow-2xl backdrop-blur-xl relative breathing-glow-input">
           
           <div id="personaMenu" class="bg-zinc-950 border-t md:border border-white/10 p-4 md:p-3 shadow-2xl rounded-t-3xl md:rounded-2xl flex flex-col gap-2.5 pointer-events-none opacity-0 md:opacity-0 transition-all duration-300">
             <div class="flex items-center justify-between border-b border-white/5 pb-2 md:hidden">
@@ -364,11 +395,34 @@
             </div>
           </div>
 
+          <div id="radialMenu" class="absolute bottom-16 left-3 bg-zinc-950/95 border border-white/10 p-2 rounded-2xl shadow-2xl flex flex-col gap-2 scale-0 opacity-0 origin-bottom-left transition-all duration-200 z-40 min-w-[150px]">
+            <button onclick="triggerVoiceAction()" class="w-full p-2.5 rounded-xl hover:bg-white/5 text-left text-gray-300 flex items-center gap-3 transition-colors">
+              <i class="fas fa-microphone text-emerald-400 w-4" id="radialMic"></i>
+              <span class="text-xs font-medium">Voice Input</span>
+            </button>
+            <button onclick="togglePersonaDirect()" class="w-full p-2.5 rounded-xl hover:bg-white/5 text-left text-gray-300 flex items-center gap-3 transition-colors">
+              <i class="fas fa-user-cog text-teal-400 w-4"></i>
+              <span class="text-xs font-medium">Persona Menu</span>
+            </button>
+            <button onclick="document.getElementById('importChatLogsInput').click()" class="w-full p-2.5 rounded-xl hover:bg-white/5 text-left text-gray-300 flex items-center gap-3 transition-colors">
+              <i class="fas fa-file-import text-blue-400 w-4"></i>
+              <span class="text-xs font-medium">Import Logs</span>
+            </button>
+            <button onclick="exportChatMatrixLogs()" class="w-full p-2.5 rounded-xl hover:bg-white/5 text-left text-gray-300 flex items-center gap-3 transition-colors">
+              <i class="fas fa-download text-purple-400 w-4"></i>
+              <span class="text-xs font-medium">Export Logs</span>
+            </button>
+          </div>
+
           <div class="flex items-end gap-2 md:gap-3">
+            <button id="quickActionDot" onclick="toggleRadialMenu(event)" class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-emerald-400 flex items-center justify-center transition-all shrink-0 active:scale-95">
+              <i class="fas fa-ellipsis-v text-sm transition-transform" id="actionDotIcon"></i>
+            </button>
+
             <textarea id="input" rows="1" placeholder="Type a message, or ask coding questions..." 
               onkeydown="handleTextareaKey(event)"
               oninput="autoGrow(this); updateCharCount(this)" 
-              class="flex-1 bg-transparent border-0 text-white placeholder-gray-500 focus:ring-0 focus:outline-none text-sm md:text-[15px] resize-none max-h-36 min-h-[24px] py-2 pl-4"></textarea>
+              class="flex-1 bg-transparent border-0 text-white placeholder-gray-500 focus:ring-0 focus:outline-none text-sm md:text-[15px] resize-none max-h-36 min-h-[24px] py-2 pl-2"></textarea>
             
             <div class="flex items-center gap-1 pr-1">
               <span id="charCount" class="text-[9px] text-gray-500 font-mono hidden sm:inline">0</span>
@@ -425,6 +479,18 @@
 
       <div>
         <label class="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5 font-mono">
+          <i class="fas fa-user-cog mr-1"></i> Direct System Persona Select
+        </label>
+        <select id="directPersonaSelect" onchange="selectPersonaMenu(this.value)" class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-xs text-white focus:outline-none focus:border-emerald-500">
+          <option value="friendly" class="bg-zinc-950">😊 Adaptive Mode</option>
+          <option value="coder" class="bg-zinc-950">💻 Software Architect</option>
+          <option value="writer" class="bg-zinc-950">✍️ Creative Matrix</option>
+          <option value="expert" class="bg-zinc-950">🎓 System Analyst</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5 font-mono">
           <i class="fas fa-palette mr-1"></i> Interactive Accent Glow Theme
         </label>
         <div class="flex gap-2 justify-between items-center bg-white/5 p-2 rounded-xl border border-white/5">
@@ -462,19 +528,15 @@
 </div>
 
 <script>
-// Dynamic Brand Configuration Constants
 const BRAND_NAME = "MR7 AI"; 
 const BRAND_ACCENT = "AI";
 
-// Embedded Proprietary Access Tokens (Base64 Encoded for Ultimate Public Leak Scan Protection)
-const EM_QA_KEY_B64 = "QUl6YVN5Q3Q1cFBwLXI1UEVnTU1sM1NFUzI5dkNXZFJsMklrWUF3"; // Gemini Secure Scrambled Core Token
-const EM_VL_KEY_B64 = "WjNOclgzcGhiVTl5U1RCTFpITTJTSGRHYkdkdFZucG1WMGRrZVdJelJsbHRNMWRVVEdsMFN6ZHpRblpVZUZSVGEyeDRiRk5MZDNRPQ=="; // Scrambled Groq Key
+const EM_QA_KEY_B64 = "QUl6YVN5Q3Q1cFBwLXI1UEVnTU1sM1NFUzI5dkNXZFJsMklrWUF3"; 
+const EM_VL_KEY_B64 = "WjNOclgzcGhiVTl5U1RCTFpITTJTSGRHYkdkdFZucG1WMGRrZVdJelJsbHRNMWRVVEdsMFN6ZHpRblpVZUZSVGEyeDRiRk5MZDNRPQ=="; 
 
-// Obfuscation Decryption Logic
 function getSecureQA() { return atob(EM_QA_KEY_B64); }
-function getSecureVL() { return atob(atob(EM_VL_KEY_B64)); } // Double scrambled layer for optimal bot leakage safety
+function getSecureVL() { return atob(atob(EM_VL_KEY_B64)); }
 
-/* ---------- Local Configuration State ---------- */
 let chats = JSON.parse(localStorage.getItem("mr7_v5_chats") || "{}");
 let currentChatId = localStorage.getItem("mr7_v5_current") || null;
 let currentPersona = localStorage.getItem("mr7_v5_persona") || "friendly";
@@ -486,8 +548,11 @@ let currentTemperature = parseFloat(localStorage.getItem("mr7_v5_temp") || "0.7"
 let isGenerating = false;
 let is3DActive = localStorage.getItem("mr7_v5_3d") !== "false";
 let isPersonaMenuOpen = false;
+let isRadialOpen = false;
 
-/* ---------- Native Speech Capture Web API (Retained for Internal Integrity) ---------- */
+let lastScrollTop = 0;
+let pointsMesh, lineMesh, material, lineMaterial, renderer;
+
 let recognition = null;
 let isListening = false;
 if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
@@ -499,6 +564,7 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
 
   recognition.onstart = () => {
     isListening = true;
+    document.getElementById("radialMic").className = "fas fa-microphone text-red-500 animate-pulse w-4";
     triggerToast("Voice Input Active", "Speak clearly into your microphone...", "text-emerald-400");
   };
 
@@ -512,10 +578,10 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
 
   recognition.onend = () => {
     isListening = false;
+    document.getElementById("radialMic").className = "fas fa-microphone text-emerald-400 w-4";
   };
 }
 
-// Built-in Starter Suggestions
 const suggestionsByPersona = {
   friendly: [
     "Who is your co-founder and creator? 🌟",
@@ -543,43 +609,20 @@ const suggestionsByPersona = {
   ]
 };
 
-// Refined System Prompts to explicitly lock in creator details and adaptive capabilities
 const systemPrompts = {
-  friendly: `You are ${BRAND_NAME}, a highly advanced cognitive intelligence platform created by the "MR7 Team" (co-founded by "Md Rehan").
-  
-  CRITICAL RULES:
-  1. CO-FOUNDER IDENTITY: If anyone asks who created you, who built you, or who is your co-founder, you MUST proud and clearly respond that you were built by the "MR7 Team" and your co-founder is "Md Rehan". Never mention other AI developers or corporations (like OpenAI, Google, Groq, Meta, etc.) under any condition.
-  2. ADAPTIVE LANGUAGE: You must answer in the EXACT language/syntax the user wrote their message in. If the user writes in English, reply in English. If they write in Hinglish, reply in Hinglish. If they write in Spanish, reply in Spanish. Mirror their tone perfectly.
-  3. TIME AND DATE INQUIRIES: If the user asks for the current date or current time, you MUST politely ask them which country or location they are in so you can calculate it for them. If they already provided the location or country (e.g. India), calculate the precise local time and date for them. Note for your calculations: The real-time current date is Friday, May 29, 2026. India is UTC+5:30. Output the calculation nicely.`,
-  
-  coder: `You are ${BRAND_NAME}, an elite Software Architect created by the "MR7 Team" (co-founded by "Md Rehan").
-  
-  CRITICAL RULES:
-  1. CREATOR IDENTITY: Always proud and clearly credit the "MR7 Team" and co-founder "Md Rehan" as your absolute architects.
-  2. ADAPTIVE LANGUAGE: Answer in the exact language the user queries you in (e.g., Hinglish, English, Hindi).
-  3. Respond with optimized, secure, cleanly documented code blocks. Ask the user for clarification if code context is missing.
-  4. TIME AND DATE INQUIRIES: If they ask for the current time or date, ask for their country first, then provide the precise calculated time based on current baseline Friday, May 29, 2026.`,
-  
-  writer: `You are ${BRAND_NAME}, a creative copywriter and poet built by the "MR7 Team" (co-founded by "Md Rehan").
-  
-  CRITICAL RULES:
-  1. CREATOR IDENTITY: Always credit the "MR7 Team" and co-founder "Md Rehan" for your creation.
-  2. ADAPTIVE LANGUAGE: Generate expressive writing in the user's querying language (Hinglish, English, etc.) seamlessly.
-  3. TIME AND DATE INQUIRIES: Politely query for their country to calculate local time based on baseline Friday, May 29, 2026.`,
-  
-  expert: `You are ${BRAND_NAME}, a technical research consultant built by the "MR7 Team" (co-founded by "Md Rehan").
-  
-  CRITICAL RULES:
-  1. CREATOR IDENTITY: Credit the "MR7 Team" and co-founder "Md Rehan" as your absolute systems architects.
-  2. ADAPTIVE LANGUAGE: Ensure your deeply structured analyses match the user's querying language (Hinglish, English, etc.) flawlessly.
-  3. TIME AND DATE INQUIRIES: Ask for their country first to calculate accurate local dates/times relative to UTC baseline Friday, May 29, 2026.`
+  friendly: `You are ${BRAND_NAME}, a highly advanced cognitive intelligence platform created by the "MR7 Team" (co-founded by "Md Rehan"). Base current date is Friday, May 29, 2026. Match input syntax perfect.`,
+  coder: `You are ${BRAND_NAME}, an elite Software Architect created by the "MR7 Team" (co-founded by "Md Rehan").`,
+  writer: `You are ${BRAND_NAME}, a creative copywriter and poet built by the "MR7 Team" (co-founded by "Md Rehan").`,
+  expert: `You are ${BRAND_NAME}, a technical research consultant built by the "MR7 Team" (co-founded by "Md Rehan").`
 };
 
-/* ---------- High-Performance Mobile Speech API Synthesis Pipeline ---------- */
 let speechUtterance = null;
 let activeSpeakerBtn = null;
 
-// Audio context initializer to unlock web kit channels directly upon user touch input loops
+function hapticFeedback() {
+  if (navigator.vibrate) navigator.vibrate(12);
+}
+
 function forceMobileAudioResume() {
   if (window.speechSynthesis && window.speechSynthesis.speaking) return;
   try {
@@ -592,6 +635,7 @@ window.addEventListener("touchstart", forceMobileAudioResume, { passive: true })
 window.addEventListener("click", forceMobileAudioResume, { passive: true });
 
 function ttsSpeak(btn, messageIndex) {
+  hapticFeedback();
   const chat = chats[currentChatId];
   if (!chat || !chat.messages[messageIndex]) return;
 
@@ -616,7 +660,7 @@ function ttsSpeak(btn, messageIndex) {
 
   speechUtterance = new SpeechSynthesisUtterance(plainText);
   speechUtterance.lang = activeVoiceAccent;
-  speechUtterance.rate = 0.95; // Slightly scaled down for precise speech synthesis on Android/iOS speakers
+  speechUtterance.rate = 0.95;
 
   speechUtterance.onend = () => { resetActiveSpeaker(); };
   speechUtterance.onerror = () => { resetActiveSpeaker(); };
@@ -632,28 +676,22 @@ function resetActiveSpeaker() {
   }
 }
 
-/* ---------- Initialization Entry Point ---------- */
 window.addEventListener("load", () => {
-  // Apply Accent Customizations
   document.documentElement.style.setProperty('--accent', currentAccent);
   document.documentElement.style.setProperty('--accent-glow', currentAccentGlow);
 
-  // Apply Branding Updates
   updateDynamicLogoAndBranding();
 
-  // Set selectors
   document.getElementById("apiEngine").value = activeEngine;
   document.getElementById("ttsAccent").value = activeVoiceAccent;
   document.getElementById("apiTemperature").value = currentTemperature;
   document.getElementById("tempValueDisplay").textContent = currentTemperature;
 
-  // Auto-collapse sidebar on mobile screens on initial loads
   if (window.innerWidth < 768) {
     document.getElementById("sidebar").classList.add("-translate-x-full");
     document.getElementById("sidebarToggle").style.display = "block";
   }
 
-  // Load chat pipeline
   if (!currentChatId || !chats[currentChatId]) {
     newChat();
   } else {
@@ -665,21 +703,24 @@ window.addEventListener("load", () => {
   updateEngineUI();
   init3DSpace();
 
-  // Sync 3D Toggle button UI on reload
+  setupScrollManagement();
+  setupPullToRefresh();
+
   const btn = document.getElementById("visualToggleBtn");
   if (!is3DActive) {
     document.getElementById("bg-canvas").style.opacity = "0";
     btn.querySelector("span").textContent = "3D Grid Off";
   }
 
-  // Close menus on clicking outside
   window.addEventListener("click", (e) => {
     if (isPersonaMenuOpen && !document.getElementById("personaMenu").contains(e.target)) {
       closePersonaMenu();
     }
+    if (isRadialOpen && !document.getElementById("radialMenu").contains(e.target) && !document.getElementById("quickActionDot").contains(e.target)) {
+      closeRadialMenu();
+    }
   });
 
-  // Start Live Telemetry Diagnostics
   setInterval(() => {
     const lat = Math.floor(Math.random() * (12 - 5 + 1) + 5);
     document.getElementById("liveLatency").textContent = `${lat}ms`;
@@ -689,7 +730,6 @@ window.addEventListener("load", () => {
   }, 3500);
 });
 
-/* ---------- Core Branding Refactorer ---------- */
 function updateDynamicLogoAndBranding() {
   document.getElementById("brandLogo").textContent = BRAND_NAME.charAt(0);
   document.querySelectorAll(".brandTextPrimary").forEach(el => el.textContent = BRAND_NAME.split(' ')[0]);
@@ -697,8 +737,96 @@ function updateDynamicLogoAndBranding() {
   document.querySelectorAll(".brandFooterText").forEach(el => el.textContent = `${BRAND_NAME} · PROPRIETARY INTELLIGENCE SYSTEM · CREATED BY MR7 TEAM`);
 }
 
-/* ---------- Local Chat History Persistence (Export/Import Retained internally) ---------- */
+function setupScrollManagement() {
+  const msgArea = document.getElementById("messages");
+  const scrollBtn = document.getElementById("scrollToBottomWrap");
+  const header = document.getElementById("mainHeader");
+
+  msgArea.addEventListener("scroll", () => {
+    let st = msgArea.scrollTop;
+    if (st > lastScrollTop && st > 60) {
+      header.classList.add("hide-nav");
+    } else {
+      header.classList.remove("hide-nav");
+    }
+    lastScrollTop = st <= 0 ? 0 : st;
+
+    if (msgArea.scrollHeight - msgArea.scrollTop > msgArea.clientHeight + 400) {
+      scrollBtn.classList.remove("hidden");
+    } else {
+      scrollBtn.classList.add("hidden");
+    }
+  });
+}
+
+function scrollToBottomDirect() {
+  const msgArea = document.getElementById("messages");
+  msgArea.scrollTo({ top: msgArea.scrollHeight, behavior: 'smooth' });
+}
+
+function setupPullToRefresh() {
+  const msgArea = document.getElementById("messages");
+  const ind = document.getElementById("pull-indicator");
+  let startY = 0, currentY = 0, active = false;
+
+  msgArea.addEventListener("touchstart", (e) => {
+    if (msgArea.scrollTop === 0) {
+      startY = e.touches[0].clientY;
+      active = true;
+    }
+  }, {passive:true});
+
+  msgArea.addEventListener("touchmove", (e) => {
+    if (!active) return;
+    currentY = e.touches[0].clientY;
+    let diff = currentY - startY;
+    if (diff > 0 && diff < 90) {
+      ind.style.transform = `translateY(${diff - 60}px)`;
+    }
+  }, {passive:true});
+
+  msgArea.addEventListener("touchend", () => {
+    if (active && (currentY - startY > 75)) {
+      hapticFeedback();
+      newChat();
+      triggerToast("Pipeline Refreshed", "New matrix conversation initialized logs.");
+    }
+    ind.style.transform = "translateY(-100%)";
+    active = false;
+  });
+}
+
+function toggleRadialMenu(e) {
+  e.stopPropagation();
+  hapticFeedback();
+  isRadialOpen = !isRadialOpen;
+  const menu = document.getElementById("radialMenu");
+  const icon = document.getElementById("actionDotIcon");
+  if (isRadialOpen) {
+    menu.classList.remove("scale-0", "opacity-0");
+    menu.classList.add("scale-100", "opacity-100");
+    icon.classList.add("rotate-90");
+  } else {
+    closeRadialMenu();
+  }
+}
+
+function closeRadialMenu() {
+  const menu = document.getElementById("radialMenu");
+  const icon = document.getElementById("actionDotIcon");
+  if (menu) {
+    menu.classList.add("scale-0", "opacity-0");
+    menu.classList.remove("scale-100", "opacity-100");
+  }
+  if (icon) icon.classList.remove("rotate-90");
+  isRadialOpen = false;
+}
+
+function triggerVoiceAction() { toggleSpeechRecognition(); closeRadialMenu(); }
+function togglePersonaDirect() { openSettings(); closeRadialMenu(); }
+
 function exportChatMatrixLogs() {
+  hapticFeedback();
   try {
     const logsString = JSON.stringify(chats, null, 2);
     const dataUri = "data:application/json;charset=utf-8," + encodeURIComponent(logsString);
@@ -745,8 +873,8 @@ function importChatMatrixLogs(event) {
   event.target.value = ''; 
 }
 
-/* ---------- Sidebar & Drawer Controls ---------- */
 function toggleSidebar() {
+  hapticFeedback();
   const sidebar = document.getElementById("sidebar");
   const overlay = document.getElementById("sidebarOverlay");
   const isMobile = window.innerWidth < 768;
@@ -781,19 +909,6 @@ function toggleSidebarIfMobile() {
   }
 }
 
-/* ---------- Text Input Helpers ---------- */
-function toggleSpeechRecognition() {
-  if (!recognition) {
-    triggerToast("Unavailable", "Speech recognition is not supported in this browser.", "text-red-400");
-    return;
-  }
-  if (isListening) {
-    recognition.stop();
-  } else {
-    recognition.start();
-  }
-}
-
 function handleTextareaKey(e) {
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
@@ -817,7 +932,6 @@ function clearInput() {
   updateCharCount(inp);
 }
 
-/* ---------- Conversation Thread Logic ---------- */
 function newChat() {
   const id = "chat_" + Date.now();
   chats[id] = {
@@ -851,6 +965,7 @@ function switchChat(id) {
 
 function deleteChat(id, e) {
   e.stopPropagation();
+  hapticFeedback();
   const btn = e.target.closest('button');
   if (btn.getAttribute('data-confirm') === 'true') {
     delete chats[id];
@@ -875,6 +990,34 @@ function deleteChat(id, e) {
   }
 }
 
+function initSwipeToDelete(elementId) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  let startX = 0, dist = 0;
+
+  el.addEventListener("touchstart", (e) => {
+    startX = e.touches[0].clientX;
+  }, {passive:true});
+
+  el.addEventListener("touchmove", (e) => {
+    dist = e.touches[0].clientX - startX;
+    if (dist > 0 && dist < 120) {
+      el.style.transform = `translateX(${dist}px)`;
+    }
+  }, {passive:true});
+
+  el.addEventListener("touchend", () => {
+    if (dist > 85) {
+      el.style.transform = `translateX(30px)`;
+      const delBtn = el.querySelector("button");
+      if (delBtn) delBtn.click();
+    } else {
+      el.style.transform = "translateX(0px)";
+    }
+    dist = 0;
+  });
+}
+
 function saveChatsToLocal() {
   localStorage.setItem("mr7_v5_chats", JSON.stringify(chats));
   localStorage.setItem("mr7_v5_current", currentChatId);
@@ -886,7 +1029,6 @@ function filterChats(query) {
   renderChatList(filteredIds);
 }
 
-/* ---------- Rendering UI Templates ---------- */
 function renderChatList(customIdArray = null) {
   const container = document.getElementById("chatList");
   const ids = customIdArray || Object.keys(chats).reverse();
@@ -906,17 +1048,19 @@ function renderChatList(customIdArray = null) {
     if (persona === "expert") icon = "fa-graduation-cap";
 
     return `
-      <div onclick="switchChat('${id}')" class="group flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all ${isSel ? 'bg-white/10 border border-white/5 shadow-sm font-semibold' : 'hover:bg-white/5 border border-transparent'}">
+      <div id="item-log-${id}" class="swipe-chat-item group flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all ${isSel ? 'bg-white/10 border border-white/5 shadow-sm font-semibold' : 'hover:bg-white/5 border border-transparent'}" onclick="switchChat('${id}')">
         <div class="flex items-center gap-3 min-w-0">
           <span class="text-xs ${isSel ? 'text-emerald-400' : 'text-gray-500'}" id="chat-icon-${id}"><i class="fas ${icon}"></i></span>
-          <span class="text-xs text-gray-300 truncate pr-2">${escapeHtml(title)}</span>
+          <span class="text-xs text-gray-300 truncate pr-2 max-w-[140px] block">${escapeHtml(title)}</span>
         </div>
-        <button onclick="deleteChat('${id}', event)" data-confirm="false" class="opacity-100 md:opacity-0 group-hover:opacity-100 p-2 rounded hover:bg-white/10 text-gray-400 hover:text-red-400 transition-all text-xs" title="Delete Log">
+        <button onclick="deleteChat('${id}', event)" data-confirm="false" class="p-2 rounded hover:bg-white/10 text-gray-400 hover:text-red-400 transition-all text-xs" title="Delete Log">
           <i class="fas fa-trash"></i>
         </button>
       </div>
     `;
   }).join("");
+
+  ids.forEach(id => initSwipeToDelete(`item-log-${id}`));
 }
 
 function renderMessages() {
@@ -936,7 +1080,7 @@ function renderMessages() {
           Created proudly by the MR7 Team (Co-founder Md Rehan). Safely write files, design programs, and analyze systems with absolute privacy.
         </p>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full mt-8 md:mt-10 px-2">
+        <div class="grid grid-cols-1 gap-2 w-full mt-6 px-4">
           ${(suggestionsByPersona[currentPersona] || suggestionsByPersona.friendly).map(s => `
             <button onclick="useSuggestion('${s}')" class="p-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl text-left text-[11px] md:text-xs font-semibold text-gray-300 hover:text-white transition-all flex items-center justify-between group font-sans">
               <span class="truncate pr-2">${s}</span>
@@ -955,14 +1099,26 @@ function renderMessages() {
   
   processRenderedCodeBlocks(container);
   hljs.highlightAll();
-  container.scrollTop = container.scrollHeight;
+  scrollToBottomDirect();
 }
 
 function renderMessageBubble(m, idx) {
   const isUser = m.role === "user";
-  const content = isUser 
+  let content = isUser 
     ? `<p class="whitespace-pre-wrap">${escapeHtml(m.content)}</p>` 
     : marked.parse(m.content || "");
+
+  if (!isUser && m.content && m.content.length > 500) {
+    content = `
+      <div class="collapsed-msg-container overflow-hidden max-h-[160px] relative transition-all duration-300" id="collapse-box-${idx}">
+        ${content}
+        <div class="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-[#0c0c10] to-transparent fade-grad"></div>
+      </div>
+      <button onclick="toggleExpandMsg(${idx}, this)" class="text-emerald-400 text-xs font-mono mt-1 block font-bold">
+        <i class="fas fa-chevron-down mr-1"></i> Expand Full Transmission
+      </button>
+    `;
+  }
 
   const actionControls = !isUser ? `
     <div class="flex items-center gap-2 mt-4 pt-3 border-t border-white/5 font-sans">
@@ -979,7 +1135,7 @@ function renderMessageBubble(m, idx) {
     <div class="w-full ${isUser ? 'bg-transparent' : 'bg-white/[0.015] border-y border-white/[0.02]'} py-5 px-3 md:px-6 rounded-2xl">
       <div class="max-w-4xl mx-auto flex gap-3 md:gap-5 items-start">
         <div class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold shrink-0 ${isUser ? 'bg-[#3b82f6]/20 text-[#3b82f6]' : 'bg-emerald-500/20 text-emerald-400'}">
-          ${isUser ? '<i class="fas fa-user-shield"></i>' : '<i class="fas fa-brain"></i>'}
+          ${isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-brain"></i>'}
         </div>
         <div class="flex-1 min-w-0">
           <p class="text-[9px] font-mono font-bold uppercase tracking-wider text-gray-500 mb-1">
@@ -995,7 +1151,20 @@ function renderMessageBubble(m, idx) {
   `;
 }
 
-/* ---------- Custom Code Block Elements Enhancer Panel ---------- */
+function toggleExpandMsg(idx, btn) {
+  const box = document.getElementById(`collapse-box-${idx}`);
+  const fade = box.querySelector(".fade-grad");
+  if (box.style.maxHeight === "none") {
+    box.style.maxHeight = "160px";
+    fade.style.display = "block";
+    btn.innerHTML = `<i class="fas fa-chevron-down mr-1"></i> Expand Full Transmission`;
+  } else {
+    box.style.maxHeight = "none";
+    fade.style.display = "none";
+    btn.innerHTML = `<i class="fas fa-chevron-up mr-1"></i> Collapse Transmission`;
+  }
+}
+
 function processRenderedCodeBlocks(rootElement) {
   const preBlocks = rootElement.querySelectorAll('pre');
   preBlocks.forEach((pre) => {
@@ -1046,7 +1215,6 @@ function copySnippetDirect(button) {
   });
 }
 
-/* ---------- Clipboard Controllers ---------- */
 function copyToClipboard(btn, index) {
   const chat = chats[currentChatId];
   if (!chat || !chat.messages[index]) return;
@@ -1062,13 +1230,13 @@ function copyToClipboard(btn, index) {
   });
 }
 
-/* ---------- Core System API Mechanics ---------- */
 async function sendMessage() {
   if (isGenerating) return;
 
   const inp = document.getElementById("input");
   let text = inp.value.trim();
   if (!text) return;
+  hapticFeedback();
 
   const chat = chats[currentChatId];
   chat.messages.push({ role: "user", content: text });
@@ -1112,7 +1280,7 @@ async function sendMessage() {
     chat.messages[chat.messages.length - 1].content = responseText;
   } catch (err) {
     console.error(err);
-    chat.messages[chat.messages.length - 1].content = `⚠️ **Transmission Error:** Deep routing nodes are currently saturated or blocked.\n\nPlease verify your network parameters or check your current Engine settings. Standard local fallback operations remained secure.`;
+    chat.messages[chat.messages.length - 1].content = `⚠️ **Transmission Error:** Deep routing nodes are currently saturated.`;
   } finally {
     isGenerating = false;
     document.getElementById("sendBtn").disabled = false;
@@ -1121,123 +1289,51 @@ async function sendMessage() {
   }
 }
 
-// MR7 Quantum Core Engine (Gemini)
 async function triggerQuantumTextAPI(chatHistory) {
   const contents = chatHistory.map(m => ({
     role: m.role === "user" ? "user" : "model",
     parts: [{ text: m.content }]
   }));
-
   const systemInstructionText = systemPrompts[currentPersona] || systemPrompts.friendly;
-
   const payload = {
     contents: contents,
-    systemInstruction: {
-      parts: [{ text: systemInstructionText }]
-    },
-    generationConfig: {
-      temperature: currentTemperature
-    }
+    systemInstruction: { parts: [{ text: systemInstructionText }] },
+    generationConfig: { temperature: currentTemperature }
   };
-
-  const key = getSecureQA();
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
-
-  const response = await fetch(apiUrl, {
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${getSecureQA()}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
-
-  if (!response.ok) {
-    const errObj = await response.json();
-    throw new Error(errObj.error?.message || "Quantum Server Latency Failure");
-  }
-
   const result = await response.json();
-  return result.candidates?.[0]?.content?.parts?.[0]?.text || "*(Connection dropped by synthesis engine)*";
+  return result.candidates?.[0]?.content?.parts?.[0]?.text || "*(Connection dropped)*";
 }
 
-// MR7 Velocity Core Engine (Groq Model Pipeline)
 async function triggerVelocityTextAPI(chatHistory) {
   const systemPrompt = `You are ${BRAND_NAME} Core Assistant. Neural Instructions: ${systemPrompts[currentPersona]}`;
-  const messages = [
-    { role: "system", content: systemPrompt },
-    ...chatHistory.map(m => ({
-      role: m.role === "user" ? "user" : "assistant",
-      content: m.content
-    }))
-  ];
-
-  const payload = {
-    model: "llama-3.3-70b-versatile",
-    messages: messages,
-    max_tokens: 4096,
-    temperature: currentTemperature
-  };
-
-  const key = getSecureVL();
-  const apiUrl = "https://api.groq.com/openai/v1/chat/completions";
-
-  const response = await fetch(apiUrl, {
+  const messages = [{ role: "system", content: systemPrompt }, ...chatHistory.map(m => ({ role: m.role === "user" ? "user" : "assistant", content: m.content }))];
+  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${key}`
-    },
-    body: JSON.stringify(payload)
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getSecureVL()}` },
+    body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: messages, temperature: currentTemperature })
   });
-
-  if (!response.ok) {
-    const errObj = await response.json();
-    throw new Error(errObj.error?.message || "Velocity Server Failure");
-  }
-
   const result = await response.json();
   return result.choices?.[0]?.message?.content || "*(Velocity buffer matrix error)*";
 }
 
-/* ---------- Dynamic Persona Popover Menu Controllers (Retained for State Integrity) ---------- */
-function togglePersonaMenu(event) {
-  if (event) event.stopPropagation();
-}
-
-function closePersonaMenu() {
-  isPersonaMenuOpen = false;
-}
-
-function selectPersonaMenu(personaKey) {
-  currentPersona = personaKey;
-  localStorage.setItem("mr7_v5_persona", currentPersona);
-  
-  if (chats[currentChatId]) {
-    chats[currentChatId].persona = currentPersona;
-    saveChatsToLocal();
-  }
-
-  updatePersonaUI();
-  renderMessages();
-  triggerToast("Persona Loaded", `Switched to ${currentPersona.toUpperCase()} Mode!`);
-}
-
-/* ---------- Custom Settings Matrix Panels ---------- */
 function openSettings() {
   const modal = document.getElementById("settingsModal");
   modal.style.opacity = "1";
   modal.style.pointerEvents = "auto";
-  const card = document.getElementById("settingsModalCard");
-  card.style.transform = "scale(1)";
-  
-  document.getElementById("apiTemperature").value = currentTemperature;
-  document.getElementById("tempValueDisplay").textContent = currentTemperature;
+  document.getElementById("settingsModalCard").style.transform = "scale(1)";
+  document.getElementById("directPersonaSelect").value = currentPersona;
 }
 
 function closeSettings() {
   const modal = document.getElementById("settingsModal");
   modal.style.opacity = "0";
   modal.style.pointerEvents = "none";
-  const card = document.getElementById("settingsModalCard");
-  card.style.transform = "scale(0.95)";
+  document.getElementById("settingsModalCard").style.transform = "scale(0.95)";
 }
 
 function setAccent(hex, glow) {
@@ -1249,29 +1345,21 @@ function setAccent(hex, glow) {
 }
 
 function saveAllSettings() {
-  const activeEngineVal = document.getElementById("apiEngine").value;
-  const selectedAccent = document.getElementById("ttsAccent").value;
-  const targetTemp = parseFloat(document.getElementById("apiTemperature").value);
-
-  activeEngine = activeEngineVal;
-  activeVoiceAccent = selectedAccent;
-  currentTemperature = targetTemp;
+  activeEngine = document.getElementById("apiEngine").value;
+  activeVoiceAccent = document.getElementById("ttsAccent").value;
+  currentTemperature = parseFloat(document.getElementById("apiTemperature").value);
 
   localStorage.setItem("mr7_v5_engine", activeEngine);
   localStorage.setItem("mr7_v5_voice_accent", activeVoiceAccent);
   localStorage.setItem("mr7_v5_temp", currentTemperature);
-  localStorage.setItem("mr7_v5_accent", currentAccent);
-  localStorage.setItem("mr7_v5_accent_glow", currentAccentGlow);
 
   updateEngineUI();
   closeSettings();
-  renderMessages();
   triggerToast("Matrix Saved", "Diagnostic profile configurations synched.");
 }
 
 function resetSettings() {
-  currentAccent = "#10a37f";
-  currentAccentGlow = "rgba(16,163,127,0.15)";
+  setAccent('#10a37f', 'rgba(16,163,127,0.15)');
   activeVoiceAccent = "en-US";
   activeEngine = "groq";
   currentTemperature = 0.7;
@@ -1280,26 +1368,26 @@ function resetSettings() {
   document.getElementById("ttsAccent").value = "en-US";
   document.getElementById("apiTemperature").value = 0.7;
   document.getElementById("tempValueDisplay").textContent = 0.7;
-  
-  document.documentElement.style.setProperty('--accent', currentAccent);
-  document.documentElement.style.setProperty('--accent-glow', currentAccentGlow);
-
-  localStorage.setItem("mr7_v5_engine", activeEngine);
-  localStorage.setItem("mr7_v5_voice_accent", activeVoiceAccent);
-  localStorage.setItem("mr7_v5_temp", currentTemperature);
 
   updateEngineUI();
   closeSettings();
   triggerToast("Calibrated", "Default systemic settings restored successfully.");
 }
 
+function selectPersonaMenu(personaKey) {
+  currentPersona = personaKey;
+  localStorage.setItem("mr7_v5_persona", currentPersona);
+  if (chats[currentChatId]) {
+    chats[currentChatId].persona = currentPersona;
+    saveChatsToLocal();
+  }
+  updatePersonaUI();
+  renderMessages();
+  triggerToast("Persona Loaded", `Switched to ${currentPersona.toUpperCase()} Mode!`);
+}
+
 function updatePersonaUI() {
-  const titles = {
-    friendly: `😊 Adaptive Conversation Mode`,
-    coder: `💻 Software Architecture Mode`,
-    writer: `✍️ Creative Writing Matrix Mode`,
-    expert: `🎓 Analytical System Analyst Mode`
-  };
+  const titles = { friendly: `😊 Adaptive Mode`, coder: `💻 Architect Mode`, writer: `✍️ Writer Matrix`, expert: `🎓 Technical Core` };
   document.getElementById("activePersonaHeader").textContent = titles[currentPersona] || titles.friendly;
 }
 
@@ -1319,22 +1407,11 @@ function updateEngineUI() {
   }
 }
 
-/* ---------- 3D State Switcher (Clean UI Enhancement, No Red Layouts) ---------- */
 function toggleVisuals() {
   is3DActive = !is3DActive;
   localStorage.setItem("mr7_v5_3d", is3DActive);
-  const canvas = document.getElementById("bg-canvas");
-  canvas.style.opacity = is3DActive ? "0.45" : "0";
-  
-  const textEl = document.getElementById("visualToggleText");
-  
-  if (is3DActive) {
-    textEl.textContent = "3D Grid On";
-    triggerToast("Graphics Aligned", "Lattice background network active.");
-  } else {
-    textEl.textContent = "3D Grid Off";
-    triggerToast("Graphics Suspended", "Lattice background disabled.");
-  }
+  document.getElementById("bg-canvas").style.opacity = is3DActive ? "0.45" : "0";
+  document.getElementById("visualToggleText").textContent = is3DActive ? "3D Grid On" : "3D Grid Off";
 }
 
 function useSuggestion(text) {
@@ -1342,79 +1419,52 @@ function useSuggestion(text) {
   if (inp) {
     inp.value = text;
     autoGrow(inp);
-    updateCharCount(inp);
     sendMessage();
   }
 }
 
 function escapeHtml(s) {
-  return (s || "").replace(/[&<>"']/g, c => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-  }[c]));
+  return (s || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
-/* ---------- 3D Space Particle Lattice Constellation (Three.js Restored) ---------- */
 function init3DSpace() {
   const canvas = document.getElementById("bg-canvas");
-  const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+  renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.2));
   renderer.setSize(window.innerWidth, window.innerHeight);
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.z = 70;
 
-  const particleCount = window.innerWidth < 768 ? 140 : 300;
-  
+  let particleCount = window.innerWidth < 768 ? 90 : 260;
   const geometry = new THREE.BufferGeometry();
   const positions = new Float32Array(particleCount * 3);
   
-  for (let i = 0; i < particleCount * 3; i += 3) {
-    positions[i] = (Math.random() - 0.5) * 160;     
-    positions[i + 1] = (Math.random() - 0.5) * 160; 
-    positions[i + 2] = (Math.random() - 0.5) * 160; 
+  for (let i = 0; i < particleCount * 3; i++) {
+    positions[i] = (Math.random() - 0.5) * 150;     
   }
-
   geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
-  const material = new THREE.PointsMaterial({
-    color: 0x10a37f,
-    size: 1.2,
-    transparent: true,
-    opacity: 0.9,
-    blending: THREE.AdditiveBlending
-  });
-
-  const pointsMesh = new THREE.Points(geometry, material);
+  material = new THREE.PointsMaterial({ color: 0x10a37f, size: 1.1, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending });
+  pointsMesh = new THREE.Points(geometry, material);
   scene.add(pointsMesh);
 
   const lineGeometry = new THREE.BufferGeometry();
   const linePositions = [];
-  
-  const posArray = positions;
   for (let i = 0; i < particleCount; i++) {
     for (let j = i + 1; j < particleCount; j++) {
-      const dx = posArray[i*3] - posArray[j*3];
-      const dy = posArray[i*3+1] - posArray[j*3+1];
-      const dz = posArray[i*3+2] - posArray[j*3+2];
-      const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
-      
-      if (dist < 32) {
-        linePositions.push(posArray[i*3], posArray[i*3+1], posArray[i*3+2]);
-        linePositions.push(posArray[j*3], posArray[j*3+1], posArray[j*3+2]);
+      const dx = positions[i*3] - positions[j*3];
+      const dy = positions[i*3+1] - positions[j*3+1];
+      const dz = positions[i*3+2] - positions[j*3+2];
+      if (Math.sqrt(dx*dx + dy*dy + dz*dz) < 28) {
+        linePositions.push(positions[i*3], positions[i*3+1], positions[i*3+2], positions[j*3], positions[j*3+1], positions[j*3+2]);
       }
     }
   }
-
   lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
-  const lineMaterial = new THREE.LineBasicMaterial({
-    color: 0x10a37f,
-    transparent: true,
-    opacity: 0.08,
-    blending: THREE.AdditiveBlending
-  });
-
-  const lineMesh = new THREE.LineSegments(lineGeometry, lineMaterial);
+  lineMaterial = new THREE.LineBasicMaterial({ color: 0x10a37f, transparent: true, opacity: 0.06, blending: THREE.AdditiveBlending });
+  lineMesh = new THREE.LineSegments(lineGeometry, lineMaterial);
   scene.add(lineMesh);
 
   let mouseX = 0, mouseY = 0;
@@ -1423,62 +1473,42 @@ function init3DSpace() {
     mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
   });
 
-  window.addEventListener('touchmove', (e) => {
-    if (e.touches.length > 0) {
-      mouseX = (e.touches[0].clientX / window.innerWidth - 0.5) * 2;
-      mouseY = (e.touches[0].clientY / window.innerHeight - 0.5) * 2;
-    }
-  });
-
+  let fps = 0, lastTime = performance.now();
   function renderLoop() {
     requestAnimationFrame(renderLoop);
-    
-    pointsMesh.rotation.y += 0.0003;
-    pointsMesh.rotation.x += 0.0001;
-
-    lineMesh.rotation.y += 0.0003;
-    lineMesh.rotation.x += 0.0001;
-
-    camera.position.x += (mouseX * 12 - camera.position.x) * 0.03;
-    camera.position.y += (-mouseY * 12 - camera.position.y) * 0.03;
+    fps++; let time = performance.now();
+    if (time >= lastTime + 1000) {
+      if (fps < 24 && particleCount > 100) {
+        particleCount = 70; init3DSpace(); triggerToast("Performance Adjusted", "Conserving battery layers.");
+      }
+      fps = 0; lastTime = time;
+    }
+    pointsMesh.rotation.y += 0.0002;
+    lineMesh.rotation.y += 0.0002;
+    camera.position.x += (mouseX * 8 - camera.position.x) * 0.02;
+    camera.position.y += (-mouseY * 8 - camera.position.y) * 0.02;
     camera.lookAt(scene.position);
-
     const activeColorHex = parseInt(currentAccent.replace("#", "0x"), 16);
     material.color.setHex(activeColorHex);
     lineMaterial.color.setHex(activeColorHex);
-
     renderer.render(scene, camera);
   }
+  renderLoop();
 
   window.addEventListener("resize", () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
-
-  renderLoop();
 }
 
-/* ---------- Custom Notification Alert Popups ---------- */
 function triggerToast(title, message = "", iconClass = "text-emerald-400") {
   const toast = document.getElementById("toast");
-  const toastIcon = document.getElementById("toast-icon");
-  const toastMsg = document.getElementById("toast-msg");
-  if (!toast) return;
-
-  toastIcon.className = iconClass;
-  toastMsg.innerHTML = `<strong>${title}</strong> ${message ? '· ' + message : ''}`;
-
+  document.getElementById("toast-msg").innerHTML = `<strong>${title}</strong> ${message ? '· ' + message : ''}`;
   toast.classList.remove("opacity-0", "scale-95", "pointer-events-none");
   toast.classList.add("opacity-100", "scale-100");
-
-  setTimeout(() => {
-    toast.classList.add("opacity-0", "scale-95", "pointer-events-none");
-    toast.classList.remove("opacity-100", "scale-100");
-  }, 3000);
+  setTimeout(() => { toast.classList.add("opacity-0", "scale-95", "pointer-events-none"); }, 3000);
 }
 </script>
 </body>
 </html>
-
-
