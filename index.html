@@ -624,15 +624,22 @@ function updateDynamicLogoAndBranding() {
 function toggleSidebar() {
   const sidebar = document.getElementById("sidebar");
   const overlay = document.getElementById("sidebarOverlay");
-  
+  const isMobile = window.innerWidth < 768;
+
   if (sidebar.classList.contains("-translate-x-full")) {
     sidebar.classList.remove("-translate-x-full");
-    overlay.classList.remove("hidden");
-    setTimeout(() => overlay.classList.add("opacity-100"), 10);
+    // Only show blur overlay on mobile
+    if (isMobile) {
+      overlay.classList.remove("hidden");
+      setTimeout(() => overlay.classList.add("opacity-100"), 10);
+    }
   } else {
     sidebar.classList.add("-translate-x-full");
-    overlay.classList.remove("opacity-100");
-    setTimeout(() => overlay.classList.add("hidden"), 250);
+    // Only hide overlay if it was shown (mobile)
+    if (isMobile) {
+      overlay.classList.remove("opacity-100");
+      setTimeout(() => overlay.classList.add("hidden"), 250);
+    }
   }
 }
 
@@ -1362,3 +1369,4 @@ function triggerToast(title, message = "", iconClass = "text-emerald-400") {
 </script>
 </body>
 </html>
+
