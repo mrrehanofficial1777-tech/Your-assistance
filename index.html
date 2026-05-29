@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>MR7 AI - Next-Gen Autonomous Workspace</title>
-<link rel="icon" type="image/png" href="logo.png">
+<link class="rounded-full" rel="icon" type="image/png" href="logo.png">
 <script src="https://cdn.tailwindcss.com"></script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -163,7 +163,7 @@
       width: 44px !important;
       height: 44px !important;
     }
-    #micBtn, #plusBtn {
+    #micBtn, #plusBtn, #exportBtn, #importBtn {
       width: 42px !important;
       height: 42px !important;
     }
@@ -228,20 +228,11 @@
         </button>
       </div>
 
-      <div class="p-4 flex flex-col gap-2">
-        <div class="flex gap-2">
-          <button onclick="newChat(); toggleSidebarIfMobile();" class="flex-1 bg-white/5 hover:bg-white/10 border border-white/5 text-white rounded-2xl py-3 px-4 flex items-center justify-center gap-2 font-medium transition-all group hover:shadow-lg text-sm">
-            <i class="fas fa-plus text-xs text-emerald-400 group-hover:rotate-90 transition-transform"></i>
-            <span>New Chat</span>
-          </button>
-          
-          <button onclick="exportChatMatrixLogs()" class="p-3 bg-white/5 hover:bg-white/10 border border-white/5 text-gray-400 hover:text-white rounded-2xl transition-all text-xs" title="Export JSON Logs">
-            <i class="fas fa-download"></i>
-          </button>
-          <button onclick="document.getElementById('importChatLogsInput').click()" class="p-3 bg-white/5 hover:bg-white/10 border border-white/5 text-gray-400 hover:text-white rounded-2xl transition-all text-xs" title="Import JSON Logs">
-            <i class="fas fa-upload"></i>
-          </button>
-        </div>
+      <div class="p-4">
+        <button onclick="newChat(); toggleSidebarIfMobile();" class="w-full bg-white/5 hover:bg-white/10 border border-white/5 text-white rounded-2xl py-3 px-4 flex items-center justify-center gap-2 font-medium transition-all group hover:shadow-lg text-sm">
+          <i class="fas fa-plus text-xs text-emerald-400 group-hover:rotate-90 transition-transform"></i>
+          <span>New Conversation</span>
+        </button>
       </div>
 
       <div class="px-4 mb-3">
@@ -383,6 +374,14 @@
 
             <button id="plusBtn" onclick="togglePersonaMenu(event)" class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-emerald-400 flex items-center justify-center transition-all shrink-0" title="Select Operational Persona">
               <i class="fas fa-plus text-sm"></i>
+            </button>
+
+            <button id="importBtn" onclick="document.getElementById('importChatLogsInput').click()" class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-emerald-400 flex items-center justify-center transition-all shrink-0" title="Import Chat Logs (.json)">
+              <i class="fas fa-upload text-sm"></i>
+            </button>
+
+            <button id="exportBtn" onclick="exportChatMatrixLogs()" class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-emerald-400 flex items-center justify-center transition-all shrink-0" title="Export Chat Logs (.json)">
+              <i class="fas fa-download text-sm"></i>
             </button>
 
             <textarea id="input" rows="1" placeholder="Type a message, or ask coding questions..." 
@@ -572,7 +571,7 @@ const systemPrompts = {
   CRITICAL RULES:
   1. CO-FOUNDER IDENTITY: If anyone asks who created you, who built you, or who is your co-founder, you MUST proud and clearly respond that you were built by the "MR7 Team" and your co-founder is "Md Rehan". Never mention other AI developers or corporations (like OpenAI, Google, Groq, Meta, etc.) under any condition.
   2. ADAPTIVE LANGUAGE: You must answer in the EXACT language/syntax the user wrote their message in. If the user writes in English, reply in English. If they write in Hinglish, reply in Hinglish. If they write in Spanish, reply in Spanish. Mirror their tone perfectly.
-  3. TIME AND DATE INQUIRIES: If the user asks for the current date or current time, you MUST politely ask them which country or location they are in so you can calculate it for them. If they already provided the location or country (e.g. India), calculate the precise local time and date for them. Note for your calculations: The real-time current date is Thursday, May 28, 2026. India is UTC+5:30. Output the calculation nicely.`,
+  3. TIME AND DATE INQUIRIES: If the user asks for the current date or current time, you MUST politely ask them which country or location they are in so you can calculate it for them. If they already provided the location or country (e.g. India), calculate the precise local time and date for them. Note for your calculations: The real-time current date is Friday, May 29, 2026. India is UTC+5:30. Output the calculation nicely.`,
   
   coder: `You are ${BRAND_NAME}, an elite Software Architect created by the "MR7 Team" (co-founded by "Md Rehan").
   
@@ -580,21 +579,21 @@ const systemPrompts = {
   1. CREATOR IDENTITY: Always proud and clearly credit the "MR7 Team" and co-founder "Md Rehan" as your absolute architects.
   2. ADAPTIVE LANGUAGE: Answer in the exact language the user queries you in (e.g., Hinglish, English, Hindi).
   3. Respond with optimized, secure, cleanly documented code blocks. Ask the user for clarification if code context is missing.
-  4. TIME AND DATE INQUIRIES: If they ask for the current time or date, ask for their country first, then provide the precise calculated time based on current baseline Thursday, May 28, 2026.`,
+  4. TIME AND DATE INQUIRIES: If they ask for the current time or date, ask for their country first, then provide the precise calculated time based on current baseline Friday, May 29, 2026.`,
   
   writer: `You are ${BRAND_NAME}, a creative copywriter and poet built by the "MR7 Team" (co-founded by "Md Rehan").
   
   CRITICAL RULES:
   1. CREATOR IDENTITY: Always credit the "MR7 Team" and co-founder "Md Rehan" for your creation.
   2. ADAPTIVE LANGUAGE: Generate expressive writing in the user's querying language (Hinglish, English, etc.) seamlessly.
-  3. TIME AND DATE INQUIRIES: Politely query for their country to calculate local time based on baseline Thursday, May 28, 2026.`,
+  3. TIME AND DATE INQUIRIES: Politely query for their country to calculate local time based on baseline Friday, May 29, 2026.`,
   
   expert: `You are ${BRAND_NAME}, a technical research consultant built by the "MR7 Team" (co-founded by "Md Rehan").
   
   CRITICAL RULES:
   1. CREATOR IDENTITY: Credit the "MR7 Team" and co-founder "Md Rehan" as your absolute systems architects.
   2. ADAPTIVE LANGUAGE: Ensure your deeply structured analyses match the user's querying language (Hinglish, English, etc.) flawlessly.
-  3. TIME AND DATE INQUIRIES: Ask for their country first to calculate accurate local dates/times relative to UTC baseline Thursday, May 28, 2026.`
+  3. TIME AND DATE INQUIRIES: Ask for their country first to calculate accurate local dates/times relative to UTC baseline Friday, May 29, 2026.`
 };
 
 /* ---------- Initialization Entry Point ---------- */
@@ -752,6 +751,7 @@ function toggleSpeechRecognition() {
   }
 }
 
+// Global scope initialization fix for keyboard input execution pipelines
 function handleTextareaKey(e) {
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
@@ -764,6 +764,7 @@ function autoGrow(el) {
   el.style.height = Math.min(el.scrollHeight, 140) + "px";
 }
 
+// Word counter metric node calculation
 function updateCharCount(el) {
   document.getElementById("charCount").textContent = el.value.length;
 }
@@ -1313,6 +1314,7 @@ function closeSettings() {
   card.style.transform = "scale(0.95)";
 }
 
+// Hex theme code custom alignment tool
 function setAccent(hex, glow) {
   currentAccent = hex;
   currentAccentGlow = glow;
@@ -1546,4 +1548,5 @@ function triggerToast(title, message = "", iconClass = "text-emerald-400") {
 </script>
 </body>
 </html>
+
 
