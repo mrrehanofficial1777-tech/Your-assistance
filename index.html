@@ -163,15 +163,25 @@
     background: linear-gradient(to bottom, rgba(6,6,8,0.95), transparent);
   }
 
-  /* CINEMATIC APP STARTUP LAYER SPLASH ANIMATIONS SETUP */
-  @keyframes dynamicPortalReveal {
-    0% { transform: scale(0.92); opacity: 0; }
-    15% { transform: scale(1); opacity: 1; filter: drop-shadow(0 0 15px rgba(0,210,255,0.3)); }
-    85% { transform: scale(1.03); opacity: 1; filter: drop-shadow(0 0 30px rgba(0,210,255,0.6)); }
-    100% { transform: scale(1.4); opacity: 0; filter: blur(8px); }
+  /* PREMIUM MODERN SPLASH SCREEN RE-DESIGN */
+  @keyframes futuristicReveal {
+    0% { transform: scale(0.85); opacity: 0; filter: blur(10px) brightness(0.5); }
+    40% { transform: scale(1); opacity: 1; filter: blur(0px) brightness(1.2) drop-shadow(0 0 35px rgba(16, 163, 127, 0.6)); }
+    75% { transform: scale(1.02); opacity: 1; filter: blur(0px) brightness(1) drop-shadow(0 0 25px rgba(16, 163, 127, 0.4)); }
+    100% { transform: scale(1.15); opacity: 0; filter: blur(12px) brightness(0); }
   }
+  
+  @keyframes microGlowPulse {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 15px rgba(16, 163, 127, 0.3)); }
+    50% { transform: scale(1.03); filter: drop-shadow(0 0 40px rgba(16, 163, 127, 0.7)); }
+  }
+
   .animate-portal-splash {
-    animation: dynamicPortalReveal 2.1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    animation: futuristicReveal 2.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  }
+
+  .logo-pulse-glow {
+    animation: microGlowPulse 2s infinite ease-in-out;
   }
 
   @media (max-width: 767px) {
@@ -227,9 +237,13 @@
 </head>
 <body class="relative h-screen w-screen overflow-hidden flex flex-col" style="height:100dvh">
 
-<div id="appCinematicPortalLayer" class="fixed inset-0 bg-[#060608] z-[9999] flex flex-col items-center justify-center pointer-events-none transition-opacity duration-500">
+<div id="appCinematicPortalLayer" class="fixed inset-0 bg-[#040406] z-[9999] flex flex-col items-center justify-center pointer-events-none transition-opacity duration-700">
   <div class="flex flex-col items-center max-w-[85%] text-center animate-portal-splash">
-    <img src="logo.png" alt="MR7 Core" class="w-24 h-24 object-contain mb-2">
+    <div class="relative p-2 rounded-3xl bg-black/40 border border-white/5 backdrop-blur-md mb-4 logo-pulse-glow">
+      <img src="logo.png" alt="MR7 Core" class="w-28 h-28 md:w-36 md:h-36 object-contain">
+    </div>
+    <div class="h-[2px] w-24 bg-gradient-to-r from-transparent via-emerald-500 to-transparent mb-3 opacity-80"></div>
+    <p class="text-[10px] md:text-xs font-mono tracking-[0.3em] uppercase text-emerald-400 font-bold shimmer-text">INITIALIZING QUANTUM LAYER</p>
   </div>
 </div>
 
@@ -728,9 +742,9 @@ window.addEventListener("load", () => {
     const portalLayer = document.getElementById("appCinematicPortalLayer");
     if (portalLayer) {
       portalLayer.style.opacity = "0";
-      setTimeout(() => portalLayer.remove(), 500);
+      setTimeout(() => portalLayer.remove(), 700);
     }
-  }, 2000);
+  }, 2300);
 });
 
 function updateDynamicLogoAndBranding() {
