@@ -257,9 +257,7 @@
     <div>
       <div class="p-5 border-b border-white/5 items-center justify-between flex">
         <div class="flex items-center gap-3">
-          <div class="w-11 h-11 rounded-[14px] bg-gradient-to-br from-emerald-400 via-teal-500 to-emerald-600 flex items-center justify-center text-black font-black text-2xl shadow-lg border border-white/10 tracking-tighter shrink-0" id="brandLogo" style="box-shadow: 0 0 22px rgba(16, 163, 127, 0.45);">
-            M
-          </div>
+          <img src="logo.png" alt="M" class="w-11 h-11 object-contain rounded-[14px]" style="box-shadow: 0 0 22px rgba(16, 163, 127, 0.45);">
           <div>
             <h1 class="text-lg font-bold tracking-tight"><span class="brandTextPrimary">MR7</span> <span class="text-emerald-400 brandTextSecondary">ai</span></h1>
             <p class="text-[9px] text-gray-500 font-mono tracking-wider uppercase">Enterprise Core</p>
@@ -731,7 +729,6 @@ window.addEventListener("load", () => {
 });
 
 function updateDynamicLogoAndBranding() {
-  document.getElementById("brandLogo").textContent = BRAND_NAME.charAt(0);
   document.querySelectorAll(".brandTextPrimary").forEach(el => el.textContent = BRAND_NAME.split(' ')[0]);
   document.querySelectorAll(".brandTextSecondary").forEach(el => el.textContent = BRAND_ACCENT);
   document.querySelectorAll(".brandFooterText").forEach(el => el.textContent = `${BRAND_NAME} · PROPRIETARY INTELLIGENCE SYSTEM · CREATED BY MR7 TEAM`);
@@ -903,6 +900,7 @@ function handleTextareaKey(e) {
   }
 }
 
+// Security input text grow controller configurations
 function autoGrow(el) {
   el.style.height = "auto";
   el.style.height = Math.min(el.scrollHeight, 120) + "px";
@@ -943,11 +941,6 @@ function switchChat(id) {
   toggleSidebarIfMobile();
   renderChatList();
   renderMessages();
-}
-
-// Security sanitization matrix redirect mapping 
-function escapeHtml(s) {
-  return (s || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
 function deleteChat(id, e) {
@@ -1058,9 +1051,7 @@ function renderMessages() {
 
     container.innerHTML = `
       <div class="flex-1 flex flex-col justify-center items-center text-center py-6 md:py-10 max-w-2xl mx-auto">
-        <div class="w-16 h-16 rounded-[20px] bg-gradient-to-br from-emerald-400 via-teal-500 to-emerald-600 flex items-center justify-center text-black font-black text-3xl shadow-2xl border border-white/10 tracking-tighter mb-6" id="welcomeGlow" style="box-shadow: 0 0 35px rgba(16, 163, 127, 0.45);">
-          M
-        </div>
+        <img src="logo.png" alt="MR7 Core" class="w-16 h-16 object-contain mb-6 rounded-[20px]" style="box-shadow: 0 0 35px rgba(16, 163, 127, 0.45);">
         <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white font-heading">
           Welcome to <span class="text-emerald-400">MR7 ai</span>
         </h2>
@@ -1316,7 +1307,6 @@ function saveAllSettings() {
   closeSettings();
 }
 
-// Security configuration endpoints context injection setup
 function resetSettings() {
   setAccent('#10a37f', 'rgba(16,163,127,0.15)');
   activeVoiceAccent = "en-US";
@@ -1369,6 +1359,15 @@ function toggleVisuals() {
   localStorage.setItem("mr7_v5_3d", is3DActive);
   document.getElementById("bg-canvas").style.opacity = is3DActive ? "0.45" : "0";
   document.getElementById("visualToggleText").textContent = is3DActive ? "3D Grid On" : "3D Grid Off";
+}
+
+function useSuggestion(text) {
+  const inp = document.getElementById("input");
+  if (inp) {
+    inp.value = text;
+    autoGrow(inp);
+    sendMessage();
+  }
 }
 
 function init3DSpace() {
@@ -1463,3 +1462,4 @@ function init3DSpace() {
 </script>
 </body>
 </html>
+
