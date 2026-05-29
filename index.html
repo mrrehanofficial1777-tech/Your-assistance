@@ -126,9 +126,8 @@
     transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
   }
 
-  /* Completely removed backdrop-filter blur here to avoid GPU freeze loops on phone screens */
   #sidebarOverlay {
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.75);
     transition: opacity 0.2s linear;
   }
 
@@ -863,20 +862,24 @@ function importChatMatrixLogs(event) {
   event.target.value = ''; 
 }
 
-/* Redesigned Sidebar Toggle function with pure display rendering block rules to avoid toggle lag freezes */
+/* Restructured toggle logic layer to cleanly unblock pointer interactions on desktop views */
 function toggleSidebar() {
   hapticFeedback();
   const sidebar = document.getElementById("sidebar");
   const overlay = document.getElementById("sidebarOverlay");
   const isMobile = window.innerWidth < 768;
 
-  if (!isMobile) return;
+  if (!isMobile) {
+    overlay.classList.add("hidden");
+    return;
+  }
 
   const isHidden = sidebar.classList.contains("-translate-x-full");
 
   if (isHidden) {
     sidebar.classList.remove("-translate-x-full");
     overlay.classList.remove("hidden");
+    overlay.classList.remove("pointer-events-none");
     overlay.style.opacity = "1";
   } else {
     sidebar.classList.add("-translate-x-full");
