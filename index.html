@@ -5,25 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>MR7 AI - Next-Gen Autonomous Workspace</title>
 <link rel="icon" type="image/png" href="logo.png">
-<!-- Tailwind CSS -->
 <script src="https://cdn.tailwindcss.com"></script>
 
-<!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 
-<!-- Highlight.js for beautiful code blocks -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-dark.min.css">
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
 
-<!-- Marked for Markdown Parsing -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-<!-- Three.js for Interactive 3D Particles -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
-<!-- FontAwesome Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
@@ -82,6 +76,30 @@
 
   pre code {
     font-family: 'Fira Code', monospace !important;
+  }
+
+  /* Advanced Prose Custom Formatting for Code Blocks with Header */
+  .prose pre {
+    background-color: #010103 !important;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    position: relative;
+    margin-top: 0px !important;
+    margin-bottom: 0.75rem;
+  }
+
+  /* Typing Indicator Pulse Wave Animation */
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .shimmer-text {
+    background: linear-gradient(90deg, rgba(255,255,255,0.1) 25%, var(--accent) 50%, rgba(255,255,255,0.1) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.6s infinite linear;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   /* Typing cursor */
@@ -182,21 +200,19 @@
 
 <canvas id="bg-canvas"></canvas>
 
-<!-- Top Alert Toast -->
+<input type="file" id="importChatLogsInput" class="hidden" accept=".json" onchange="importChatMatrixLogs(event)">
+
 <div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 bg-gray-950/95 border border-white/10 text-white px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-md z-50 flex items-center gap-3 transition-all duration-300 pointer-events-none opacity-0 scale-95 max-w-[90%] text-center">
   <span id="toast-icon" class="text-emerald-400 text-lg"><i class="fas fa-check-circle"></i></span>
   <span id="toast-msg" class="text-xs md:text-sm font-medium">System Aligned!</span>
 </div>
 
-<!-- Mobile Sidebar Backdrop Overlay -->
 <div id="sidebarOverlay" class="fixed inset-0 z-30 hidden transition-opacity opacity-0" onclick="toggleSidebar()"></div>
 
 <div class="relative z-10 flex h-full w-full overflow-hidden">
   
-  <!-- Sidebar Panel -->
   <aside id="sidebar" class="fixed md:relative inset-y-0 left-0 w-72 md:w-80 bg-zinc-950 md:bg-black/55 backdrop-blur-2xl border-r border-white/5 flex flex-col justify-between transition-transform duration-300 transform -translate-x-full md:translate-x-0 z-40">
     <div>
-      <!-- Brand Area -->
       <div class="p-5 border-b border-white/5 flex items-center justify-between">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-black font-extrabold text-2xl shadow-lg shadow-emerald-500/20" id="brandLogo">
@@ -207,21 +223,27 @@
             <p class="text-[9px] text-gray-500 font-mono tracking-wider uppercase">Enterprise Core</p>
           </div>
         </div>
-        <!-- Sidebar Toggle on Mobile -->
         <button onclick="toggleSidebar()" class="md:hidden text-gray-400 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-xl">
           <i class="fas fa-times text-sm"></i>
         </button>
       </div>
 
-      <!-- Action Button -->
-      <div class="p-4">
-        <button onclick="newChat(); toggleSidebarIfMobile();" class="w-full bg-white/5 hover:bg-white/10 border border-white/5 text-white rounded-2xl py-3 px-4 flex items-center justify-center gap-3 font-medium transition-all group hover:shadow-lg text-sm">
-          <i class="fas fa-plus text-xs text-emerald-400 group-hover:rotate-90 transition-transform"></i>
-          <span>New Conversation</span>
-        </button>
+      <div class="p-4 flex flex-col gap-2">
+        <div class="flex gap-2">
+          <button onclick="newChat(); toggleSidebarIfMobile();" class="flex-1 bg-white/5 hover:bg-white/10 border border-white/5 text-white rounded-2xl py-3 px-4 flex items-center justify-center gap-2 font-medium transition-all group hover:shadow-lg text-sm">
+            <i class="fas fa-plus text-xs text-emerald-400 group-hover:rotate-90 transition-transform"></i>
+            <span>New Chat</span>
+          </button>
+          
+          <button onclick="exportChatMatrixLogs()" class="p-3 bg-white/5 hover:bg-white/10 border border-white/5 text-gray-400 hover:text-white rounded-2xl transition-all text-xs" title="Export JSON Logs">
+            <i class="fas fa-download"></i>
+          </button>
+          <button onclick="document.getElementById('importChatLogsInput').click()" class="p-3 bg-white/5 hover:bg-white/10 border border-white/5 text-gray-400 hover:text-white rounded-2xl transition-all text-xs" title="Import JSON Logs">
+            <i class="fas fa-upload"></i>
+          </button>
+        </div>
       </div>
 
-      <!-- Search Local Conversations -->
       <div class="px-4 mb-3">
         <div class="relative">
           <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
@@ -229,15 +251,11 @@
         </div>
       </div>
 
-      <!-- Live Chat History List -->
       <div class="px-2 flex flex-col gap-1 overflow-y-auto max-h-[35vh] md:max-h-[40vh]" id="chatList">
-        <!-- Chat items populated dynamically -->
-      </div>
+        </div>
     </div>
 
-    <!-- Sidebar Footer with Diagnostic Monitoring Console -->
     <div class="p-4 border-t border-white/5 bg-black/20 flex flex-col gap-3">
-      <!-- Live Console Simulator Grid -->
       <div class="bg-black/40 rounded-xl p-3 border border-white/5 flex flex-col gap-1.5 text-[9px] font-mono text-gray-500">
         <div class="flex justify-between items-center text-gray-400 font-semibold border-b border-white/5 pb-1 mb-1">
           <span>DIAGNOSTIC TELEMETRY</span>
@@ -278,13 +296,10 @@
     </div>
   </aside>
 
-  <!-- Main View Workspace Area -->
   <main class="flex-1 flex flex-col min-w-0 bg-transparent relative z-10">
     
-    <!-- Topbar Navigation Header -->
     <header class="h-16 border-b border-white/5 flex items-center justify-between px-4 md:px-6 bg-black/10 backdrop-blur-md">
       <div class="flex items-center gap-2">
-        <!-- Responsive Drawer Trigger -->
         <button id="sidebarToggle" onclick="toggleSidebar()" class="text-gray-400 hover:text-white p-2.5 hover:bg-white/5 rounded-xl mr-1">
           <i class="fas fa-bars"></i>
         </button>
@@ -294,7 +309,6 @@
         </div>
       </div>
 
-      <!-- Topbar Controls -->
       <div class="flex items-center gap-1.5">
         <button onclick="toggleVisuals()" id="visualToggleBtn" class="text-gray-400 hover:text-white bg-white/5 border border-white/5 px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors">
           <i class="fas fa-expand"></i> <span class="hidden md:inline">3D Grid On</span>
@@ -305,24 +319,18 @@
       </div>
     </header>
 
-    <!-- Chat Messages Screen -->
     <div class="flex-1 overflow-y-auto px-4 md:px-12 py-6 flex flex-col gap-5" id="messages">
-      <!-- Welcome Landing State rendered dynamically -->
-    </div>
+      </div>
 
-    <!-- Contextual Suggestion Slider Container (ONLY visible when conversation has NOT started) -->
     <div class="px-4 md:px-12" id="contextualSuggestionsWrap">
       <div class="max-w-4xl mx-auto flex flex-wrap gap-2 py-1.5 overflow-x-auto no-scrollbar" id="contextSuggestions">
-        <!-- Suggestions are generated contextually here -->
-      </div>
+        </div>
     </div>
 
-    <!-- Text Composer & Input Controls -->
     <div class="p-3 md:p-6 bg-gradient-to-t from-black/80 to-transparent">
       <div class="max-w-4xl mx-auto">
         <div class="bg-zinc-900/90 border border-white/5 rounded-2xl p-2 md:p-3 shadow-2xl backdrop-blur-xl relative">
           
-          <!-- Smart Persona Menu Popover / Bottom Sheet Drawer -->
           <div id="personaMenu" class="bg-zinc-950 border-t md:border border-white/10 p-4 md:p-3 shadow-2xl rounded-t-3xl md:rounded-2xl flex flex-col gap-2.5 pointer-events-none opacity-0 md:opacity-0 transition-all duration-300">
             <div class="flex items-center justify-between border-b border-white/5 pb-2 md:hidden">
               <div class="flex items-center gap-2">
@@ -368,14 +376,11 @@
             </div>
           </div>
 
-          <!-- Input Area controls -->
           <div class="flex items-end gap-2 md:gap-3">
-            <!-- Smart Voice Speech to Text Input -->
             <button id="micBtn" onclick="toggleSpeechRecognition()" class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition-all shrink-0" title="Voice Dictation">
               <i class="fas fa-microphone text-base" id="micIcon"></i>
             </button>
 
-            <!-- Dynamic Plus Persona Trigger Button -->
             <button id="plusBtn" onclick="togglePersonaMenu(event)" class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-emerald-400 flex items-center justify-center transition-all shrink-0" title="Select Operational Persona">
               <i class="fas fa-plus text-sm"></i>
             </button>
@@ -402,7 +407,6 @@
   </main>
 </div>
 
-<!-- Custom Settings Modal -->
 <div id="settingsModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
   <div id="settingsModalCard" class="bg-zinc-950 border border-white/10 rounded-3xl w-full max-w-lg p-5 md:p-6 m-4 shadow-2xl transform scale-95 transition-all duration-300 flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between border-b border-white/10 pb-3">
@@ -415,10 +419,8 @@
       </button>
     </div>
 
-    <!-- Settings Options -->
     <div class="flex flex-col gap-3 md:gap-4">
       
-      <!-- Engine Selector -->
       <div>
         <label class="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5 font-mono">
           <i class="fas fa-server mr-1"></i> Native Engine Pipeline
@@ -429,7 +431,18 @@
         </select>
       </div>
 
-      <!-- Glow HUD Color Customization -->
+      <div>
+        <div class="flex justify-between items-center mb-1">
+          <label class="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider font-mono">
+            <i class="fas fa-microchip mr-1"></i> LLM Temperature Matrix
+          </label>
+          <span id="tempValueDisplay" class="text-[10px] text-emerald-400 font-mono font-bold">0.7</span>
+        </div>
+        <input type="range" id="apiTemperature" min="0.0" max="1.2" step="0.1" value="0.7" 
+          oninput="document.getElementById('tempValueDisplay').textContent = this.value"
+          class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+      </div>
+
       <div>
         <label class="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5 font-mono">
           <i class="fas fa-palette mr-1"></i> Interactive Accent Glow Theme
@@ -443,7 +456,6 @@
         </div>
       </div>
 
-      <!-- Speech Settings -->
       <div>
         <label class="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5 font-mono">
           <i class="fas fa-volume-up mr-1"></i> Built-In Reader Synthesis Accent
@@ -458,7 +470,6 @@
 
     </div>
 
-    <!-- Actions -->
     <div class="flex gap-3 mt-3 pt-3 border-t border-white/10">
       <button onclick="resetSettings()" class="flex-1 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl py-2.5 text-xs font-semibold text-gray-400 transition-colors">
         Restore Defaults
@@ -491,6 +502,7 @@ let currentAccent = localStorage.getItem("mr7_v5_accent") || "#10a37f";
 let currentAccentGlow = localStorage.getItem("mr7_v5_accent_glow") || "rgba(16,163,127,0.15)";
 let activeVoiceAccent = localStorage.getItem("mr7_v5_voice_accent") || "en-US";
 let activeEngine = localStorage.getItem("mr7_v5_engine") || "groq"; 
+let currentTemperature = parseFloat(localStorage.getItem("mr7_v5_temp") || "0.7");
 let isGenerating = false;
 let is3DActive = localStorage.getItem("mr7_v5_3d") !== "false";
 let isPersonaMenuOpen = false;
@@ -597,6 +609,8 @@ window.addEventListener("load", () => {
   // Set selectors
   document.getElementById("apiEngine").value = activeEngine;
   document.getElementById("ttsAccent").value = activeVoiceAccent;
+  document.getElementById("apiTemperature").value = currentTemperature;
+  document.getElementById("tempValueDisplay").textContent = currentTemperature;
 
   // Auto-collapse sidebar on mobile screens on initial loads
   if (window.innerWidth < 768) {
@@ -639,6 +653,54 @@ function updateDynamicLogoAndBranding() {
   document.querySelectorAll(".brandTextPrimary").forEach(el => el.textContent = BRAND_NAME.split(' ')[0]);
   document.querySelectorAll(".brandTextSecondary").forEach(el => el.textContent = BRAND_NAME.split(' ')[1] || BRAND_ACCENT);
   document.querySelectorAll(".brandFooterText").forEach(el => el.textContent = `${BRAND_NAME} · PROPRIETARY INTELLIGENCE SYSTEM · CREATED BY MR7 TEAM`);
+}
+
+/* ---------- Local Chat History Persistence (Export/Import) ---------- */
+function exportChatMatrixLogs() {
+  try {
+    const logsString = JSON.stringify(chats, null, 2);
+    const dataUri = "data:application/json;charset=utf-8," + encodeURIComponent(logsString);
+    
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataUri);
+    downloadAnchor.setAttribute("download", `mr7_ai_matrix_backup_${Date.now()}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+    
+    triggerToast("Backup Downloaded", "Matrix configuration logs saved securely.");
+  } catch (err) {
+    triggerToast("Export Error", "Failed to compile session matrix logs.", "text-red-400");
+  }
+}
+
+function importChatMatrixLogs(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const parsedChats = JSON.parse(e.target.result);
+      if (typeof parsedChats === 'object' && parsedChats !== null) {
+        chats = { ...chats, ...parsedChats };
+        const keys = Object.keys(parsedChats);
+        if (keys.length > 0) {
+          currentChatId = keys[0];
+        }
+        saveChatsToLocal();
+        renderChatList();
+        renderMessages();
+        triggerToast("Backup Imported", `${keys.length} conversations recovered successfully!`);
+      } else {
+        throw new Error("Invalid structure.");
+      }
+    } catch (err) {
+      triggerToast("Import Failed", "Invalid backup JSON log format.", "text-red-400");
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = ''; // Reset uploader element node
 }
 
 /* ---------- Sidebar & Drawer Controls ---------- */
@@ -833,7 +895,6 @@ function renderMessages() {
           Created proudly by the MR7 Team (Co-founder Md Rehan). Safely write files, design programs, and analyze systems with absolute privacy.
         </p>
 
-        <!-- Only display suggestion chips on empty starter screens -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full mt-8 md:mt-10 px-2">
           ${(suggestionsByPersona[currentPersona] || suggestionsByPersona.friendly).map(s => `
             <button onclick="useSuggestion('${s}')" class="p-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl text-left text-[11px] md:text-xs font-semibold text-gray-300 hover:text-white transition-all flex items-center justify-between group font-sans">
@@ -854,6 +915,10 @@ function renderMessages() {
   document.getElementById("contextualSuggestionsWrap").style.display = "none";
   
   container.innerHTML = chat.messages.map((m, index) => renderMessageBubble(m, index)).join("");
+  
+  // Custom Codeblock Processing with Language Indicators & Quick Copy Buttons
+  processRenderedCodeBlocks(container);
+  
   hljs.highlightAll();
   container.scrollTop = container.scrollHeight;
 }
@@ -893,6 +958,60 @@ function renderMessageBubble(m, idx) {
       </div>
     </div>
   `;
+}
+
+/* ---------- Custom Code Block Elements Enhancer Panel ---------- */
+function processRenderedCodeBlocks(rootElement) {
+  const preBlocks = rootElement.querySelectorAll('pre');
+  preBlocks.forEach((pre) => {
+    // Check if header component bar was already rendered inside it
+    if (pre.previousElementSibling && pre.previousElementSibling.classList.contains('code-block-header-bar')) return;
+    
+    const codeNode = pre.querySelector('code');
+    let identifiedLanguage = 'code';
+    
+    if (codeNode) {
+      const classes = codeNode.className.split(' ');
+      const langClass = classes.find(c => c.startsWith('language-'));
+      if (langClass) {
+        identifiedLanguage = langClass.replace('language-', '').toUpperCase();
+      }
+    }
+
+    // Build unique Top Header elements for raw Markdown code render arrays
+    const headerElement = document.createElement('div');
+    headerElement.className = "code-block-header-bar flex items-center justify-between bg-zinc-900 border-t border-x border-white/5 px-4 py-2 rounded-t-xl text-[10px] text-gray-400 font-mono tracking-wide mt-3";
+    headerElement.innerHTML = `
+      <span class="flex items-center gap-1.5 font-bold text-gray-300">
+        <i class="fas fa-code text-emerald-400 text-[11px]"></i> ${identifiedLanguage}
+      </span>
+      <button onclick="copySnippetDirect(this)" class="hover:text-white flex items-center gap-1.5 px-2 py-0.5 rounded hover:bg-white/5 transition-all">
+        <i class="fas fa-copy text-[10px]"></i> <span>Copy</span>
+      </button>
+    `;
+
+    // Connect header components safely
+    pre.parentNode.insertBefore(headerElement, pre);
+    pre.style.borderTopLeftRadius = "0px";
+    pre.style.borderTopRightRadius = "0px";
+  });
+}
+
+function copySnippetDirect(button) {
+  const codeBlockNode = button.parentNode.nextElementSibling.querySelector('code');
+  if (!codeBlockNode) return;
+  
+  const originalLabel = button.querySelector('span');
+  const originalIcon = button.querySelector('i');
+  
+  navigator.clipboard.writeText(codeBlockNode.innerText).then(() => {
+    originalLabel.textContent = "Copied!";
+    originalIcon.className = "fas fa-check text-emerald-400";
+    setTimeout(() => {
+      originalLabel.textContent = "Copy";
+      originalIcon.className = "fas fa-copy text-[10px]";
+    }, 2000);
+  });
 }
 
 function useSuggestion(s) {
@@ -944,7 +1063,18 @@ async function sendMessage() {
   
   const msgElements = document.getElementById("messages").querySelectorAll(".prose");
   const targetBubble = msgElements[msgElements.length - 1];
-  targetBubble.innerHTML = '<span class="typing-cursor font-semibold text-emerald-400 font-mono text-xs md:text-sm">Connecting Neural Core Pipelines...</span>';
+  
+  // Custom Premium Shimmering Line Layout for Response Buffer Waiting State
+  targetBubble.innerHTML = `
+    <div class="flex flex-col gap-2 py-1">
+      <span class="typing-cursor font-bold text-emerald-400 font-mono text-xs md:text-sm tracking-wider uppercase shimmer-text">
+        Routing Neural Core Pipelines...
+      </span>
+      <div class="w-3/4 h-1.5 bg-white/5 rounded-full overflow-hidden relative">
+        <div class="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-500 to-teal-400 w-1/3 rounded-full animate-bounce" style="animation-duration: 2s"></div>
+      </div>
+    </div>
+  `;
 
   isGenerating = true;
   document.getElementById("sendBtn").disabled = true;
@@ -982,6 +1112,9 @@ async function triggerQuantumTextAPI(chatHistory) {
     contents: contents,
     systemInstruction: {
       parts: [{ text: systemInstructionText }]
+    },
+    generationConfig: {
+      temperature: currentTemperature
     }
   };
 
@@ -1017,7 +1150,8 @@ async function triggerVelocityTextAPI(chatHistory) {
   const payload = {
     model: "llama-3.3-70b-versatile",
     messages: messages,
-    max_tokens: 4096
+    max_tokens: 4096,
+    temperature: currentTemperature
   };
 
   const key = getSecureVL();
@@ -1165,6 +1299,10 @@ function openSettings() {
   modal.style.pointerEvents = "auto";
   const card = document.getElementById("settingsModalCard");
   card.style.transform = "scale(1)";
+  
+  // Set current slider state value
+  document.getElementById("apiTemperature").value = currentTemperature;
+  document.getElementById("tempValueDisplay").textContent = currentTemperature;
 }
 
 function closeSettings() {
@@ -1186,12 +1324,15 @@ function setAccent(hex, glow) {
 function saveAllSettings() {
   const activeEngineVal = document.getElementById("apiEngine").value;
   const selectedAccent = document.getElementById("ttsAccent").value;
+  const targetTemp = parseFloat(document.getElementById("apiTemperature").value);
 
   activeEngine = activeEngineVal;
   activeVoiceAccent = selectedAccent;
+  currentTemperature = targetTemp;
 
   localStorage.setItem("mr7_v5_engine", activeEngine);
   localStorage.setItem("mr7_v5_voice_accent", activeVoiceAccent);
+  localStorage.setItem("mr7_v5_temp", currentTemperature);
   localStorage.setItem("mr7_v5_accent", currentAccent);
   localStorage.setItem("mr7_v5_accent_glow", currentAccentGlow);
 
@@ -1206,13 +1347,21 @@ function resetSettings() {
   currentAccentGlow = "rgba(16,163,127,0.15)";
   activeVoiceAccent = "en-US";
   activeEngine = "groq";
+  currentTemperature = 0.7;
 
   document.getElementById("apiEngine").value = "groq";
   document.getElementById("ttsAccent").value = "en-US";
+  document.getElementById("apiTemperature").value = 0.7;
+  document.getElementById("tempValueDisplay").textContent = 0.7;
   
   document.documentElement.style.setProperty('--accent', currentAccent);
   document.documentElement.style.setProperty('--accent-glow', currentAccentGlow);
 
+  localStorage.setItem("mr7_v5_engine", activeEngine);
+  localStorage.setItem("mr7_v5_voice_accent", activeVoiceAccent);
+  localStorage.setItem("mr7_v5_temp", currentTemperature);
+
+  updateEngineUI();
   closeSettings();
   triggerToast("Calibrated", "Default systemic settings restored successfully.");
 }
@@ -1397,3 +1546,4 @@ function triggerToast(title, message = "", iconClass = "text-emerald-400") {
 </script>
 </body>
 </html>
+
