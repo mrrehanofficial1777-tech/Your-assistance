@@ -302,7 +302,7 @@
 
       <div class="flex items-center gap-1.5">
         <button onclick="toggleVisuals()" id="visualToggleBtn" class="text-gray-400 hover:text-white bg-white/5 border border-white/5 px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors">
-          <i class="fas fa-expand"></i> <span class="hidden md:inline">3D Grid On</span>
+          <i class="fas fa-plus text-[10px] text-emerald-400" id="visualToggleIcon"></i> <span class="hidden md:inline" id="visualToggleText">3D Grid On</span>
         </button>
         <button onclick="openSettings()" class="text-gray-400 hover:text-white bg-white/5 border border-white/5 p-2 rounded-xl text-xs transition-colors" title="Configure Layout">
           <i class="fas fa-sliders-h"></i>
@@ -596,6 +596,19 @@ const systemPrompts = {
   3. TIME AND DATE INQUIRIES: Ask for their country first to calculate accurate local dates/times relative to UTC baseline Friday, May 29, 2026.`
 };
 
+/* ---------- Mobile Web Audio Pipeline Initializer Hook ---------- */
+// Unlock browser engines early via safe user touch interactions
+function forceMobileAudioResume() {
+  if (window.speechSynthesis && window.speechSynthesis.speaking) return;
+  try {
+    const dummyUtterance = new SpeechSynthesisUtterance("");
+    dummyUtterance.volume = 0;
+    window.speechSynthesis.speak(dummyUtterance);
+  } catch (e) { console.log("Speech initialization deferred"); }
+}
+window.addEventListener("touchstart", forceMobileAudioResume, { passive: true });
+window.addEventListener("click", forceMobileAudioResume, { passive: true });
+
 /* ---------- Initialization Entry Point ---------- */
 window.addEventListener("load", () => {
   // Apply Accent Customizations
@@ -628,6 +641,13 @@ window.addEventListener("load", () => {
   updatePersonaUI();
   updateEngineUI();
   init3DSpace();
+
+  // Sync 3D Toggle button UI on reload
+  const btn = document.getElementById("visualToggleBtn");
+  if (!is3DActive) {
+    document.getElementById("bg-canvas").style.opacity = "0";
+    btn.innerHTML = `<i class="fas fa-plus text-[10px] text-emerald-400"></i> <span class="hidden md:inline">3D Grid Off</span>`;
+  }
 
   // Close menus on clicking outside
   window.addEventListener("click", (e) => {
@@ -751,7 +771,6 @@ function toggleSpeechRecognition() {
   }
 }
 
-// Global scope initialization fix for keyboard input execution pipelines
 function handleTextareaKey(e) {
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
@@ -764,7 +783,6 @@ function autoGrow(el) {
   el.style.height = Math.min(el.scrollHeight, 140) + "px";
 }
 
-// Word counter metric node calculation
 function updateCharCount(el) {
   document.getElementById("charCount").textContent = el.value.length;
 }
@@ -900,7 +918,7 @@ function renderMessages() {
           ${(suggestionsByPersona[currentPersona] || suggestionsByPersona.friendly).map(s => `
             <button onclick="useSuggestion('${s}')" class="p-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl text-left text-[11px] md:text-xs font-semibold text-gray-300 hover:text-white transition-all flex items-center justify-between group font-sans">
               <span class="truncate pr-2">${s}</span>
-              <i class="fas fa-arrow-right text-[9px] text-emerald-400 opacity-0 group-hover:opacity-100 transition-all shrink-0"></i>
+              <i class="fas fa-plus text-[9px] text-emerald-400 opacity-0 group-hover:opacity-100 transition-all shrink-0"></i>
             </button>
           `).join("")}
         </div>
@@ -936,7 +954,7 @@ function renderMessageBubble(m, idx) {
         <i class="fas fa-volume-up text-xs text-emerald-400"></i> <span class="audio-label">Read Aloud</span>
       </button>
       <button onclick="copyToClipboard(this, ${idx})" class="px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-[10px] md:text-[11px] font-semibold flex items-center gap-1.5 transition-colors">
-        <i class="fas fa-clone text-xs"></i> <span>Copy Text</span>
+        <i class="fas fa-plus text-xs text-emerald-400"></i> <span>Copy Text</span>
       </button>
     </div>
   ` : "";
@@ -965,7 +983,6 @@ function renderMessageBubble(m, idx) {
 function processRenderedCodeBlocks(rootElement) {
   const preBlocks = rootElement.querySelectorAll('pre');
   preBlocks.forEach((pre) => {
-    // Check if header component bar was already rendered inside it
     if (pre.previousElementSibling && pre.previousElementSibling.classList.contains('code-block-header-bar')) return;
     
     const codeNode = pre.querySelector('code');
@@ -979,7 +996,6 @@ function processRenderedCodeBlocks(rootElement) {
       }
     }
 
-    // Build unique Top Header elements for raw Markdown code render arrays
     const headerElement = document.createElement('div');
     headerElement.className = "code-block-header-bar flex items-center justify-between bg-zinc-900 border-t border-x border-white/5 px-4 py-2 rounded-t-xl text-[10px] text-gray-400 font-mono tracking-wide mt-3";
     headerElement.innerHTML = `
@@ -987,11 +1003,10 @@ function processRenderedCodeBlocks(rootElement) {
         <i class="fas fa-code text-emerald-400 text-[11px]"></i> ${identifiedLanguage}
       </span>
       <button onclick="copySnippetDirect(this)" class="hover:text-white flex items-center gap-1.5 px-2 py-0.5 rounded hover:bg-white/5 transition-all">
-        <i class="fas fa-copy text-[10px]"></i> <span>Copy</span>
+        <i class="fas fa-plus text-[10px] text-emerald-400"></i> <span>Copy</span>
       </button>
     `;
 
-    // Connect header components safely
     pre.parentNode.insertBefore(headerElement, pre);
     pre.style.borderTopLeftRadius = "0px";
     pre.style.borderTopRightRadius = "0px";
@@ -1010,7 +1025,7 @@ function copySnippetDirect(button) {
     originalIcon.className = "fas fa-check text-emerald-400";
     setTimeout(() => {
       originalLabel.textContent = "Copy";
-      originalIcon.className = "fas fa-copy text-[10px]";
+      originalIcon.className = "fas fa-plus text-[10px] text-emerald-400";
     }, 2000);
   });
 }
@@ -1023,7 +1038,6 @@ function useSuggestion(s) {
 function generateSmartContextSuggestions(lastMsg) {
   const container = document.getElementById("contextSuggestions");
   if (!lastMsg) {
-    // Standard starters
     const defaultSuggestions = [
       "Help me design a study plan",
       "Explain relativity in plain words",
@@ -1058,14 +1072,12 @@ async function sendMessage() {
   renderChatList();
   renderMessages();
 
-  // Create temporary loading state
   chat.messages.push({ role: "assistant", content: "" });
   saveChatsToLocal();
   
   const msgElements = document.getElementById("messages").querySelectorAll(".prose");
   const targetBubble = msgElements[msgElements.length - 1];
   
-  // Custom Premium Shimmering Line Layout for Response Buffer Waiting State
   targetBubble.innerHTML = `
     <div class="flex flex-col gap-2 py-1">
       <span class="typing-cursor font-bold text-emerald-400 font-mono text-xs md:text-sm tracking-wider uppercase shimmer-text">
@@ -1090,7 +1102,6 @@ async function sendMessage() {
     chat.messages[chat.messages.length - 1].content = responseText;
   } catch (err) {
     console.error(err);
-    // Graceful customized failover response
     chat.messages[chat.messages.length - 1].content = `⚠️ **Transmission Error:** Deep routing nodes are currently saturated or blocked.\n\nPlease verify your network parameters or check your current Engine settings. Standard local fallback operations remained secure.`;
   } finally {
     isGenerating = false;
@@ -1176,7 +1187,7 @@ async function triggerVelocityTextAPI(chatHistory) {
   return result.choices?.[0]?.message?.content || "*(Velocity buffer matrix error)*";
 }
 
-/* ---------- Instant Native Web Speech API Synthesis ---------- */
+/* ---------- High-Performance Mobile Speech API Synthesis Pipeline ---------- */
 let speechUtterance = null;
 let activeSpeakerBtn = null;
 
@@ -1195,7 +1206,6 @@ function ttsSpeak(btn, messageIndex) {
     return;
   }
 
-  // Cancel any running speech before starting new one
   window.speechSynthesis.cancel();
   if (activeSpeakerBtn) {
     resetActiveSpeaker();
@@ -1206,17 +1216,17 @@ function ttsSpeak(btn, messageIndex) {
   icon.className = "fas fa-stop-circle text-red-500 animate-pulse";
 
   speechUtterance = new SpeechSynthesisUtterance(plainText);
+  
+  // High-reliability fallback map to fetch exact mobile hardware voices
   speechUtterance.lang = activeVoiceAccent;
-  speechUtterance.rate = 1.0;
+  
+  // Safe responsive rate configuration for clear mobile output
+  speechUtterance.rate = 0.95;
 
-  speechUtterance.onend = () => {
-    resetActiveSpeaker();
-  };
+  speechUtterance.onend = () => { resetActiveSpeaker(); };
+  speechUtterance.onerror = () => { resetActiveSpeaker(); };
 
-  speechUtterance.onerror = () => {
-    resetActiveSpeaker();
-  };
-
+  // Native hardware audio trigger thread
   window.speechSynthesis.speak(speechUtterance);
 }
 
@@ -1237,7 +1247,7 @@ function copyToClipboard(btn, index) {
   navigator.clipboard.writeText(text).then(() => {
     btn.innerHTML = `<i class="fas fa-check text-emerald-400"></i> <span>Copied!</span>`;
     setTimeout(() => {
-      btn.innerHTML = `<i class="fas fa-clone text-xs"></i> <span>Copy Text</span>`;
+      btn.innerHTML = `<i class="fas fa-plus text-xs text-emerald-400"></i> <span>Copy Text</span>`;
     }, 2000);
   }).catch(() => {
     triggerToast("Buffer Error", "Failed to access workspace clipboard.", "text-red-400");
@@ -1254,7 +1264,6 @@ function togglePersonaMenu(event) {
     menu.classList.add("open");
     menu.classList.remove("pointer-events-none", "opacity-0");
     
-    // Highlight currently active persona menu option
     const personas = ["friendly", "coder", "writer", "expert"];
     personas.forEach(p => {
       const btn = document.getElementById(`pm-${p}`);
@@ -1301,7 +1310,6 @@ function openSettings() {
   const card = document.getElementById("settingsModalCard");
   card.style.transform = "scale(1)";
   
-  // Set current slider state value
   document.getElementById("apiTemperature").value = currentTemperature;
   document.getElementById("tempValueDisplay").textContent = currentTemperature;
 }
@@ -1314,7 +1322,6 @@ function closeSettings() {
   card.style.transform = "scale(0.95)";
 }
 
-// Hex theme code custom alignment tool
 function setAccent(hex, glow) {
   currentAccent = hex;
   currentAccentGlow = glow;
@@ -1394,19 +1401,21 @@ function updateEngineUI() {
   }
 }
 
+/* ---------- 3D State Switcher (Clean UI Enhancement) ---------- */
 function toggleVisuals() {
   is3DActive = !is3DActive;
   localStorage.setItem("mr7_v5_3d", is3DActive);
   const canvas = document.getElementById("bg-canvas");
   canvas.style.opacity = is3DActive ? "0.45" : "0";
   
-  const btn = document.getElementById("visualToggleBtn");
+  const textEl = document.getElementById("visualToggleText");
+  
   if (is3DActive) {
-    btn.innerHTML = `<i class="fas fa-expand"></i> <span class="hidden md:inline">3D Grid On</span>`;
-    btn.className = "text-gray-400 hover:text-white bg-white/5 border border-white/5 px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors";
+    textEl.textContent = "3D Grid On";
+    triggerToast("Graphics Aligned", "Lattice background network active.");
   } else {
-    btn.innerHTML = `<i class="fas fa-compress text-red-400"></i> <span class="hidden md:inline">3D Grid Off</span>`;
-    btn.className = "text-red-400 border border-red-500/20 bg-red-500/5 px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors";
+    textEl.textContent = "3D Grid Off";
+    triggerToast("Graphics Suspended", "Lattice background disabled for power saving.");
   }
 }
 
@@ -1427,10 +1436,8 @@ function init3DSpace() {
   const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.z = 70;
 
-  // Optimizing particle density for fluid mobile rendering
   const particleCount = window.innerWidth < 768 ? 140 : 300;
   
-  // Generating float array for particle positions
   const geometry = new THREE.BufferGeometry();
   const positions = new Float32Array(particleCount * 3);
   
@@ -1453,11 +1460,9 @@ function init3DSpace() {
   const pointsMesh = new THREE.Points(geometry, material);
   scene.add(pointsMesh);
 
-  // Faint Neural lattice vector lines connecting coordinates
   const lineGeometry = new THREE.BufferGeometry();
   const linePositions = [];
   
-  // Create line pairs between nearby particles
   const posArray = positions;
   for (let i = 0; i < particleCount; i++) {
     for (let j = i + 1; j < particleCount; j++) {
@@ -1466,7 +1471,6 @@ function init3DSpace() {
       const dz = posArray[i*3+2] - posArray[j*3+2];
       const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
       
-      // Connect points if they are close
       if (dist < 32) {
         linePositions.push(posArray[i*3], posArray[i*3+1], posArray[i*3+2]);
         linePositions.push(posArray[j*3], posArray[j*3+1], posArray[j*3+2]);
