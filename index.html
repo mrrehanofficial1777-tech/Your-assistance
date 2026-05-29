@@ -163,15 +163,15 @@
     background: linear-gradient(to bottom, rgba(6,6,8,0.95), transparent);
   }
 
-  /* PREMIUM SCALE & NEON GLOW SPLASH ANIMATION CONFIGURATION */
-  @keyframes cinematicPortalReveal {
-    0% { transform: scale(1); opacity: 0; filter: drop-shadow(0 0 10px rgba(0,210,255,0)); }
-    20% { transform: scale(1.05); opacity: 1; filter: drop-shadow(0 0 35px rgba(0,210,255,0.5)); }
-    80% { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 0 50px rgba(0,210,255,0.7)); }
-    100% { transform: scale(1.35); opacity: 0; filter: blur(6px) drop-shadow(0 0 10px rgba(0,210,255,0)); }
+  /* HIGH BRIGHTNESS LARGE SCALE PORTAL REVEAL ANIMATION */
+  @keyframes massivePortalReveal {
+    0% { transform: scale(0.98); opacity: 0; filter: drop-shadow(0 0 20px rgba(0,210,255,0.4)) brightness(1.2); }
+    15% { transform: scale(1); opacity: 1; filter: drop-shadow(0 0 45px rgba(0,210,255,0.9)) brightness(1.5); }
+    80% { transform: scale(1.08); opacity: 1; filter: drop-shadow(0 0 60px rgba(0,210,255,1)) brightness(1.5); }
+    100% { transform: scale(1.35); opacity: 0; filter: blur(12px) brightness(1.8); }
   }
   .animate-portal-splash {
-    animation: cinematicPortalReveal 2.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: massivePortalReveal 2.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
   @media (max-width: 767px) {
@@ -227,9 +227,9 @@
 </head>
 <body class="relative h-screen w-screen overflow-hidden flex flex-col" style="height:100dvh">
 
-<div id="appCinematicPortalLayer" class="fixed inset-0 bg-[#060608] z-[9999] flex flex-col items-center justify-center pointer-events-none transition-opacity duration-500">
+<div id="appCinematicPortalLayer" class="fixed inset-0 bg-[#060608] z-[9999] flex flex-col items-center justify-center pointer-events-none transition-opacity duration-600">
   <div class="flex flex-col items-center text-center animate-portal-splash">
-    <img src="logo.png" alt="MR7 Core" class="w-48 h-48 md:w-56 md:h-56 object-contain mb-2 select-none pointer-events-none">
+    <img src="logo.png" alt="MR7 Core" class="w-72 h-72 md:w-[450px] md:h-[450px] object-contain mb-2 select-none pointer-events-none">
   </div>
 </div>
 
@@ -724,7 +724,7 @@ window.addEventListener("load", () => {
     const portalLayer = document.getElementById("appCinematicPortalLayer");
     if (portalLayer) {
       portalLayer.style.opacity = "0";
-      setTimeout(() => portalLayer.remove(), 500);
+      setTimeout(() => portalLayer.remove(), 600);
     }
   }, 2200);
 });
@@ -1151,7 +1151,6 @@ function processRenderedCodeBlocks(rootElement) {
   });
 }
 
-// Global scope logic elements wrapper tracking 
 function copySnippetDirect(button) {
   const codeBlockNode = button.parentNode.nextElementSibling.querySelector('code');
   if (!codeBlockNode) return;
