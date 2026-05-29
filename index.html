@@ -862,7 +862,7 @@ function importChatMatrixLogs(event) {
   event.target.value = ''; 
 }
 
-/* FIXED SIDEBAR TOGGLE LAYER: Properly manages overlay states and unblocks click paths */
+/* FIXED SIDEBAR TOGGLE LAYER: Strict execution check for viewport changes to prevent pointer traps */
 function toggleSidebar() {
   hapticFeedback();
   const sidebar = document.getElementById("sidebar");
@@ -872,6 +872,7 @@ function toggleSidebar() {
   if (!isMobile) {
     overlay.classList.add("hidden");
     overlay.style.pointerEvents = "none";
+    overlay.style.opacity = "0";
     return;
   }
 
@@ -1449,10 +1450,26 @@ function init3DSpace() {
   }
   renderLoop();
 
+  /* Window resize logic block to dynamically re-evaluate overlay pointer constraints */
   window.addEventListener("resize", () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    
+    const overlay = document.getElementById("sidebarOverlay");
+    if (window.innerWidth >= 768) {
+      overlay.classList.add("hidden");
+      overlay.style.pointerEvents = "none";
+      overlay.style.opacity = "0";
+      document.getElementById("sidebar").classList.remove("-translate-x-full");
+    } else {
+      if (!overlay.classList.contains("hidden") && overlay.style.opacity === "1") {
+        overlay.style.pointerEvents = "auto";
+      } else {
+        overlay.classList.add("hidden");
+        overlay.style.pointerEvents = "none";
+      }
+    }
   });
 }
 
@@ -1462,4 +1479,3 @@ function triggerToast(title, message = "", iconClass = "text-emerald-400") {
 </script>
 </body>
 </html>
-
