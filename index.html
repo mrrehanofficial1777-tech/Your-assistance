@@ -163,12 +163,13 @@
     background: linear-gradient(to bottom, rgba(6,6,8,0.95), transparent);
   }
 
-  /* HIGH BRIGHTNESS LARGE SCALE PORTAL REVEAL ANIMATION */
+  /* RE-OPTIMIZED SMOOTH OPENING ANIMATION PIPELINE WITH NO BLOCKERS */
   @keyframes massivePortalReveal {
     0% { transform: scale(0.98); opacity: 0; filter: drop-shadow(0 0 20px rgba(0,210,255,0.4)) brightness(1.2); }
     15% { transform: scale(1); opacity: 1; filter: drop-shadow(0 0 45px rgba(0,210,255,0.9)) brightness(1.5); }
-    80% { transform: scale(1.08); opacity: 1; filter: drop-shadow(0 0 60px rgba(0,210,255,1)) brightness(1.5); }
-    100% { transform: scale(1.35); opacity: 0; filter: blur(12px) brightness(1.8); }
+    75% { transform: scale(1.08); opacity: 1; filter: drop-shadow(0 0 60px rgba(0,210,255,1)) brightness(1.5); }
+    99% { transform: scale(1.3); opacity: 0; filter: blur(12px) brightness(1.8); }
+    100% { transform: scale(1.3); opacity: 0; visibility: hidden; }
   }
   .animate-portal-splash {
     animation: massivePortalReveal 2.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -227,7 +228,7 @@
 </head>
 <body class="relative h-screen w-screen overflow-hidden flex flex-col" style="height:100dvh">
 
-<div id="appCinematicPortalLayer" class="fixed inset-0 bg-[#060608] z-[9999] flex flex-col items-center justify-center pointer-events-none transition-opacity duration-600">
+<div id="appCinematicPortalLayer" class="fixed inset-0 bg-[#060608] z-[9999] flex flex-col items-center justify-center pointer-events-auto transition-all duration-500">
   <div class="flex flex-col items-center text-center animate-portal-splash">
     <img src="logo.png" alt="MR7 Core" class="w-72 h-72 md:w-[450px] md:h-[450px] object-contain mb-2 select-none pointer-events-none">
   </div>
@@ -720,11 +721,15 @@ window.addEventListener("load", () => {
     navigator.serviceWorker.register(URL.createObjectURL(inlineBlobWorker)).catch(err => {});
   }
 
+  /* HARD CODED REVEAL INJECTOR: Deletes the splash node after animation ends to show dashboard natively */
   setTimeout(() => {
     const portalLayer = document.getElementById("appCinematicPortalLayer");
     if (portalLayer) {
       portalLayer.style.opacity = "0";
-      setTimeout(() => portalLayer.remove(), 600);
+      portalLayer.style.pointerEvents = "none";
+      setTimeout(() => {
+        portalLayer.remove();
+      }, 600);
     }
   }, 2200);
 });
@@ -997,6 +1002,7 @@ function initSwipeToDelete(elementId) {
   });
 }
 
+// Memory local sync pipelines
 function saveChatsToLocal() {
   localStorage.setItem("mr7_v5_chats", JSON.stringify(chats));
   localStorage.setItem("mr7_v5_current", currentChatId);
@@ -1453,3 +1459,4 @@ function init3DSpace() {
 </script>
 </body>
 </html>
+
