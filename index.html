@@ -128,7 +128,7 @@
 
   #sidebarOverlay {
     background: rgba(0, 0, 0, 0.75);
-    transition: opacity 0.2s linear;
+    transition: opacity 0.2s linear, visibility 0.2s;
   }
 
   .no-scrollbar::-webkit-scrollbar {
@@ -862,7 +862,7 @@ function importChatMatrixLogs(event) {
   event.target.value = ''; 
 }
 
-/* Restructured toggle logic layer to cleanly unblock pointer interactions on desktop views */
+/* FIXED SIDEBAR TOGGLE LAYER: Properly manages overlay states and unblocks click paths */
 function toggleSidebar() {
   hapticFeedback();
   const sidebar = document.getElementById("sidebar");
@@ -871,6 +871,7 @@ function toggleSidebar() {
 
   if (!isMobile) {
     overlay.classList.add("hidden");
+    overlay.style.pointerEvents = "none";
     return;
   }
 
@@ -879,11 +880,12 @@ function toggleSidebar() {
   if (isHidden) {
     sidebar.classList.remove("-translate-x-full");
     overlay.classList.remove("hidden");
-    overlay.classList.remove("pointer-events-none");
+    overlay.style.pointerEvents = "auto";
     overlay.style.opacity = "1";
   } else {
     sidebar.classList.add("-translate-x-full");
     overlay.style.opacity = "0";
+    overlay.style.pointerEvents = "none";
     overlay.classList.add("hidden");
   }
 }
@@ -1460,3 +1462,4 @@ function triggerToast(title, message = "", iconClass = "text-emerald-400") {
 </script>
 </body>
 </html>
+
