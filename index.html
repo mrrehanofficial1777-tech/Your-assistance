@@ -127,7 +127,7 @@
   }
 
   #sidebarOverlay {
-    background: rgba(0, 0, 0, 0.75);
+    background: rgba(0, 0, 0, 0.8);
     transition: opacity 0.2s linear;
   }
 
@@ -231,11 +231,11 @@
   <span id="toast-msg" class="text-xs md:text-sm font-medium">System Aligned!</span>
 </div>
 
-<div id="sidebarOverlay" class="fixed inset-0 z-30 hidden opacity-0" onclick="toggleSidebar()"></div>
+<div id="sidebarOverlay" class="fixed inset-0 z-40 hidden opacity-0" onclick="toggleSidebar()"></div>
 
 <div class="relative z-10 flex h-full w-full overflow-hidden">
   
-  <aside id="sidebar" class="fixed md:relative inset-y-0 left-0 w-72 md:w-80 bg-zinc-950 md:bg-black/55 backdrop-blur-2xl border-r border-white/5 flex flex-col justify-between transition-transform duration-300 transform -translate-x-full md:translate-x-0 z-40">
+  <aside id="sidebar" class="fixed md:relative inset-y-0 left-0 w-72 md:w-80 bg-zinc-950 md:bg-black/55 backdrop-blur-2xl border-r border-white/5 flex flex-col justify-between transition-transform duration-300 transform -translate-x-full md:translate-x-0 z-50">
     <div>
       <div class="p-5 border-b border-white/5 flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -862,7 +862,7 @@ function importChatMatrixLogs(event) {
   event.target.value = ''; 
 }
 
-/* Restructured toggle logic layer to cleanly unblock pointer interactions on desktop views */
+/* Reconfigured display loop matrix to make sure mobile layers unroll cleanly on touch triggers */
 function toggleSidebar() {
   hapticFeedback();
   const sidebar = document.getElementById("sidebar");
@@ -879,7 +879,6 @@ function toggleSidebar() {
   if (isHidden) {
     sidebar.classList.remove("-translate-x-full");
     overlay.classList.remove("hidden");
-    overlay.classList.remove("pointer-events-none");
     overlay.style.opacity = "1";
   } else {
     sidebar.classList.add("-translate-x-full");
