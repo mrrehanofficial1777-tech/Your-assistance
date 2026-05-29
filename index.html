@@ -126,9 +126,11 @@
     transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
   }
 
-  /* FIXED CSS OVERLAY: Transition removed to stop residual block bugs */
+  /* TRANSPARENT GLASS LOOK FIX: Removed dark background, added light backdrop blur */
   #sidebarOverlay {
-    background: rgba(0, 0, 0, 0.75);
+    background: rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
   }
 
   .no-scrollbar::-webkit-scrollbar {
@@ -611,7 +613,7 @@ const systemPrompts = {
   friendly: `You are ${BRAND_NAME}, a highly advanced cognitive intelligence platform created by the "MR7 Team" (co-founded by "Md Rehan"). Base current date is Friday, May 29, 2026. Match input syntax perfect.`,
   coder: `You are ${BRAND_NAME}, an elite Software Architect created by the "MR7 Team" (co-founded by "Md Rehan").`,
   writer: `You are ${BRAND_NAME}, a creative copywriter and poet built by the "MR7 Team" (co-founded by "Md Rehan").`,
-  expert: `You are ${BRAND_NAME}, a technical research consultant built by the "MR7 Team" (co-founded by "Md Rehan").`
+  expert: `You are ${BRAND_NAME}, a technical research consultant built by the "MR7 Team" (co-focused by "Md Rehan").`
 };
 
 let speechUtterance = null;
@@ -710,7 +712,6 @@ window.addEventListener("load", () => {
     btn.querySelector("span").textContent = "3D Grid Off";
   }
 
-  /* FIXED TARGET PATH WINDOW CLICK LISTENER: Stops global event pollution and pointer-traps */
   window.addEventListener("click", (e) => {
     if (document.getElementById("sidebarToggle").contains(e.target) || document.getElementById("sidebar").contains(e.target)) {
       return;
@@ -874,7 +875,6 @@ function importChatMatrixLogs(event) {
   event.target.value = ''; 
 }
 
-/* FIXED SIDEBAR TOGGLE LAYER: Sharp pointer constraint injection across mobile/desktop scales */
 function toggleSidebar() {
   hapticFeedback();
   const sidebar = document.getElementById("sidebar");
