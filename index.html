@@ -163,6 +163,17 @@
     background: linear-gradient(to bottom, rgba(6,6,8,0.95), transparent);
   }
 
+  /* CINEMATIC APP STARTUP LAYER SPLASH ANIMATIONS SETUP */
+  @keyframes dynamicPortalReveal {
+    0% { transform: scale(0.92); opacity: 0; }
+    15% { transform: scale(1); opacity: 1; filter: drop-shadow(0 0 15px rgba(0,210,255,0.3)); }
+    85% { transform: scale(1.03); opacity: 1; filter: drop-shadow(0 0 30px rgba(0,210,255,0.6)); }
+    100% { transform: scale(1.4); opacity: 0; filter: blur(8px); }
+  }
+  .animate-portal-splash {
+    animation: dynamicPortalReveal 2.1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  }
+
   @media (max-width: 767px) {
     #personaMenu {
       position: fixed;
@@ -216,6 +227,12 @@
 </head>
 <body class="relative h-screen w-screen overflow-hidden flex flex-col" style="height:100dvh">
 
+<div id="appCinematicPortalLayer" class="fixed inset-0 bg-[#060608] z-[9999] flex flex-col items-center justify-center pointer-events-none transition-opacity duration-500">
+  <div class="flex flex-col items-center max-w-[85%] text-center animate-portal-splash">
+    <img src="logo.png" alt="MR7 Core" class="w-24 h-24 object-contain mb-2">
+  </div>
+</div>
+
 <canvas id="bg-canvas"></canvas>
 
 <input type="file" id="userWorkspaceUploaderInput" class="hidden" accept="image/*, .pdf, .txt, .doc, .docx, .json" onchange="handleWorkspaceFileUpload(event)">
@@ -241,7 +258,7 @@
     <div>
       <div class="p-5 border-b border-white/5 items-center justify-between flex">
         <div class="flex items-center gap-3">
-          <div class="w-11 h-11 rounded-[14px] bg-gradient-to-br from-emerald-400 via-teal-500 to-emerald-600 flex items-center justify-center text-black font-black text-2xl shadow-lg shadow-emerald-500/20 border border-white/10 tracking-tighter" id="brandLogo" style="box-shadow: 0 0 20px rgba(16, 163, 127, 0.45);">
+          <div class="w-11 h-11 rounded-[14px] bg-gradient-to-br from-emerald-400 via-teal-500 to-emerald-600 flex items-center justify-center text-black font-black text-2xl shadow-lg border border-white/10 tracking-tighter shrink-0" id="brandLogo" style="box-shadow: 0 0 22px rgba(16, 163, 127, 0.45);">
             M
           </div>
           <div>
@@ -326,8 +343,12 @@
       </div>
 
       <div class="flex items-center gap-1.5">
-        <button onclick="toggleVisuals()" id="visualToggleBtn" class="text-gray-300 hover:text-white bg-gradient-to-r from-emerald-500/10 to-teal-500/10 hover:from-emerald-500/20 hover:to-teal-500/20 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-md shadow-emerald-950/40 tracking-wide">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> <span id="visualToggleText">3D Grid On</span>
+        <button onclick="toggleVisuals()" id="visualToggleBtn" class="text-gray-300 hover:text-white bg-gradient-to-r from-emerald-500/10 via-transparent to-teal-500/10 hover:from-emerald-500/20 hover:to-teal-500/20 border border-emerald-500/30 px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-md shadow-emerald-950/40 tracking-wide">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span id="visualToggleText">3D Grid On</span>
         </button>
         <button onclick="openSettings()" class="text-gray-400 hover:text-white bg-white/5 border border-white/5 p-2 rounded-xl text-xs transition-colors" title="Configure Layout">
           <i class="fas fa-sliders-h"></i>
@@ -517,7 +538,7 @@
 
 <script>
 const BRAND_NAME = "MR7 AI"; 
-const BRAND_ACCENT = "ai"; // Changed to lower-case matrix
+const BRAND_ACCENT = "ai"; 
 
 const EM_QA_KEY_B64 = "QUl6YVN5Q3Q1cFBwLXI1UEVnTU1sM1NFUzI5dkNXZFJsMklrWUF3"; 
 const EM_VL_KEY_B64 = "WjNOclgzcGhiVTl5U1RCTFpITTJTSGRHYkdkdFZucG1WMGRrZVdJelJsbHRNMWRVVEdsMFN6ZHpRblpVZUZSVGEyeDRiRk5MZDNRPQ=="; 
@@ -541,7 +562,7 @@ let isRadialOpen = false;
 let lastScrollTop = 0;
 let pointsMesh, lineMesh, material, lineMaterial, renderer;
 
-// Master suggestion prompt bank for randomized mapping pipelines
+// Master suggestion prompt bank for deep randomized mapping workflows
 const globalPromptLibrary = [
   "Who is your co-founder and creator? 🌟",
   "How can I manage my schedule effectively?",
@@ -550,7 +571,7 @@ const globalPromptLibrary = [
   "Write a robust clean algorithm to find missing matrix sequences",
   "Design a modern clean CSS login screen snippet code",
   "Explain how server-side rendering acts against standard static single pages",
-  "Give me 5 premium high-conversion startup business name concepts",
+  "Give me 5 premium high-conversion concept logs for a modern business startup",
   "Compose a short poetic narrative outlining digital cyberspace landscapes",
   "Analyze structural differences between synchronous and event-driven backends",
   "How do transformers handle weights during self-attention processing loops?",
@@ -701,6 +722,15 @@ window.addEventListener("load", () => {
     `], { type: 'application/javascript' });
     navigator.serviceWorker.register(URL.createObjectURL(inlineBlobWorker)).catch(err => {});
   }
+
+  /* AUTOMATED DESTRUCTION TIMEOUT FOR ANIMATED PORTAL LAYER SPLASH SCREEN */
+  setTimeout(() => {
+    const portalLayer = document.getElementById("appCinematicPortalLayer");
+    if (portalLayer) {
+      portalLayer.style.opacity = "0";
+      setTimeout(() => portalLayer.remove(), 500);
+    }
+  }, 2000);
 });
 
 function updateDynamicLogoAndBranding() {
@@ -1022,7 +1052,6 @@ function renderMessages() {
   const chat = chats[currentChatId];
 
   if (!chat || chat.messages.length === 0) {
-    // DYNAMIC RECOMMENDATION INJECTOR GENERATOR PIPELINE
     const currentRandomPrompts = getRandomPromptSet();
 
     container.innerHTML = `
@@ -1348,7 +1377,6 @@ function useSuggestion(text) {
   }
 }
 
-// Security sanitization matrix redirect mapping 
 function escapeHtml(s) {
   return (s || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
@@ -1442,10 +1470,7 @@ function init3DSpace() {
     }
   });
 }
-
-function triggerToast(title, message = "", iconClass = "text-emerald-400") {
-  // Silent operations matrix redirection
-}
 </script>
 </body>
 </html>
+
