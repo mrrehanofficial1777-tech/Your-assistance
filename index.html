@@ -136,6 +136,27 @@
       transform: translateY(0);
       pointer-events: auto;
     }
+
+    /* Mobile: bigger tap targets for all buttons */
+    button {
+      min-height: 36px;
+    }
+    #sendBtn {
+      width: 44px !important;
+      height: 44px !important;
+    }
+    #micBtn, #plusBtn {
+      width: 42px !important;
+      height: 42px !important;
+    }
+    /* Mobile: sidebar full height scroll fix */
+    #sidebar {
+      height: 100dvh;
+    }
+    /* Mobile: chat area uses dvh for proper keyboard handling */
+    body {
+      height: 100dvh;
+    }
   }
 
   @media (min-width: 768px) {
@@ -157,7 +178,7 @@
   }
 </style>
 </head>
-<body class="relative h-screen w-screen overflow-hidden flex flex-col">
+<body class="relative h-screen w-screen overflow-hidden flex flex-col" style="height:100dvh">
 
 <canvas id="bg-canvas"></canvas>
 
@@ -626,19 +647,26 @@ function toggleSidebar() {
   const overlay = document.getElementById("sidebarOverlay");
   const isMobile = window.innerWidth < 768;
 
-  if (sidebar.classList.contains("-translate-x-full")) {
+  const isHidden = sidebar.classList.contains("-translate-x-full");
+
+  if (isHidden) {
     sidebar.classList.remove("-translate-x-full");
-    // Only show blur overlay on mobile
     if (isMobile) {
       overlay.classList.remove("hidden");
-      setTimeout(() => overlay.classList.add("opacity-100"), 10);
+      overlay.style.opacity = "0";
+      requestAnimationFrame(() => {
+        overlay.style.transition = "opacity 0.25s ease";
+        overlay.style.opacity = "1";
+      });
     }
   } else {
     sidebar.classList.add("-translate-x-full");
-    // Only hide overlay if it was shown (mobile)
     if (isMobile) {
-      overlay.classList.remove("opacity-100");
-      setTimeout(() => overlay.classList.add("hidden"), 250);
+      overlay.style.opacity = "0";
+      setTimeout(() => {
+        overlay.classList.add("hidden");
+        overlay.style.opacity = "";
+      }, 250);
     }
   }
 }
