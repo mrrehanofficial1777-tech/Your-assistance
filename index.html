@@ -239,13 +239,13 @@
   
   <aside id="sidebar" class="fixed md:relative inset-y-0 left-0 w-72 md:w-80 bg-zinc-950 md:bg-black/55 backdrop-blur-2xl border-r border-white/5 flex flex-col justify-between transition-transform duration-300 transform -translate-x-full md:translate-x-0 z-40">
     <div>
-      <div class="p-5 border-b border-white/5 flex items-center justify-between">
+      <div class="p-5 border-b border-white/5 items-center justify-between flex">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-black font-extrabold text-2xl shadow-lg shadow-emerald-500/20" id="brandLogo">
+          <div class="w-11 h-11 rounded-[14px] bg-gradient-to-br from-emerald-400 via-teal-500 to-emerald-600 flex items-center justify-center text-black font-black text-2xl shadow-lg shadow-emerald-500/20 border border-white/10 tracking-tighter" id="brandLogo" style="box-shadow: 0 0 20px rgba(16, 163, 127, 0.45);">
             M
           </div>
           <div>
-            <h1 class="text-lg font-bold tracking-tight"><span class="brandTextPrimary">MR7</span> <span class="text-emerald-400 brandTextSecondary">AI</span></h1>
+            <h1 class="text-lg font-bold tracking-tight"><span class="brandTextPrimary">MR7</span> <span class="text-emerald-400 brandTextSecondary">ai</span></h1>
             <p class="text-[9px] text-gray-500 font-mono tracking-wider uppercase">Enterprise Core</p>
           </div>
         </div>
@@ -255,7 +255,7 @@
       </div>
 
       <div class="p-4">
-        <button onclick="newChat(); toggleSidebarIfMobile();" class="w-full bg-white/5 hover:bg-white/10 border border-white/5 text-white rounded-2xl py-3 px-4 flex items-center justify-center gap-2 font-medium transition-all group hover:shadow-lg text-sm">
+        <button onclick="newChat(); toggleSidebarIfMobile();" class="w-full bg-white/5 hover:bg-white/10 border border-white/5 text-white rounded-2xl py-3 px-4 flex items-center justify-center gap-2 font-medium transition-all group hover:shadow-lg text-sm" style="position: relative; z-index: 50;">
           <i class="fas fa-plus text-xs text-emerald-400 group-hover:rotate-90 transition-transform"></i>
           <span>New Conversation</span>
         </button>
@@ -268,10 +268,10 @@
         </div>
       </div>
 
-      <div class="px-2 flex flex-col gap-1 overflow-y-auto max-h-[35vh] md:max-h-[40vh]" id="chatList"></div>
+      <div class="px-2 flex flex-col gap-1 overflow-y-auto max-h-[35vh] md:max-h-[40vh]" id="chatList" style="position: relative; z-index: 50;"></div>
     </div>
 
-    <div class="p-4 border-t border-white/5 bg-black/20 flex flex-col gap-3">
+    <div class="p-4 border-t border-white/5 bg-black/20 flex flex-col gap-3" style="position: relative; z-index: 50;">
       <div class="bg-black/40 rounded-xl p-3 border border-white/5 flex flex-col gap-1.5 text-[9px] font-mono text-gray-500">
         <div class="flex justify-between items-center text-gray-400 font-semibold border-b border-white/5 pb-1 mb-1">
           <span>DIAGNOSTIC TELEMETRY</span>
@@ -326,8 +326,8 @@
       </div>
 
       <div class="flex items-center gap-1.5">
-        <button onclick="toggleVisuals()" id="visualToggleBtn" class="text-gray-400 hover:text-white bg-white/5 border border-white/5 px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors">
-          <i class="fas fa-plus text-[10px] text-emerald-400"></i> <span class="hidden md:inline" id="visualToggleText">3D Grid On</span>
+        <button onclick="toggleVisuals()" id="visualToggleBtn" class="text-gray-300 hover:text-white bg-gradient-to-r from-emerald-500/10 to-teal-500/10 hover:from-emerald-500/20 hover:to-teal-500/20 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-md shadow-emerald-950/40 tracking-wide">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> <span id="visualToggleText">3D Grid On</span>
         </button>
         <button onclick="openSettings()" class="text-gray-400 hover:text-white bg-white/5 border border-white/5 p-2 rounded-xl text-xs transition-colors" title="Configure Layout">
           <i class="fas fa-sliders-h"></i>
@@ -410,11 +410,10 @@
 
             <textarea id="input" rows="1" placeholder="Type a message, or ask coding questions..." 
               onkeydown="handleTextareaKey(event)"
-              oninput="autoGrow(this); updateCharCount(this)" 
+              oninput="autoGrow(this);" 
               class="flex-1 bg-transparent border-0 text-white placeholder-gray-500 focus:ring-0 focus:outline-none text-sm md:text-[15px] resize-none max-h-36 min-h-[24px] py-2 pl-2"></textarea>
             
             <div class="flex items-center gap-1 pr-1">
-              <span id="charCount" class="text-[9px] text-gray-500 font-mono hidden sm:inline">0</span>
               <button onclick="clearInput()" class="w-8 h-8 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white flex items-center justify-center transition-colors" title="Clear Entry">
                 <i class="fas fa-trash-alt text-xs"></i>
               </button>
@@ -518,7 +517,7 @@
 
 <script>
 const BRAND_NAME = "MR7 AI"; 
-const BRAND_ACCENT = "AI";
+const BRAND_ACCENT = "ai"; // Changed to lower-case matrix
 
 const EM_QA_KEY_B64 = "QUl6YVN5Q3Q1cFBwLXI1UEVnTU1sM1NFUzI5dkNXZFJsMklrWUF3"; 
 const EM_VL_KEY_B64 = "WjNOclgzcGhiVTl5U1RCTFpITTJTSGRHYkdkdFZucG1WMGRrZVdJelJsbHRNMWRVVEdsMFN6ZHpRblpVZUZSVGEyeDRiRk5MZDNRPQ=="; 
@@ -542,32 +541,26 @@ let isRadialOpen = false;
 let lastScrollTop = 0;
 let pointsMesh, lineMesh, material, lineMaterial, renderer;
 
-const suggestionsByPersona = {
-  friendly: [
-    "Who is your co-founder and creator? 🌟",
-    "How can I manage my schedule effectively?",
-    "Explain space-time relativity using a direct analogy!",
-    "Give me some fun ideas to practice active learning"
-  ],
-  coder: [
-    "Write a reliable rate limiter decorator in Python",
-    "Explain the absolute differences between REST and GraphQL",
-    "Optimize a highly nested SQL database query",
-    "Write test cases for verification of user auth modules"
-  ],
-  writer: [
-    "Write an engaging cinematic introduction about space exploring",
-    "Generate premium branding names for a sustainable fashion store",
-    "Compose an inspiring narrative explaining perseverance",
-    "Help me outline a thrilling modern science-fiction plot"
-  ],
-  expert: [
-    "Analyze the structural layers of advanced neural network layers",
-    "Deconstruct structural patterns in financial system models",
-    "Explain how Quantum Entanglement operates on atomic planes",
-    "Summarize complex historical economic events clearly"
-  ]
-};
+// Master suggestion prompt bank for randomized mapping pipelines
+const globalPromptLibrary = [
+  "Who is your co-founder and creator? 🌟",
+  "How can I manage my schedule effectively?",
+  "Explain space-time relativity using a direct analogy!",
+  "Give me some fun ideas to practice active learning",
+  "Write a robust clean algorithm to find missing matrix sequences",
+  "Design a modern clean CSS login screen snippet code",
+  "Explain how server-side rendering acts against standard static single pages",
+  "Give me 5 premium high-conversion startup business name concepts",
+  "Compose a short poetic narrative outlining digital cyberspace landscapes",
+  "Analyze structural differences between synchronous and event-driven backends",
+  "How do transformers handle weights during self-attention processing loops?",
+  "Outline a multi-stage workflow plan for launching an absolute mobile application"
+];
+
+function getRandomPromptSet() {
+  let shuffled = [...globalPromptLibrary].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, 4);
+}
 
 const systemPrompts = {
   friendly: `You are ${BRAND_NAME}, a highly advanced cognitive intelligence platform created by the "MR7 Team" (co-founded by "Md Rehan"). Base current date is Friday, May 29, 2026. Match input syntax perfect.`,
@@ -672,16 +665,16 @@ window.addEventListener("load", () => {
     btn.querySelector("span").textContent = "3D Grid Off";
   }
 
-  /* RESTRUCTURED TARGETED ROUTER MOUSE EVENT MATCH: Solves global input blockage loop */
   window.addEventListener("click", (e) => {
-    if (document.getElementById("sidebarToggle").contains(e.target) || document.getElementById("sidebar").contains(e.target) || document.getElementById("quickActionDot").contains(e.target) || document.getElementById("radialMenu").contains(e.target)) {
+    if (document.getElementById("sidebar").contains(e.target) || document.getElementById("sidebarToggle").contains(e.target) || document.getElementById("quickActionDot").contains(e.target) || document.getElementById("radialMenu").contains(e.target)) {
       return;
     }
 
     if (isPersonaMenuOpen && !document.getElementById("personaMenu").contains(e.target)) {
       closePersonaMenu();
     }
-    if (isRadialOpen && !document.getElementById("radialMenu").contains(e.target)) {
+    
+    if (isRadialOpen && !document.getElementById("radialMenu").contains(e.target) && !document.getElementById("quickActionDot").contains(e.target)) {
       closeRadialMenu();
     }
 
@@ -698,10 +691,9 @@ window.addEventListener("load", () => {
     document.getElementById("liveLatency").textContent = `${lat}ms`;
     
     const cpu = (Math.random() * (18.5 - 4.2) + 4.2).toFixed(1);
-    document.getElementById("liveCpu").textContent = `NODE_0${Math.floor(Math.random() * 3) + 1}: ${cpu}%`;
+    document.getElementById("liveCpu").textContent = `NODE_02: ${cpu}%`;
   }, 3500);
 
-  /* PWA REGISTRATION INJECTOR: Spawns standalone home screen app installer wrapper */
   if ('serviceWorker' in navigator) {
     const inlineBlobWorker = new Blob([`
       self.addEventListener('install', e => self.skipWaiting());
@@ -714,7 +706,7 @@ window.addEventListener("load", () => {
 function updateDynamicLogoAndBranding() {
   document.getElementById("brandLogo").textContent = BRAND_NAME.charAt(0);
   document.querySelectorAll(".brandTextPrimary").forEach(el => el.textContent = BRAND_NAME.split(' ')[0]);
-  document.querySelectorAll(".brandTextSecondary").forEach(el => el.textContent = BRAND_NAME.split(' ')[1] || BRAND_ACCENT);
+  document.querySelectorAll(".brandTextSecondary").forEach(el => el.textContent = BRAND_ACCENT);
   document.querySelectorAll(".brandFooterText").forEach(el => el.textContent = `${BRAND_NAME} · PROPRIETARY INTELLIGENCE SYSTEM · CREATED BY MR7 TEAM`);
 }
 
@@ -816,7 +808,6 @@ function handleWorkspaceFileUpload(event) {
   terminalInput.value += (terminalInput.value ? " " : "") + `[Attached File: ${selectedFile.name}] `;
   
   autoGrow(terminalInput);
-  updateCharCount(terminalInput);
   event.target.value = ''; 
 }
 
@@ -890,15 +881,10 @@ function autoGrow(el) {
   el.style.height = Math.min(el.scrollHeight, 120) + "px";
 }
 
-function updateCharCount(el) {
-  document.getElementById("charCount").textContent = el.value.length;
-}
-
 function clearInput() {
   const inp = document.getElementById("input");
   inp.value = "";
   autoGrow(inp);
-  updateCharCount(inp);
 }
 
 function newChat() {
@@ -1036,23 +1022,26 @@ function renderMessages() {
   const chat = chats[currentChatId];
 
   if (!chat || chat.messages.length === 0) {
+    // DYNAMIC RECOMMENDATION INJECTOR GENERATOR PIPELINE
+    const currentRandomPrompts = getRandomPromptSet();
+
     container.innerHTML = `
       <div class="flex-1 flex flex-col justify-center items-center text-center py-6 md:py-10 max-w-2xl mx-auto">
-        <div class="w-14 h-14 md:w-16 h-14 md:h-16 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-black font-extrabold text-2xl md:text-3xl shadow-xl shadow-emerald-500/10 mb-5 md:mb-6" id="welcomeGlow">
-          ${BRAND_NAME.charAt(0)}
+        <div class="w-16 h-16 rounded-[20px] bg-gradient-to-br from-emerald-400 via-teal-500 to-emerald-600 flex items-center justify-center text-black font-black text-3xl shadow-2xl border border-white/10 tracking-tighter mb-6" id="welcomeGlow" style="box-shadow: 0 0 35px rgba(16, 163, 127, 0.45);">
+          M
         </div>
         <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white font-heading">
-          Welcome to <span class="text-emerald-400">${BRAND_NAME}</span>
+          Welcome to <span class="text-emerald-400">MR7 ai</span>
         </h2>
-        <p class="text-gray-400 text-xs md:text-sm mt-2.5 leading-relaxed max-w-md font-sans">
-          Created proudly by the MR7 Team (Co-founder Md Rehan). Safely write files, design programs, and analyze systems with absolute privacy.
+        <p class="text-gray-400 text-xs md:text-sm mt-3 leading-relaxed max-w-md font-sans">
+          Safely write files, design programs, and analyze systems with absolute privacy.
         </p>
 
-        <div class="grid grid-cols-1 gap-2 w-full mt-6 px-4">
-          ${(suggestionsByPersona[currentPersona] || suggestionsByPersona.friendly).map(s => `
+        <div class="grid grid-cols-1 gap-2 w-full mt-8 px-4">
+          ${currentRandomPrompts.map(s => `
             <button onclick="useSuggestion('${s}')" class="p-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl text-left text-[11px] md:text-xs font-semibold text-gray-300 hover:text-white transition-all flex items-center justify-between group font-sans">
               <span class="truncate pr-2">${s}</span>
-              <i class="fas fa-plus text-[9px] text-emerald-400 opacity-0 group-hover:opacity-100 transition-all shrink-0"></i>
+              <i class="fas fa-arrow-right text-[10px] text-emerald-400 opacity-0 group-hover:opacity-100 transition-all shrink-0"></i>
             </button>
           `).join("")}
         </div>
@@ -1359,6 +1348,7 @@ function useSuggestion(text) {
   }
 }
 
+// Security sanitization matrix redirect mapping 
 function escapeHtml(s) {
   return (s || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
