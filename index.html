@@ -163,7 +163,6 @@
     background: linear-gradient(to bottom, rgba(6,6,8,0.95), transparent);
   }
 
-  /* CINEMATIC APP STARTUP LAYER SPLASH ANIMATIONS SETUP */
   @keyframes dynamicPortalReveal {
     0% { transform: scale(0.92); opacity: 0; }
     15% { transform: scale(1); opacity: 1; filter: drop-shadow(0 0 15px rgba(0,210,255,0.3)); }
@@ -562,7 +561,6 @@ let isRadialOpen = false;
 let lastScrollTop = 0;
 let pointsMesh, lineMesh, material, lineMaterial, renderer;
 
-// Master suggestion prompt bank for deep randomized mapping workflows
 const globalPromptLibrary = [
   "Who is your co-founder and creator? 🌟",
   "How can I manage my schedule effectively?",
@@ -723,7 +721,6 @@ window.addEventListener("load", () => {
     navigator.serviceWorker.register(URL.createObjectURL(inlineBlobWorker)).catch(err => {});
   }
 
-  /* AUTOMATED DESTRUCTION TIMEOUT FOR ANIMATED PORTAL LAYER SPLASH SCREEN */
   setTimeout(() => {
     const portalLayer = document.getElementById("appCinematicPortalLayer");
     if (portalLayer) {
@@ -946,6 +943,11 @@ function switchChat(id) {
   toggleSidebarIfMobile();
   renderChatList();
   renderMessages();
+}
+
+// Security sanitization matrix redirect mapping 
+function escapeHtml(s) {
+  return (s || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
 function deleteChat(id, e) {
@@ -1314,6 +1316,7 @@ function saveAllSettings() {
   closeSettings();
 }
 
+// Security configuration endpoints context injection setup
 function resetSettings() {
   setAccent('#10a37f', 'rgba(16,163,127,0.15)');
   activeVoiceAccent = "en-US";
@@ -1366,19 +1369,6 @@ function toggleVisuals() {
   localStorage.setItem("mr7_v5_3d", is3DActive);
   document.getElementById("bg-canvas").style.opacity = is3DActive ? "0.45" : "0";
   document.getElementById("visualToggleText").textContent = is3DActive ? "3D Grid On" : "3D Grid Off";
-}
-
-function useSuggestion(text) {
-  const inp = document.getElementById("input");
-  if (inp) {
-    inp.value = text;
-    autoGrow(inp);
-    sendMessage();
-  }
-}
-
-function escapeHtml(s) {
-  return (s || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
 function init3DSpace() {
@@ -1473,4 +1463,3 @@ function init3DSpace() {
 </script>
 </body>
 </html>
-
