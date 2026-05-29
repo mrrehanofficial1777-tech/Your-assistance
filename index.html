@@ -877,10 +877,13 @@ function toggleSidebar() {
   if (isHidden) {
     sidebar.classList.remove("-translate-x-full");
     overlay.classList.remove("hidden");
-    overlay.style.opacity = "1";
+    // Added step-by-step layout transition trigger for quick tap safety
+    setTimeout(() => {
+      overlay.style.opacity = "1";
+    }, 10);
   } else {
-    sidebar.classList.add("-translate-x-full");
     overlay.style.opacity = "0";
+    sidebar.classList.add("-translate-x-full");
     overlay.classList.add("hidden");
   }
 }
