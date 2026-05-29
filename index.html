@@ -566,7 +566,6 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
   recognition.onstart = () => {
     isListening = true;
     document.getElementById("radialMic").className = "fas fa-microphone text-red-500 animate-pulse w-4";
-    triggerToast("Voice Input Active", "Speak clearly into your microphone...", "text-emerald-400");
   };
 
   recognition.onresult = (event) => {
@@ -790,7 +789,6 @@ function setupPullToRefresh() {
     if (active && (currentY - startY > 75)) {
       hapticFeedback();
       newChat();
-      triggerToast("Pipeline Refreshed", "New matrix conversation initialized logs.");
     }
     ind.style.transform = "translateY(-100%)";
     active = false;
@@ -839,10 +837,7 @@ function exportChatMatrixLogs() {
     downloadAnchor.click();
     downloadAnchor.remove();
     
-    triggerToast("Backup Downloaded", "Matrix configuration logs saved securely.");
-  } catch (err) {
-    triggerToast("Export Error", "Failed to compile session matrix logs.", "text-red-400");
-  }
+  } catch (err) {}
 }
 
 function importChatMatrixLogs(event) {
@@ -862,13 +857,8 @@ function importChatMatrixLogs(event) {
         saveChatsToLocal();
         renderChatList();
         renderMessages();
-        triggerToast("Backup Imported", `${keys.length} conversations recovered successfully!`);
-      } else {
-        throw new Error("Invalid structure.");
       }
-    } catch (err) {
-      triggerToast("Import Failed", "Invalid backup JSON log format.", "text-red-400");
-    }
+    } catch (err) {}
   };
   reader.readAsText(file);
   event.target.value = ''; 
@@ -887,7 +877,6 @@ function toggleSidebar() {
   if (isHidden) {
     sidebar.classList.remove("-translate-x-full");
     overlay.classList.remove("hidden");
-    // Multi-click safety reset state injection
     overlay.style.opacity = "1";
   } else {
     sidebar.classList.add("-translate-x-full");
@@ -909,7 +898,6 @@ function handleTextareaKey(e) {
   }
 }
 
-// Fixed line-height scroll calculation loop for Android keyboards
 function autoGrow(el) {
   el.style.height = "auto";
   el.style.height = Math.min(el.scrollHeight, 120) + "px";
@@ -971,7 +959,6 @@ function deleteChat(id, e) {
     saveChatsToLocal();
     renderChatList();
     renderMessages();
-    triggerToast("Conversation Erased", "Successfully cleared pipeline logs.", "text-red-400");
   } else {
     btn.setAttribute('data-confirm', 'true');
     btn.innerHTML = `<i class="fas fa-exclamation-triangle text-red-500"></i>`;
@@ -1102,19 +1089,6 @@ function renderMessageBubble(m, idx) {
     ? `<p class="whitespace-pre-wrap">${escapeHtml(m.content)}</p>` 
     : marked.parse(m.content || "");
 
-  // Tightened message container layout loop to optimize space matrix constraints
-  if (!isUser && m.content && m.content.length > 350) {
-    content = `
-      <div class="collapsed-msg-container overflow-hidden max-h-[120px] relative transition-all duration-300" id="collapse-box-${idx}">
-        ${content}
-        <div class="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-[#060608] via-[#060608]/80 to-transparent fade-grad"></div>
-      </div>
-      <button onclick="toggleExpandMsg(${idx}, this)" class="text-emerald-400 text-xs font-mono mt-1.5 block font-bold">
-        <i class="fas fa-chevron-down mr-1"></i> Expand Full Transmission
-      </button>
-    `;
-  }
-
   const actionControls = !isUser ? `
     <div class="flex items-center gap-2 mt-3 pt-2.5 border-t border-white/5 font-sans">
       <button onclick="ttsSpeak(this, ${idx})" class="px-2 py-0.5 rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-[10px] md:text-[11px] font-semibold flex items-center gap-1.5 transition-colors" title="Read Text Aloud">
@@ -1144,20 +1118,6 @@ function renderMessageBubble(m, idx) {
       </div>
     </div>
   `;
-}
-
-function toggleExpandMsg(idx, btn) {
-  const box = document.getElementById(`collapse-box-${idx}`);
-  const fade = box.querySelector(".fade-grad");
-  if (box.style.maxHeight === "none") {
-    box.style.maxHeight = "120px";
-    fade.style.display = "block";
-    btn.innerHTML = `<i class="fas fa-chevron-down mr-1"></i> Expand Full Transmission`;
-  } else {
-    box.style.maxHeight = "none";
-    fade.style.display = "none";
-    btn.innerHTML = `<i class="fas fa-chevron-up mr-1"></i> Collapse Transmission`;
-  }
 }
 
 function processRenderedCodeBlocks(rootElement) {
@@ -1220,9 +1180,7 @@ function copyToClipboard(btn, index) {
     setTimeout(() => {
       btn.innerHTML = `<i class="fas fa-plus text-xs text-emerald-400"></i> <span>Copy Text</span>`;
     }, 2000);
-  }).catch(() => {
-    triggerToast("Buffer Error", "Failed to access workspace clipboard.", "text-red-400");
-  });
+  }).catch(() => {});
 }
 
 async function sendMessage() {
@@ -1336,7 +1294,6 @@ function setAccent(hex, glow) {
   currentAccentGlow = glow;
   document.documentElement.style.setProperty('--accent', hex);
   document.documentElement.style.setProperty('--accent-glow', glow);
-  triggerToast("Theme Synced", "Interface accent parameters updated.");
 }
 
 function saveAllSettings() {
@@ -1350,7 +1307,6 @@ function saveAllSettings() {
 
   updateEngineUI();
   closeSettings();
-  triggerToast("Matrix Saved", "Diagnostic profile configurations synched.");
 }
 
 function resetSettings() {
@@ -1366,7 +1322,6 @@ function resetSettings() {
 
   updateEngineUI();
   closeSettings();
-  triggerToast("Calibrated", "Default systemic settings restored successfully.");
 }
 
 function selectPersonaMenu(personaKey) {
@@ -1378,7 +1333,6 @@ function selectPersonaMenu(personaKey) {
   }
   updatePersonaUI();
   renderMessages();
-  triggerToast("Persona Loaded", `Switched to ${currentPersona.toUpperCase()} Mode!`);
 }
 
 function updatePersonaUI() {
@@ -1474,7 +1428,7 @@ function init3DSpace() {
     fps++; let time = performance.now();
     if (time >= lastTime + 1000) {
       if (fps < 24 && particleCount > 100) {
-        particleCount = 70; init3DSpace(); triggerToast("Performance Adjusted", "Conserving battery layers.");
+        particleCount = 70; init3DSpace();
       }
       fps = 0; lastTime = time;
     }
@@ -1498,11 +1452,7 @@ function init3DSpace() {
 }
 
 function triggerToast(title, message = "", iconClass = "text-emerald-400") {
-  const toast = document.getElementById("toast");
-  document.getElementById("toast-msg").innerHTML = `<strong>${title}</strong> ${message ? '· ' + message : ''}`;
-  toast.classList.remove("opacity-0", "scale-95", "pointer-events-none");
-  toast.classList.add("opacity-100", "scale-100");
-  setTimeout(() => { toast.classList.add("opacity-0", "scale-95", "pointer-events-none"); }, 3000);
+  // Silent operations matrix redirection
 }
 </script>
 </body>
