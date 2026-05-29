@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>MR7 AI - Next-Gen Autonomous Workspace</title>
 <link class="rounded-full" rel="icon" type="image/png" href="logo.png">
-<link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIk1SNyBBSSIsCiAgInNob3J0X25hbWUiOiAiTVI3IEFJIiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMwNjA2MDgiLAogICJ0aGVtZV9jb2xvciI6ICIjMTBhMzdmIiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAibG9nby5wbmciLAogICAgICAic2l6ZXMiOiAiMTkyeDE5MiIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIKICAgIH0KICBdCn0=">
+<link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIk1SNyBBSSIsCiAgInNob3J0X25hbWUiOiAiTVI3IEFJIiwKICAic3RhcnRfdXJsIjogIi4vIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMDYwNjA4IiwKICAidGhlbWVfY29sb3IiOiAiIzEwYTM3ZiIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImxvZ28ucG5nIiwKICAgICAgInNpemVzIjogIjE5MngxOTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9wbmciCiAgICB9CiAgXQp9">
 <script src="https://cdn.tailwindcss.com"></script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700;800&family=Space+Grotesk:wght=400;500;600;700&family=Fira+Code:wght=400;500&display=swap" rel="stylesheet">
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-dark.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-dark.min.css">
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -246,7 +246,7 @@
           </div>
           <div>
             <h1 class="text-lg font-bold tracking-tight"><span class="brandTextPrimary">MR7</span> <span class="text-emerald-400 brandTextSecondary">AI</span></h1>
-            <p class="text-[9px] text-gray-500 font-mono tracking-wider presidential uppercase">Enterprise Core</p>
+            <p class="text-[9px] text-gray-500 font-mono tracking-wider uppercase">Enterprise Core</p>
           </div>
         </div>
         <button onclick="toggleSidebar()" class="md:hidden text-gray-400 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-xl">
@@ -542,9 +542,6 @@ let isRadialOpen = false;
 let lastScrollTop = 0;
 let pointsMesh, lineMesh, material, lineMaterial, renderer;
 
-let recognition = null;
-let isListening = false;
-
 const suggestionsByPersona = {
   friendly: [
     "Who is your co-founder and creator? 🌟",
@@ -675,15 +672,16 @@ window.addEventListener("load", () => {
     btn.querySelector("span").textContent = "3D Grid Off";
   }
 
+  /* RESTRUCTURED TARGETED ROUTER MOUSE EVENT MATCH: Solves global input blockage loop */
   window.addEventListener("click", (e) => {
-    if (document.getElementById("sidebarToggle").contains(e.target) || document.getElementById("sidebar").contains(e.target)) {
+    if (document.getElementById("sidebarToggle").contains(e.target) || document.getElementById("sidebar").contains(e.target) || document.getElementById("quickActionDot").contains(e.target) || document.getElementById("radialMenu").contains(e.target)) {
       return;
     }
 
     if (isPersonaMenuOpen && !document.getElementById("personaMenu").contains(e.target)) {
       closePersonaMenu();
     }
-    if (isRadialOpen && !document.getElementById("radialMenu").contains(e.target) && !document.getElementById("quickActionDot").contains(e.target)) {
+    if (isRadialOpen && !document.getElementById("radialMenu").contains(e.target)) {
       closeRadialMenu();
     }
 
@@ -702,6 +700,15 @@ window.addEventListener("load", () => {
     const cpu = (Math.random() * (18.5 - 4.2) + 4.2).toFixed(1);
     document.getElementById("liveCpu").textContent = `NODE_0${Math.floor(Math.random() * 3) + 1}: ${cpu}%`;
   }, 3500);
+
+  /* PWA REGISTRATION INJECTOR: Spawns standalone home screen app installer wrapper */
+  if ('serviceWorker' in navigator) {
+    const inlineBlobWorker = new Blob([`
+      self.addEventListener('install', e => self.skipWaiting());
+      self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));
+    `], { type: 'application/javascript' });
+    navigator.serviceWorker.register(URL.createObjectURL(inlineBlobWorker)).catch(err => {});
+  }
 });
 
 function updateDynamicLogoAndBranding() {
@@ -795,7 +802,6 @@ function closeRadialMenu() {
   isRadialOpen = false;
 }
 
-/* Attachment handling pipeline triggers native system storage container safely */
 function triggerWorkspaceUpload() {
   hapticFeedback();
   closeRadialMenu();
@@ -807,7 +813,7 @@ function handleWorkspaceFileUpload(event) {
   if (!selectedFile) return;
 
   const terminalInput = document.getElementById("input");
-  terminalInput.value += (terminalInput.value ? " " : "") + `[Attached File: ${selectedFile.name}]`;
+  terminalInput.value += (terminalInput.value ? " " : "") + `[Attached File: ${selectedFile.name}] `;
   
   autoGrow(terminalInput);
   updateCharCount(terminalInput);
@@ -1453,4 +1459,3 @@ function triggerToast(title, message = "", iconClass = "text-emerald-400") {
 </script>
 </body>
 </html>
-
