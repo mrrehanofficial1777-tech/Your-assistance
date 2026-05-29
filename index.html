@@ -163,6 +163,17 @@
     background: linear-gradient(to bottom, rgba(6,6,8,0.95), transparent);
   }
 
+  /* CINEMATIC APP STARTUP LAYER SPLASH ANIMATIONS SETUP */
+  @keyframes dynamicPortalReveal {
+    0% { transform: scale(0.92); opacity: 0; }
+    15% { transform: scale(1); opacity: 1; filter: drop-shadow(0 0 15px rgba(0,210,255,0.3)); }
+    85% { transform: scale(1.03); opacity: 1; filter: drop-shadow(0 0 30px rgba(0,210,255,0.6)); }
+    100% { transform: scale(1.4); opacity: 0; filter: blur(8px); }
+  }
+  .animate-portal-splash {
+    animation: dynamicPortalReveal 2.1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  }
+
   @media (max-width: 767px) {
     #personaMenu {
       position: fixed;
@@ -216,6 +227,12 @@
 </head>
 <body class="relative h-screen w-screen overflow-hidden flex flex-col" style="height:100dvh">
 
+<div id="appCinematicPortalLayer" class="fixed inset-0 bg-[#060608] z-[9999] flex flex-col items-center justify-center pointer-events-none transition-opacity duration-500">
+  <div class="flex flex-col items-center max-w-[85%] text-center animate-portal-splash">
+    <img src="logo.png" alt="MR7 Core" class="w-24 h-24 object-contain mb-2">
+  </div>
+</div>
+
 <canvas id="bg-canvas"></canvas>
 
 <input type="file" id="userWorkspaceUploaderInput" class="hidden" accept="image/*, .pdf, .txt, .doc, .docx, .json" onchange="handleWorkspaceFileUpload(event)">
@@ -241,7 +258,9 @@
     <div>
       <div class="p-5 border-b border-white/5 items-center justify-between flex">
         <div class="flex items-center gap-3">
-          <img src="logo.png" alt="MR7 Core" class="w-11 h-11 object-contain rounded-[14px]" style="box-shadow: 0 0 22px rgba(16, 163, 127, 0.45);">
+          <div class="w-11 h-11 rounded-[14px] bg-gradient-to-br from-emerald-400 via-teal-500 to-emerald-600 flex items-center justify-center text-black font-black text-2xl shadow-lg border border-white/10 tracking-tighter shrink-0" id="brandLogo" style="box-shadow: 0 0 22px rgba(16, 163, 127, 0.45);">
+            M
+          </div>
           <div>
             <h1 class="text-lg font-bold tracking-tight"><span class="brandTextPrimary">MR7</span> <span class="text-emerald-400 brandTextSecondary">ai</span></h1>
             <p class="text-[9px] text-gray-500 font-mono tracking-wider uppercase">Enterprise Core</p>
@@ -543,6 +562,7 @@ let isRadialOpen = false;
 let lastScrollTop = 0;
 let pointsMesh, lineMesh, material, lineMaterial, renderer;
 
+// Master suggestion prompt bank for deep randomized mapping workflows
 const globalPromptLibrary = [
   "Who is your co-founder and creator? 🌟",
   "How can I manage my schedule effectively?",
@@ -702,9 +722,19 @@ window.addEventListener("load", () => {
     `], { type: 'application/javascript' });
     navigator.serviceWorker.register(URL.createObjectURL(inlineBlobWorker)).catch(err => {});
   }
+
+  /* AUTOMATED DESTRUCTION TIMEOUT FOR ANIMATED PORTAL LAYER SPLASH SCREEN */
+  setTimeout(() => {
+    const portalLayer = document.getElementById("appCinematicPortalLayer");
+    if (portalLayer) {
+      portalLayer.style.opacity = "0";
+      setTimeout(() => portalLayer.remove(), 500);
+    }
+  }, 2000);
 });
 
 function updateDynamicLogoAndBranding() {
+  document.getElementById("brandLogo").textContent = BRAND_NAME.charAt(0);
   document.querySelectorAll(".brandTextPrimary").forEach(el => el.textContent = BRAND_NAME.split(' ')[0]);
   document.querySelectorAll(".brandTextSecondary").forEach(el => el.textContent = BRAND_ACCENT);
   document.querySelectorAll(".brandFooterText").forEach(el => el.textContent = `${BRAND_NAME} · PROPRIETARY INTELLIGENCE SYSTEM · CREATED BY MR7 TEAM`);
@@ -1026,7 +1056,9 @@ function renderMessages() {
 
     container.innerHTML = `
       <div class="flex-1 flex flex-col justify-center items-center text-center py-6 md:py-10 max-w-2xl mx-auto">
-        <img src="logo.png" alt="MR7 Core" class="w-16 h-16 object-contain mb-6 rounded-[20px]" style="box-shadow: 0 0 35px rgba(16, 163, 127, 0.45);">
+        <div class="w-16 h-16 rounded-[20px] bg-gradient-to-br from-emerald-400 via-teal-500 to-emerald-600 flex items-center justify-center text-black font-black text-3xl shadow-2xl border border-white/10 tracking-tighter mb-6" id="welcomeGlow" style="box-shadow: 0 0 35px rgba(16, 163, 127, 0.45);">
+          M
+        </div>
         <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white font-heading">
           Welcome to <span class="text-emerald-400">MR7 ai</span>
         </h2>
@@ -1336,6 +1368,19 @@ function toggleVisuals() {
   document.getElementById("visualToggleText").textContent = is3DActive ? "3D Grid On" : "3D Grid Off";
 }
 
+function useSuggestion(text) {
+  const inp = document.getElementById("input");
+  if (inp) {
+    inp.value = text;
+    autoGrow(inp);
+    sendMessage();
+  }
+}
+
+function escapeHtml(s) {
+  return (s || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
 function init3DSpace() {
   const canvas = document.getElementById("bg-canvas");
   renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
@@ -1428,4 +1473,3 @@ function init3DSpace() {
 </script>
 </body>
 </html>
-
