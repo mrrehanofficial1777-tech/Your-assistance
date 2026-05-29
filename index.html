@@ -113,8 +113,9 @@
     50% { opacity: 0; }
   }
 
+  /* Fast property transitions */
   * {
-    transition: background-color 0.25s ease, border-color 0.25s ease;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
   }
 
   /* Mobile overlay styling for backdrop */
@@ -302,7 +303,7 @@
 
       <div class="flex items-center gap-1.5">
         <button onclick="toggleVisuals()" id="visualToggleBtn" class="text-gray-400 hover:text-white bg-white/5 border border-white/5 px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors">
-          <i class="fas fa-plus text-[10px] text-emerald-400" id="visualToggleIcon"></i> <span class="hidden md:inline" id="visualToggleText">3D Grid On</span>
+          <i class="fas fa-plus text-[10px] text-emerald-400"></i> <span class="hidden md:inline" id="visualToggleText">3D Grid On</span>
         </button>
         <button onclick="openSettings()" class="text-gray-400 hover:text-white bg-white/5 border border-white/5 p-2 rounded-xl text-xs transition-colors" title="Configure Layout">
           <i class="fas fa-sliders-h"></i>
@@ -596,18 +597,62 @@ const systemPrompts = {
   3. TIME AND DATE INQUIRIES: Ask for their country first to calculate accurate local dates/times relative to UTC baseline Friday, May 29, 2026.`
 };
 
-/* ---------- Mobile Web Audio Pipeline Initializer Hook ---------- */
-// Unlock browser engines early via safe user touch interactions
+/* ---------- High-Performance Mobile Speech API Synthesis Pipeline ---------- */
+let speechUtterance = null;
+let activeSpeakerBtn = null;
+
+// Audio context initializer to unlock web kit channels directly upon user touch input loops
 function forceMobileAudioResume() {
   if (window.speechSynthesis && window.speechSynthesis.speaking) return;
   try {
     const dummyUtterance = new SpeechSynthesisUtterance("");
     dummyUtterance.volume = 0;
     window.speechSynthesis.speak(dummyUtterance);
-  } catch (e) { console.log("Speech initialization deferred"); }
+  } catch (e) { console.log("Speech context deferred until action"); }
 }
 window.addEventListener("touchstart", forceMobileAudioResume, { passive: true });
 window.addEventListener("click", forceMobileAudioResume, { passive: true });
+
+function ttsSpeak(btn, messageIndex) {
+  const chat = chats[currentChatId];
+  if (!chat || !chat.messages[messageIndex]) return;
+
+  const plainText = chat.messages[messageIndex].content.replace(/[\*\#\`\_]/g, "");
+  const label = btn.querySelector("span");
+  const icon = btn.querySelector("i");
+
+  if (window.speechSynthesis.speaking && activeSpeakerBtn === btn) {
+    window.speechSynthesis.cancel();
+    resetActiveSpeaker();
+    return;
+  }
+
+  window.speechSynthesis.cancel();
+  if (activeSpeakerBtn) {
+    resetActiveSpeaker();
+  }
+
+  activeSpeakerBtn = btn;
+  label.textContent = "Speaking...";
+  icon.className = "fas fa-stop-circle text-emerald-400 animate-pulse";
+
+  speechUtterance = new SpeechSynthesisUtterance(plainText);
+  speechUtterance.lang = activeVoiceAccent;
+  speechUtterance.rate = 0.95; // Slightly scaled down for precise speech synthesis on Android/iOS speakers
+
+  speechUtterance.onend = () => { resetActiveSpeaker(); };
+  speechUtterance.onerror = () => { resetActiveSpeaker(); };
+
+  window.speechSynthesis.speak(speechUtterance);
+}
+
+function resetActiveSpeaker() {
+  if (activeSpeakerBtn) {
+    activeSpeakerBtn.querySelector("span").textContent = "Read Aloud";
+    activeSpeakerBtn.querySelector("i").className = "fas fa-volume-up text-xs text-emerald-400";
+    activeSpeakerBtn = null;
+  }
+}
 
 /* ---------- Initialization Entry Point ---------- */
 window.addEventListener("load", () => {
@@ -646,7 +691,7 @@ window.addEventListener("load", () => {
   const btn = document.getElementById("visualToggleBtn");
   if (!is3DActive) {
     document.getElementById("bg-canvas").style.opacity = "0";
-    btn.innerHTML = `<i class="fas fa-plus text-[10px] text-emerald-400"></i> <span class="hidden md:inline">3D Grid Off</span>`;
+    btn.querySelector("span").textContent = "3D Grid Off";
   }
 
   // Close menus on clicking outside
@@ -719,7 +764,7 @@ function importChatMatrixLogs(event) {
     }
   };
   reader.readAsText(file);
-  event.target.value = ''; // Reset uploader element node
+  event.target.value = ''; 
 }
 
 /* ---------- Sidebar & Drawer Controls ---------- */
@@ -901,7 +946,6 @@ function renderMessages() {
   const chat = chats[currentChatId];
 
   if (!chat || chat.messages.length === 0) {
-    // Show landing screen content
     container.innerHTML = `
       <div class="flex-1 flex flex-col justify-center items-center text-center py-6 md:py-10 max-w-2xl mx-auto">
         <div class="w-14 h-14 md:w-16 h-14 md:h-16 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-black font-extrabold text-2xl md:text-3xl shadow-xl shadow-emerald-500/10 mb-5 md:mb-6" id="welcomeGlow">
@@ -924,20 +968,15 @@ function renderMessages() {
         </div>
       </div>
     `;
-    // Suggestion slide bar visible on starter state
     document.getElementById("contextualSuggestionsWrap").style.display = "block";
     generateSmartContextSuggestions(null);
     return;
   }
 
-  // Hide suggestion slide bar once a conversation starts!
   document.getElementById("contextualSuggestionsWrap").style.display = "none";
-  
   container.innerHTML = chat.messages.map((m, index) => renderMessageBubble(m, index)).join("");
   
-  // Custom Codeblock Processing with Language Indicators & Quick Copy Buttons
   processRenderedCodeBlocks(container);
-  
   hljs.highlightAll();
   container.scrollTop = container.scrollHeight;
 }
@@ -1030,26 +1069,20 @@ function copySnippetDirect(button) {
   });
 }
 
-function useSuggestion(s) {
-  document.getElementById("input").value = s;
-  sendMessage();
-}
-
-function generateSmartContextSuggestions(lastMsg) {
-  const container = document.getElementById("contextSuggestions");
-  if (!lastMsg) {
-    const defaultSuggestions = [
-      "Help me design a study plan",
-      "Explain relativity in plain words",
-      "Write a script verifying dynamic databases"
-    ];
-    container.innerHTML = defaultSuggestions.map(c => `
-      <button onclick="useSuggestion('${c}')" class="px-2.5 py-1 bg-zinc-900/80 hover:bg-zinc-800 border border-white/5 text-gray-400 hover:text-white text-[10px] md:text-xs rounded-lg transition-all flex items-center gap-1 shadow-sm font-medium font-sans shrink-0">
-        <span>${c}</span> <i class="fas fa-plus text-[8px] text-emerald-400 opacity-60"></i>
-      </button>
-    `).join("");
-    return;
-  }
+/* ---------- Clipboard Controllers ---------- */
+function copyToClipboard(btn, index) {
+  const chat = chats[currentChatId];
+  if (!chat || !chat.messages[index]) return;
+  
+  const text = chat.messages[index].content;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.innerHTML = `<i class="fas fa-check text-emerald-400"></i> <span>Copied!</span>`;
+    setTimeout(() => {
+      btn.innerHTML = `<i class="fas fa-plus text-xs text-emerald-400"></i> <span>Copy Text</span>`;
+    }, 2000);
+  }).catch(() => {
+    triggerToast("Buffer Error", "Failed to access workspace clipboard.", "text-red-400");
+  });
 }
 
 /* ---------- Core System API Mechanics ---------- */
@@ -1185,73 +1218,6 @@ async function triggerVelocityTextAPI(chatHistory) {
 
   const result = await response.json();
   return result.choices?.[0]?.message?.content || "*(Velocity buffer matrix error)*";
-}
-
-/* ---------- High-Performance Mobile Speech API Synthesis Pipeline ---------- */
-let speechUtterance = null;
-let activeSpeakerBtn = null;
-
-function ttsSpeak(btn, messageIndex) {
-  const chat = chats[currentChatId];
-  if (!chat || !chat.messages[messageIndex]) return;
-
-  const plainText = chat.messages[messageIndex].content.replace(/[\*\#\`\_]/g, "");
-  const label = btn.querySelector("span");
-  const icon = btn.querySelector("i");
-
-  // Toggle speech off if clicked again on active voice
-  if (window.speechSynthesis.speaking && activeSpeakerBtn === btn) {
-    window.speechSynthesis.cancel();
-    resetActiveSpeaker();
-    return;
-  }
-
-  window.speechSynthesis.cancel();
-  if (activeSpeakerBtn) {
-    resetActiveSpeaker();
-  }
-
-  activeSpeakerBtn = btn;
-  label.textContent = "Speaking...";
-  icon.className = "fas fa-stop-circle text-red-500 animate-pulse";
-
-  speechUtterance = new SpeechSynthesisUtterance(plainText);
-  
-  // High-reliability fallback map to fetch exact mobile hardware voices
-  speechUtterance.lang = activeVoiceAccent;
-  
-  // Safe responsive rate configuration for clear mobile output
-  speechUtterance.rate = 0.95;
-
-  speechUtterance.onend = () => { resetActiveSpeaker(); };
-  speechUtterance.onerror = () => { resetActiveSpeaker(); };
-
-  // Native hardware audio trigger thread
-  window.speechSynthesis.speak(speechUtterance);
-}
-
-function resetActiveSpeaker() {
-  if (activeSpeakerBtn) {
-    activeSpeakerBtn.querySelector("span").textContent = "Read Aloud";
-    activeSpeakerBtn.querySelector("i").className = "fas fa-volume-up text-xs text-emerald-400";
-    activeSpeakerBtn = null;
-  }
-}
-
-/* ---------- Clipboard Controllers ---------- */
-function copyToClipboard(btn, index) {
-  const chat = chats[currentChatId];
-  if (!chat || !chat.messages[index]) return;
-  
-  const text = chat.messages[index].content;
-  navigator.clipboard.writeText(text).then(() => {
-    btn.innerHTML = `<i class="fas fa-check text-emerald-400"></i> <span>Copied!</span>`;
-    setTimeout(() => {
-      btn.innerHTML = `<i class="fas fa-plus text-xs text-emerald-400"></i> <span>Copy Text</span>`;
-    }, 2000);
-  }).catch(() => {
-    triggerToast("Buffer Error", "Failed to access workspace clipboard.", "text-red-400");
-  });
 }
 
 /* ---------- Dynamic Persona Popover Menu Controllers ---------- */
@@ -1401,7 +1367,7 @@ function updateEngineUI() {
   }
 }
 
-/* ---------- 3D State Switcher (Clean UI Enhancement) ---------- */
+/* ---------- 3D State Switcher (Clean UI Enhancement, No Red Layouts) ---------- */
 function toggleVisuals() {
   is3DActive = !is3DActive;
   localStorage.setItem("mr7_v5_3d", is3DActive);
@@ -1415,7 +1381,7 @@ function toggleVisuals() {
     triggerToast("Graphics Aligned", "Lattice background network active.");
   } else {
     textEl.textContent = "3D Grid Off";
-    triggerToast("Graphics Suspended", "Lattice background disabled for power saving.");
+    triggerToast("Graphics Suspended", "Lattice background disabled.");
   }
 }
 
