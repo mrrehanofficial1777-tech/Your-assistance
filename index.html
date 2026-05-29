@@ -9,7 +9,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700;800&family=Space+Grotesk:wght=400;500;600;700&family=Fira+Code:wght=400;500&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-dark.min.css">
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
@@ -163,10 +163,6 @@
     #sendBtn {
       width: 44px !important;
       height: 44px !important;
-    }
-    #micBtn, #plusBtn, #exportBtn, #importBtn {
-      width: 42px !important;
-      height: 42px !important;
     }
     /* Mobile: sidebar full height scroll fix */
     #sidebar {
@@ -369,26 +365,10 @@
           </div>
 
           <div class="flex items-end gap-2 md:gap-3">
-            <button id="micBtn" onclick="toggleSpeechRecognition()" class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition-all shrink-0" title="Voice Dictation">
-              <i class="fas fa-microphone text-base" id="micIcon"></i>
-            </button>
-
-            <button id="plusBtn" onclick="togglePersonaMenu(event)" class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-emerald-400 flex items-center justify-center transition-all shrink-0" title="Select Operational Persona">
-              <i class="fas fa-plus text-sm"></i>
-            </button>
-
-            <button id="importBtn" onclick="document.getElementById('importChatLogsInput').click()" class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-emerald-400 flex items-center justify-center transition-all shrink-0" title="Import Chat Logs (.json)">
-              <i class="fas fa-upload text-sm"></i>
-            </button>
-
-            <button id="exportBtn" onclick="exportChatMatrixLogs()" class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-emerald-400 flex items-center justify-center transition-all shrink-0" title="Export Chat Logs (.json)">
-              <i class="fas fa-download text-sm"></i>
-            </button>
-
             <textarea id="input" rows="1" placeholder="Type a message, or ask coding questions..." 
               onkeydown="handleTextareaKey(event)"
               oninput="autoGrow(this); updateCharCount(this)" 
-              class="flex-1 bg-transparent border-0 text-white placeholder-gray-500 focus:ring-0 focus:outline-none text-sm md:text-[15px] resize-none max-h-36 min-h-[24px] py-2 pl-1"></textarea>
+              class="flex-1 bg-transparent border-0 text-white placeholder-gray-500 focus:ring-0 focus:outline-none text-sm md:text-[15px] resize-none max-h-36 min-h-[24px] py-2 pl-4"></textarea>
             
             <div class="flex items-center gap-1 pr-1">
               <span id="charCount" class="text-[9px] text-gray-500 font-mono hidden sm:inline">0</span>
@@ -507,7 +487,7 @@ let isGenerating = false;
 let is3DActive = localStorage.getItem("mr7_v5_3d") !== "false";
 let isPersonaMenuOpen = false;
 
-/* ---------- Native Speech Capture Web API ---------- */
+/* ---------- Native Speech Capture Web API (Retained for Internal Integrity) ---------- */
 let recognition = null;
 let isListening = false;
 if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
@@ -519,7 +499,6 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
 
   recognition.onstart = () => {
     isListening = true;
-    document.getElementById("micIcon").className = "fas fa-microphone text-red-500 animate-pulse";
     triggerToast("Voice Input Active", "Speak clearly into your microphone...", "text-emerald-400");
   };
 
@@ -533,7 +512,6 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
 
   recognition.onend = () => {
     isListening = false;
-    document.getElementById("micIcon").className = "fas fa-microphone text-gray-400";
   };
 }
 
@@ -696,7 +674,7 @@ window.addEventListener("load", () => {
 
   // Close menus on clicking outside
   window.addEventListener("click", (e) => {
-    if (isPersonaMenuOpen && !document.getElementById("personaMenu").contains(e.target) && !document.getElementById("plusBtn").contains(e.target)) {
+    if (isPersonaMenuOpen && !document.getElementById("personaMenu").contains(e.target)) {
       closePersonaMenu();
     }
   });
@@ -719,7 +697,7 @@ function updateDynamicLogoAndBranding() {
   document.querySelectorAll(".brandFooterText").forEach(el => el.textContent = `${BRAND_NAME} · PROPRIETARY INTELLIGENCE SYSTEM · CREATED BY MR7 TEAM`);
 }
 
-/* ---------- Local Chat History Persistence (Export/Import) ---------- */
+/* ---------- Local Chat History Persistence (Export/Import Retained internally) ---------- */
 function exportChatMatrixLogs() {
   try {
     const logsString = JSON.stringify(chats, null, 2);
@@ -969,7 +947,6 @@ function renderMessages() {
       </div>
     `;
     document.getElementById("contextualSuggestionsWrap").style.display = "block";
-    generateSmartContextSuggestions(null);
     return;
   }
 
@@ -1220,36 +1197,12 @@ async function triggerVelocityTextAPI(chatHistory) {
   return result.choices?.[0]?.message?.content || "*(Velocity buffer matrix error)*";
 }
 
-/* ---------- Dynamic Persona Popover Menu Controllers ---------- */
+/* ---------- Dynamic Persona Popover Menu Controllers (Retained for State Integrity) ---------- */
 function togglePersonaMenu(event) {
   if (event) event.stopPropagation();
-  const menu = document.getElementById("personaMenu");
-  isPersonaMenuOpen = !isPersonaMenuOpen;
-  
-  if (isPersonaMenuOpen) {
-    menu.classList.add("open");
-    menu.classList.remove("pointer-events-none", "opacity-0");
-    
-    const personas = ["friendly", "coder", "writer", "expert"];
-    personas.forEach(p => {
-      const btn = document.getElementById(`pm-${p}`);
-      if (p === currentPersona) {
-        btn.style.borderColor = "var(--accent)";
-        btn.style.backgroundColor = "rgba(16, 163, 127, 0.08)";
-      } else {
-        btn.style.borderColor = "rgba(255, 255, 255, 0.05)";
-        btn.style.backgroundColor = "transparent";
-      }
-    });
-  } else {
-    closePersonaMenu();
-  }
 }
 
 function closePersonaMenu() {
-  const menu = document.getElementById("personaMenu");
-  menu.classList.remove("open", "pointer-events-auto");
-  menu.classList.add("pointer-events-none", "opacity-0");
   isPersonaMenuOpen = false;
 }
 
@@ -1264,7 +1217,6 @@ function selectPersonaMenu(personaKey) {
 
   updatePersonaUI();
   renderMessages();
-  closePersonaMenu();
   triggerToast("Persona Loaded", `Switched to ${currentPersona.toUpperCase()} Mode!`);
 }
 
@@ -1385,13 +1337,23 @@ function toggleVisuals() {
   }
 }
 
+function useSuggestion(text) {
+  const inp = document.getElementById("input");
+  if (inp) {
+    inp.value = text;
+    autoGrow(inp);
+    updateCharCount(inp);
+    sendMessage();
+  }
+}
+
 function escapeHtml(s) {
   return (s || "").replace(/[&<>"']/g, c => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
   }[c]));
 }
 
-/* ---------- 3D Space Particle Lattice Constellation (Three.js) ---------- */
+/* ---------- 3D Space Particle Lattice Constellation (Three.js Restored) ---------- */
 function init3DSpace() {
   const canvas = document.getElementById("bg-canvas");
   const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
