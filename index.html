@@ -865,6 +865,7 @@ function triggerWorkspaceUpload() {
   document.getElementById("userWorkspaceUploaderInput").click();
 }
 
+// UPGRADED FEATURE: REAL ADVANCED WORKSPACE FILE HANDLER
 function handleWorkspaceFileUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -1416,7 +1417,16 @@ async function sendMessage() {
 
   const inp = document.getElementById("input");
   let text = inp.value.trim();
-  if (!text && !activeAttachedFileData) return;
+  
+  // FIX: Provide a default text if user uploads an image without typing anything!
+  if (!text && activeAttachedFileData && activeAttachedFileData.type === "image") {
+      text = "Describe this image in detail.";
+  } else if (!text && activeAttachedFileData) {
+      text = "Please analyze this attached file.";
+  } else if (!text) {
+      return; 
+  }
+  
   hapticFeedback();
 
   const chat = chats[currentChatId];
@@ -1465,10 +1475,10 @@ async function sendMessage() {
       payloadHistory[payloadHistory.length - 1].content = processedPromptContent;
     }
 
-    // 🔥 SMART AUTO-ROUTER LOGIC ADDED HERE
+    // 🔥 PURE SMART AUTO-ROUTER LOGIC
     let currentCallEngine = activeEngine;
     if (activeAttachedFileData && activeAttachedFileData.type === "image") {
-       currentCallEngine = "gemini"; // Agar image hai, toh API apne aap Gemini par switch ho jayegi!
+       currentCallEngine = "gemini"; // Forces Vision API perfectly!
     }
 
     if (currentCallEngine === "gemini") {
@@ -1479,8 +1489,8 @@ async function sendMessage() {
     
     chat.messages[chat.messages.length - 1].content = responseText;
   } catch (err) {
-    console.error(err);
-    chat.messages[chat.messages.length - 1].content = `⚠️ **Transmission Error:** Deep routing nodes are currently saturated.`;
+    console.error("Main API Flow Error: ", err);
+    chat.messages[chat.messages.length - 1].content = `⚠️ **Transmission Error:** Core routing nodes failed. Please verify API connections.`;
   } finally {
     clearInterval(structuralAnimIntervalId);
     isGenerating = false;
@@ -1496,7 +1506,7 @@ async function triggerQuantumTextAPI(chatHistory) {
   const contents = chatHistory.map((m, index) => {
     let structure = {
       role: m.role === "user" ? "user" : "model",
-      parts: [{ text: m.content }]
+      parts: [{ text: m.content || " " }]
     };
     
     // Handle true Multimodal Vision - ATTACH TO LAST MESSAGE ONLY
@@ -1532,8 +1542,16 @@ async function triggerQuantumTextAPI(chatHistory) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
+  
   const result = await response.json();
-  return result.candidates?.[0]?.content?.parts?.[0]?.text || "*(Connection dropped)*";
+  
+  // Clean error capturing to show exactly why it dropped if it fails
+  if (!response.ok) {
+     console.error("Gemini API Error: ", result);
+     return `*(System API Error: ${result.error?.message || "Connection dropped"})*`;
+  }
+  
+  return result.candidates?.[0]?.content?.parts?.[0]?.text || "*(Connection dropped - Missing Candidate Payload)*";
 }
 
 async function triggerVelocityTextAPI(chatHistory) {
@@ -1550,6 +1568,12 @@ async function triggerVelocityTextAPI(chatHistory) {
     body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: messages, temperature: currentTemperature })
   });
   const result = await response.json();
+  
+  if (!response.ok) {
+     console.error("Groq API Error: ", result);
+     return `*(Velocity API Error: ${result.error?.message || "Buffer matrix error"})*`;
+  }
+  
   return result.choices?.[0]?.message?.content || "*(Velocity buffer matrix error)*";
 }
 
