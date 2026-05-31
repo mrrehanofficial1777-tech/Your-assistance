@@ -601,10 +601,10 @@ function getRandomPromptSet() {
 }
 
 const systemPrompts = {
-  friendly: `You are ${BRAND_NAME}, a highly advanced cognitive intelligence platform created by the "MR7 Team" (co-founded by "Md Rehan"). Base current date is Sunday, May 31, 2026. Match input syntax perfect.`,
-  coder: `You are ${BRAND_NAME}, an elite Software Architect created by the "MR7 Team" (co-founded by "Md Rehan").`,
-  writer: `You are ${BRAND_NAME}, a creative copywriter and poet built by the "MR7 Team" (co-founded by "Md Rehan").`,
-  expert: `You are ${BRAND_NAME}, a technical research consultant built by the "MR7 Team" (co-founded by "Md Rehan").`
+  friendly: `You are ${BRAND_NAME}, a highly advanced cognitive intelligence platform created by the "MR7 Team" (co-founded by "Md Rehan"). Keep answers short, smart, extremely concise, and crisp. Absolutely no unnecessary paragraphs or explanations unless specifically requested. Avoid "Namaste". If user says casual things like "hey", "hello", "hey bro", respond exactly like: "wats up bro i am fine whats on your mind" or similar ultra-short dynamic patterns.`,
+  coder: `You are ${BRAND_NAME}, an elite Software Architect created by the "MR7 Team". Write highly clean, optimized, minimal code without unnecessary descriptive text wrappers.`,
+  writer: `You are ${BRAND_NAME}, a creative copywriter built by the "MR7 Team". Focus on direct engagement and sharp, elegant expressions.`,
+  expert: `You are ${BRAND_NAME}, a technical research consultant built by the "MR7 Team". Provide straight, objective data points without preamble.`
 };
 
 let speechUtterance = null;
@@ -993,13 +993,6 @@ function toggleSidebarIfMobile() {
   }
 }
 
-function handleTextareaKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
-}
-
 function selectPersonaMenu(personaKey) {
   currentPersona = personaKey;
   localStorage.setItem("mr7_v5_persona", currentPersona);
@@ -1042,6 +1035,32 @@ function newChat() {
   
   const inp = document.getElementById("input");
   if (inp) inp.focus();
+}
+
+// Random Dynamic Greeting Phrases Added Securely (Excluding "Namaste")
+function generateCoolUniqueGreeting() {
+  const coolGreetings = [
+    "Transmission online. Hey! How can I assist your workflow today?",
+    "System active. Hello there! What extraordinary problem are we decoding together?",
+    "Core ready. Yo! Drop your queries, let's build something optimized.",
+    "Data streams stabilized. Hey! Ready to spin up some elite answers?",
+    "Greetings terminal companion. Hello! Tell me what you're plotting next.",
+    "Quantum layer responsive. What's up? Ready to process structural data sets."
+  ];
+  return coolGreetings[Math.floor(Math.random() * coolGreetings.length)];
+}
+
+// Random Dashboard Greetings Hook Array (Flips on initialization)
+function generateRandomDashboardHeader() {
+  const randomHeaders = [
+    "Welcome to MR7 ai Matrix Core",
+    "Hey! What's on your mind today?",
+    "Yo! Ready to spin some logic queries?",
+    "Wats up! Let's build something optimized",
+    "Hello! Ready to process secure pipelines?",
+    "Workspace active! Type what's on your mind"
+  ];
+  return randomHeaders[Math.floor(Math.random() * randomHeaders.length)];
 }
 
 function switchChat(id) {
@@ -1122,19 +1141,6 @@ function filterChats(query) {
   renderChatList(filteredIds);
 }
 
-// Random Dynamic Greeting Phrases Added Securely (Excluding "Namaste")
-function generateCoolUniqueGreeting() {
-  const coolGreetings = [
-    "Transmission online. Hey! How can I assist your workflow today?",
-    "System active. Hello there! What extraordinary problem are we decoding together?",
-    "Core ready. Yo! Drop your queries, let's build something optimized.",
-    "Data streams stabilized. Hey! Ready to spin up some elite answers?",
-    "Greetings terminal companion. Hello! Tell me what you're plotting next.",
-    "Quantum layer responsive. What's up? Ready to process structural data sets."
-  ];
-  return coolGreetings[Math.floor(Math.random() * coolGreetings.length)];
-}
-
 function renderChatList(customIdArray = null) {
   const container = document.getElementById("chatList");
   const ids = customIdArray || Object.keys(chats).reverse();
@@ -1175,6 +1181,7 @@ function renderMessages() {
 
   if (!chat || chat.messages.length === 0) {
     const currentRandomPrompts = getRandomPromptSet();
+    const currentDashboardHeader = generateRandomDashboardHeader();
 
     container.innerHTML = `
       <div class="flex-1 flex flex-col justify-center items-center text-center py-6 md:py-10 max-w-2xl mx-auto">
@@ -1182,7 +1189,7 @@ function renderMessages() {
           <img src="logo.png" alt="Central Logo" class="w-full h-full object-cover" />
         </div>
         <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white font-heading">
-          Welcome to <span class="text-emerald-400">MR7 ai</span>
+          <span class="text-white">${currentDashboardHeader}</span>
         </h2>
         <p class="text-gray-400 text-xs md:text-sm mt-3 leading-relaxed max-w-md font-sans">
           Safely write files, design programs, and analyze systems with absolute privacy.
@@ -1410,6 +1417,13 @@ function inspectAndHarvestUserMemory(text) {
   localStorage.setItem("mr7_v5_memory_matrix", JSON.stringify(systemMemoryProfile));
 }
 
+function handleTextareaKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
 async function sendMessage() {
   if (isGenerating) return;
 
@@ -1465,7 +1479,6 @@ async function sendMessage() {
       payloadHistory[payloadHistory.length - 1].content = processedPromptContent;
     }
 
-    // Checking if first message to apply custom random unique greeting securely
     let customInitialPrefix = "";
     if (chat.messages.length === 2) { 
       customInitialPrefix = generateCoolUniqueGreeting() + "\n\n";
