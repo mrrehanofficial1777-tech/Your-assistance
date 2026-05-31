@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>MR7 AI - Next-Gen Autonomous Workspace</title>
 <link class="rounded-full" rel="icon" type="image/png" href="logo.png">
-<link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIk1SNyBBSSIsCiAgInNob3J0X25hbWUiOiAiTVI3IEFJIiwKICAic3RhcnRfdXJsIjogIi4vIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMDYwNjA4IiwKICAidGhlbWVfY29sb3IiOiAiIzEwYTM3ZiIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImxvZ28ucG5nIiwKICAgICAgInNpemVzIjogIjE5MngxOTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9wbmciCiAgICB9CiAgXQp9">
+<link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIk1SNyBBSSIsCiAgInNob3J0X25hbWUiOiAiTVI3IEFJIiwKICAic3RhcnRfdXJsIjogIi4vIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMDYwNjA4IiwKICAidGhlbWVfY29sb3IiOiAiIzEwYTM3ZiIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImxvZ28ucG5nIiw', 'sizes': '192x192', 'type': 'image/png'} ] }" />
 <script src="https://cdn.tailwindcss.com"></script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,6 +18,9 @@
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+<script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';</script>
 
 <style>
   :root {
@@ -163,7 +166,6 @@
     background: linear-gradient(to bottom, rgba(6,6,8,0.95), transparent);
   }
 
-  /* SPLASH TIMING INCREASED TO 4.3s WITH SMOOTH RATIO */
   @keyframes futuristicReveal {
     0% { transform: scale(0.85); opacity: 0; filter: blur(10px) brightness(0.5); }
     20% { transform: scale(1); opacity: 1; filter: blur(0px) brightness(1.2) drop-shadow(0 0 35px rgba(16, 163, 127, 0.6)); }
@@ -249,7 +251,7 @@
 
 <canvas id="bg-canvas"></canvas>
 
-<input type="file" id="userWorkspaceUploaderInput" class="hidden" accept="image/*, .pdf, .txt, .doc, .docx, .json" onchange="handleWorkspaceFileUpload(event)">
+<input type="file" id="userWorkspaceUploaderInput" class="hidden" accept="image/*, .pdf, .txt, .json" onchange="handleWorkspaceFileUpload(event)">
 <input type="file" id="importChatLogsInput" class="hidden" accept=".json" onchange="importChatMatrixLogs(event)">
 
 <div id="pull-indicator" class="pointer-events-none">
@@ -269,8 +271,8 @@
 <div class="relative z-10 flex h-full w-full overflow-hidden">
   
   <aside id="sidebar" class="fixed md:relative inset-y-0 left-0 w-72 md:w-80 bg-zinc-950 md:bg-black/55 backdrop-blur-2xl border-r border-white/5 flex flex-col justify-between transition-transform duration-300 transform -translate-x-full md:translate-x-0 z-40">
-    <div>
-      <div class="p-5 border-b border-white/5 items-center justify-between flex">
+    <div class="flex flex-col flex-1 min-h-0">
+      <div class="p-5 border-b border-white/5 items-center justify-between flex shrink-0">
         <div class="flex items-center gap-3">
           <div class="w-11 h-11 rounded-[14px] overflow-hidden flex items-center justify-center border border-white/10 shrink-0" id="brandLogo">
             <img src="logo.png" alt="Logo" class="w-full h-full object-cover">
@@ -285,24 +287,38 @@
         </button>
       </div>
 
-      <div class="p-4">
+      <div class="p-4 shrink-0">
         <button onclick="newChat(); toggleSidebarIfMobile();" class="w-full bg-white/5 hover:bg-white/10 border border-white/5 text-white rounded-2xl py-3 px-4 flex items-center justify-center gap-2 font-medium transition-all group hover:shadow-lg text-sm" style="position: relative; z-index: 50;">
           <i class="fas fa-plus text-xs text-emerald-400 group-hover:rotate-90 transition-transform"></i>
           <span>New Conversation</span>
         </button>
       </div>
 
-      <div class="px-4 mb-3">
+      <div class="px-4 mb-3 shrink-0">
         <div class="relative">
           <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
           <input type="text" id="chatSearch" placeholder="Search conversations..." oninput="filterChats(this.value)" class="w-full bg-white/5 border border-white/5 rounded-xl py-2.5 pl-9 pr-4 text-xs text-white focus:outline-none focus:border-emerald-500/50 transition-colors">
         </div>
       </div>
 
-      <div class="px-2 flex flex-col gap-1 overflow-y-auto max-h-[35vh] md:max-h-[40vh]" id="chatList" style="position: relative; z-index: 50;"></div>
+      <div class="flex-1 overflow-y-auto px-2 space-y-1 max-h-[30vh]" id="chatList" style="position: relative; z-index: 50;"></div>
+
+      <div class="px-4 py-2 mt-2 shrink-0 border-t border-white/5">
+        <div class="bg-gradient-to-br from-zinc-900 to-black rounded-xl p-3 border border-emerald-500/10 flex flex-col gap-2">
+          <div class="flex items-center gap-1.5 text-xs text-emerald-400 font-bold font-heading">
+            <i class="fas fa-brain"></i> <span>BRAIN MIRROR ANALYTICS</span>
+          </div>
+          <div id="brainMirrorLoader" class="text-[9px] text-gray-500 font-mono">Awaiting conversation metrics...</div>
+          <div id="brainMirrorStats" class="hidden text-[10px] font-mono flex flex-col gap-1 text-gray-300">
+            <div><span class="text-gray-500">STYLE:</span> <span id="bmStyle" class="text-emerald-400 font-bold"></span></div>
+            <div><span class="text-gray-500">FOCUS:</span> <span id="bmFocus"></span></div>
+            <div><span class="text-gray-500">STRENGTH:</span> <span id="bmStrength" class="text-teal-400"></span></div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="p-4 border-t border-white/5 bg-black/20 flex flex-col gap-3" style="position: relative; z-index: 50;">
+    <div class="p-4 border-t border-white/5 bg-black/20 flex flex-col gap-3 shrink-0" style="position: relative; z-index: 50;">
       <div class="bg-black/40 rounded-xl p-3 border border-white/5 flex flex-col gap-1.5 text-[9px] font-mono text-gray-500">
         <div class="flex justify-between items-center text-gray-400 font-semibold border-b border-white/5 pb-1 mb-1">
           <span>DIAGNOSTIC TELEMETRY</span>
@@ -357,15 +373,17 @@
       </div>
 
       <div class="flex items-center gap-1.5">
+        <button onclick="toggleWebSearchMatrix()" id="webSearchBtnToggle" class="text-gray-400 hover:text-white bg-white/5 border border-white/10 px-3 py-1.5 rounded-xl text-xs font-medium flex items-center gap-2 transition-all">
+          <i id="webSearchIcon" class="fas fa-globe text-gray-500"></i>
+          <span id="webSearchText">Search OFF</span>
+        </button>
+
         <button onclick="toggleVisuals()" id="visualToggleBtn" class="text-gray-300 hover:text-white bg-gradient-to-r from-emerald-500/10 via-transparent to-teal-500/10 hover:from-emerald-500/20 hover:to-teal-500/20 border border-emerald-500/30 px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-md shadow-emerald-950/40 tracking-wide">
           <span class="relative flex h-2 w-2">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
           </span>
           <span id="visualToggleText">3D Grid On</span>
-        </button>
-        <button onclick="openSettings()" class="text-gray-400 hover:text-white bg-white/5 border border-white/5 p-2 rounded-xl text-xs transition-colors" title="Configure Layout">
-          <i class="fas fa-sliders-h"></i>
         </button>
       </div>
     </header>
@@ -376,6 +394,14 @@
       <button onclick="scrollToBottomDirect()" class="w-9 h-9 rounded-full bg-zinc-900/90 border border-white/10 text-emerald-400 flex items-center justify-center shadow-2xl active:scale-90 transition-transform">
         <i class="fas fa-arrow-down text-sm"></i>
       </button>
+    </div>
+
+    <div id="fileAttachmentPreviewBanner" class="hidden mx-4 md:mx-12 max-w-4xl px-4 py-2 bg-emerald-950/40 border border-emerald-500/20 rounded-xl flex items-center justify-between text-xs text-emerald-400 font-mono">
+      <span class="flex items-center gap-2 truncate">
+        <i class="fas fa-paperclip animate-pulse"></i>
+        <span id="attachedFileNameText">No file uploaded</span>
+      </span>
+      <button onclick="clearAttachedWorkspaceDocument()" class="hover:text-white p-1"><i class="fas fa-times"></i></button>
     </div>
 
     <div class="px-4 md:px-12" id="contextualSuggestionsWrap">
@@ -434,7 +460,7 @@
           <div id="radialMenu" class="absolute bottom-16 left-3 bg-zinc-950/95 border border-white/10 p-2 rounded-2xl shadow-2xl flex flex-col gap-2 scale-0 opacity-0 origin-bottom-left transition-all duration-200 z-40 min-w-[170px]">
             <button onclick="triggerWorkspaceUpload()" class="w-full p-2.5 rounded-xl hover:bg-white/5 text-left text-gray-300 flex items-center gap-3 transition-colors">
               <i class="fas fa-file-upload text-emerald-400 w-4"></i>
-              <span class="text-xs font-semibold">Upload Photo / File</span>
+              <span class="text-xs font-semibold">Upload Photo / PDF / Text</span>
             </button>
           </div>
 
@@ -443,7 +469,7 @@
               <i class="fas fa-ellipsis-v text-sm transition-transform" id="actionDotIcon"></i>
             </button>
 
-            <textarea id="input" rows="1" placeholder="Type a message, or ask coding questions..." 
+            <textarea id="input" rows="1" placeholder="Type a message, ask questions, or process PDFs..." 
               onkeydown="handleTextareaKey(event)"
               oninput="autoGrow(this);" 
               class="flex-1 bg-transparent border-0 text-white placeholder-gray-500 focus:ring-0 focus:outline-none text-sm md:text-[15px] resize-none max-h-36 min-h-[24px] py-2 pl-2"></textarea>
@@ -573,10 +599,11 @@ let is3DActive = localStorage.getItem("mr7_v5_3d") !== "false";
 let isPersonaMenuOpen = false;
 let isRadialOpen = false;
 
-let lastScrollTop = 0;
-let pointsMesh, lineMesh, material, lineMaterial, renderer;
+// New Features Global Parameters
+let isWebSearchEnabled = localStorage.getItem("mr7_v5_websearch") === "true";
+let activeAttachedFileData = null; 
+let systemMemoryProfile = JSON.parse(localStorage.getItem("mr7_v5_memory_matrix") || "{}");
 
-// Master suggestion prompt bank for deep randomized mapping workflows
 const globalPromptLibrary = [
   "Who is your co-founder and creator? 🌟",
   "How can I manage my schedule effectively?",
@@ -598,7 +625,7 @@ function getRandomPromptSet() {
 }
 
 const systemPrompts = {
-  friendly: `You are ${BRAND_NAME}, a highly advanced cognitive intelligence platform created by the "MR7 Team" (co-founded by "Md Rehan"). Base current date is Friday, May 29, 2026. Match input syntax perfect.`,
+  friendly: `You are ${BRAND_NAME}, a highly advanced cognitive intelligence platform created by the "MR7 Team" (co-founded by "Md Rehan"). Base current date is Sunday, May 31, 2026. Match input syntax perfect.`,
   coder: `You are ${BRAND_NAME}, an elite Software Architect created by the "MR7 Team" (co-founded by "Md Rehan").`,
   writer: `You are ${BRAND_NAME}, a creative copywriter and poet built by the "MR7 Team" (co-founded by "Md Rehan").`,
   expert: `You are ${BRAND_NAME}, a technical research consultant built by the "MR7 Team" (co-founded by "Md Rehan").`
@@ -606,6 +633,8 @@ const systemPrompts = {
 
 let speechUtterance = null;
 let activeSpeakerBtn = null;
+let lastScrollTop = 0;
+let pointsMesh, lineMesh, material, lineMaterial, renderer;
 
 function hapticFeedback() {
   if (navigator.vibrate) navigator.vibrate(12);
@@ -689,6 +718,8 @@ window.addEventListener("load", () => {
 
   updatePersonaUI();
   updateEngineUI();
+  updateWebSearchUI();
+  calculateBrainMirrorMatrix();
   init3DSpace();
 
   setupScrollManagement();
@@ -729,15 +760,6 @@ window.addEventListener("load", () => {
     document.getElementById("liveCpu").textContent = `NODE_02: ${cpu}%`;
   }, 3500);
 
-  if ('serviceWorker' in navigator) {
-    const inlineBlobWorker = new Blob([`
-      self.addEventListener('install', e => self.skipWaiting());
-      self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));
-    `], { type: 'application/javascript' });
-    navigator.serviceWorker.register(URL.createObjectURL(inlineBlobWorker)).catch(err => {});
-  }
-
-  /* TIMEOUT FOR ANIMATED PORTAL LAYER SPLASH SCREEN EXTENDED BY 2 SECONDS */
   setTimeout(() => {
     const portalLayer = document.getElementById("appCinematicPortalLayer");
     if (portalLayer) {
@@ -844,14 +866,96 @@ function triggerWorkspaceUpload() {
 }
 
 function handleWorkspaceFileUpload(event) {
-  const selectedFile = event.target.files[0];
-  if (!selectedFile) return;
+  const file = event.target.files[0];
+  if (!file) return;
 
-  const terminalInput = document.getElementById("input");
-  terminalInput.value += (terminalInput.value ? " " : "") + `[Attached File: ${selectedFile.name}] `;
-  
-  autoGrow(terminalInput);
+  const previewBanner = document.getElementById("fileAttachmentPreviewBanner");
+  const fileNameText = document.getElementById("attachedFileNameText");
+
+  if (file.type.startsWith("image/")) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      activeAttachedFileData = {
+        type: "image",
+        name: file.name,
+        base64: e.target.result.split(",")[1],
+        mimeType: file.type
+      };
+      fileNameText.textContent = `🖼️ Image: ${file.name}`;
+      previewBanner.classList.remove("hidden");
+    };
+    reader.readAsDataURL(file);
+  } else if (file.name.endsWith(".pdf")) {
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+      const typedarray = new Uint8Array(e.target.result);
+      try {
+        const pdf = await pdfjsLib.getDocument(typedarray).promise;
+        let totalText = "";
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          totalText += textContent.items.map(item => item.str).join(" ") + "\n";
+        }
+        activeAttachedFileData = {
+          type: "pdf",
+          name: file.name,
+          text: totalText
+        };
+        fileNameText.textContent = `📄 PDF: ${file.name} (${pdf.numPages} Pages)`;
+        previewBanner.classList.remove("hidden");
+      } catch (err) {
+        alert("Error parsing PDF matrix pipeline safely.");
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  } else {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      activeAttachedFileData = {
+        type: "text",
+        name: file.name,
+        text: e.target.result
+      };
+      fileNameText.textContent = `📝 Text File: ${file.name}`;
+      previewBanner.classList.remove("hidden");
+    };
+    reader.readAsText(file);
+  }
   event.target.value = ''; 
+}
+
+function clearAttachedWorkspaceDocument() {
+  activeAttachedFileData = null;
+  document.getElementById("fileAttachmentPreviewBanner").classList.add("hidden");
+}
+
+function toggleWebSearchMatrix() {
+  hapticFeedback();
+  isWebSearchEnabled = !isWebSearchEnabled;
+  localStorage.setItem("mr7_v5_websearch", isWebSearchEnabled);
+  updateWebSearchUI();
+}
+
+function updateWebSearchUI() {
+  const btn = document.getElementById("webSearchBtnToggle");
+  const icon = document.getElementById("webSearchIcon");
+  const txt = document.getElementById("webSearchText");
+
+  if (isWebSearchEnabled) {
+    btn.classList.remove("border-white/10");
+    btn.classList.add("border-emerald-500/50", "bg-emerald-500/10");
+    icon.className = "fas fa-globe text-emerald-400 animate-spin";
+    icon.style.animationDuration = "6s";
+    txt.textContent = "Search ON";
+    txt.className = "text-emerald-400 font-bold";
+  } else {
+    btn.classList.remove("border-emerald-500/50", "bg-emerald-500/10");
+    btn.classList.add("border-white/10");
+    icon.className = "fas fa-globe text-gray-500";
+    txt.textContent = "Search OFF";
+    txt.className = "text-gray-400";
+  }
 }
 
 function importChatMatrixLogs(event) {
@@ -871,6 +975,7 @@ function importChatMatrixLogs(event) {
         saveChatsToLocal();
         renderChatList();
         renderMessages();
+        calculateBrainMirrorMatrix();
       }
     } catch (err) {}
   };
@@ -919,6 +1024,25 @@ function handleTextareaKey(e) {
   }
 }
 
+// PERSONA DROPDOWN CONTROLS
+function togglePersonaMenu(e) {
+  e.stopPropagation();
+  hapticFeedback();
+  isPersonaMenuOpen = !isPersonaMenuOpen;
+  const menu = document.getElementById("personaMenu");
+  if (isPersonaMenuOpen) {
+    menu.classList.add("open");
+  } else {
+    closePersonaMenu();
+  }
+}
+
+function closePersonaMenu() {
+  const menu = document.getElementById("personaMenu");
+  if (menu) menu.classList.remove("open");
+  isPersonaMenuOpen = false;
+}
+
 function autoGrow(el) {
   el.style.height = "auto";
   el.style.height = Math.min(el.scrollHeight, 120) + "px";
@@ -944,9 +1068,7 @@ function newChat() {
   renderMessages();
   
   const inp = document.getElementById("input");
-  if (inp) {
-    inp.focus();
-  }
+  if (inp) inp.focus();
 }
 
 function switchChat(id) {
@@ -975,6 +1097,7 @@ function deleteChat(id, e) {
     saveChatsToLocal();
     renderChatList();
     renderMessages();
+    calculateBrainMirrorMatrix();
   } else {
     btn.setAttribute('data-confirm', 'true');
     btn.innerHTML = `<i class="fas fa-exclamation-triangle text-red-500"></i>`;
@@ -1201,15 +1324,133 @@ function copyToClipboard(btn, index) {
   }).catch(() => {});
 }
 
+function startDynamicTypingAnimation(targetBubble) {
+  const sequences = [
+    "Routing Neural Core Pipelines...",
+    "Searching Synaptic Knowledge Nodes...",
+    "Scanning Live Matrix Servers...",
+    "Analyzing Data Context Filters...",
+    "Formulating Core Transmission Text..."
+  ];
+  let idx = 0;
+  targetBubble.innerHTML = `
+    <div class="flex flex-col gap-2 py-1">
+      <span id="liveDynamicLoadingText" class="typing-cursor font-bold text-emerald-400 font-mono text-xs md:text-sm tracking-wider uppercase shimmer-text">
+        ${sequences[0]}
+      </span>
+      <div class="w-3/4 h-1.5 bg-white/5 rounded-full overflow-hidden relative">
+        <div class="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-500 to-teal-400 w-1/3 rounded-full animate-bounce" style="animation-duration: 2s"></div>
+      </div>
+    </div>
+  `;
+  return setInterval(() => {
+    idx = (idx + 1) % sequences.length;
+    const txtEl = document.getElementById("liveDynamicLoadingText");
+    if (txtEl) txtEl.textContent = sequences[idx];
+  }, 1200);
+}
+
+function calculateBrainMirrorMatrix() {
+  let textLength = 0;
+  let codeKeywords = 0;
+  let totalMessages = 0;
+
+  Object.values(chats).forEach(c => {
+    if(c.messages) {
+      c.messages.forEach(m => {
+        if (m.role === "user") {
+          totalMessages++;
+          textLength += m.content.length;
+          if (m.content.includes("{") || m.content.includes("function") || m.content.includes("code") || m.content.includes("bug")) {
+            codeKeywords++;
+          }
+        }
+      });
+    }
+  });
+
+  const loader = document.getElementById("brainMirrorLoader");
+  const stats = document.getElementById("brainMirrorStats");
+
+  if (totalMessages === 0) {
+    loader.classList.remove("hidden");
+    stats.classList.add("hidden");
+    return;
+  }
+
+  loader.classList.add("hidden");
+  stats.setTimeout;
+  stats.classList.remove("hidden");
+
+  const styleEl = document.getElementById("bmStyle");
+  const focusEl = document.getElementById("bmFocus");
+  const strengthEl = document.getElementById("bmStrength");
+
+  if (codeKeywords > 0) {
+    styleEl.textContent = "STRUCTURAL ARCHITECT";
+    focusEl.textContent = "Logic & Syntax Optimization";
+    strengthEl.textContent = "System Scalability";
+  } else if (textLength / totalMessages > 60) {
+    styleEl.textContent = "ANALYTICAL RESEARCHER";
+    focusEl.textContent = "Deep Context Comprehension";
+    strengthEl.textContent = "Exhaustive Knowledge Drilling";
+  } else {
+    styleEl.textContent = "FAST VELOCITY PROTOTYPER";
+    focusEl.textContent = "Iterative Direct Questions";
+    strengthEl.textContent = "Rapid Workflow Agility";
+  }
+}
+
+function inspectAndHarvestUserMemory(text) {
+  const lower = text.toLowerCase();
+  
+  const matchHindi = text.match(/(?:mera\s+naam\s+is|mera\s+naam\s+hai|mera\s+name\s+hai)\s+([A-Za-z0-9\s]+)/i);
+  const matchEnglish = text.match(/my\s+name\s+is\s+([A-Za-z0-9\s]+)/i);
+
+  let detectedName = null;
+  if (matchHindi && matchHindi[1]) detectedName = matchHindi[1].trim();
+  if (matchEnglish && matchEnglish[1]) detectedName = matchEnglish[1].trim();
+
+  if (detectedName) {
+    systemMemoryProfile.userName = detectedName;
+  }
+
+  if (lower.includes("developer") || lower.includes("coder") || lower.includes("programming")) {
+    systemMemoryProfile.profession = "Software Developer";
+  }
+  if (lower.includes("student") || lower.includes("college") || lower.includes("school")) {
+    systemMemoryProfile.profession = "Academic Learner";
+  }
+
+  localStorage.setItem("mr7_v5_memory_matrix", JSON.stringify(systemMemoryProfile));
+}
+
 async function sendMessage() {
   if (isGenerating) return;
 
   const inp = document.getElementById("input");
   let text = inp.value.trim();
-  if (!text) return;
+  
+  if (!text && activeAttachedFileData && activeAttachedFileData.type === "image") {
+      text = "Describe this image in detail.";
+  } else if (!text && activeAttachedFileData) {
+      text = "Please analyze this attached file.";
+  } else if (!text) {
+      return; 
+  }
+  
   hapticFeedback();
-
   const chat = chats[currentChatId];
+  
+  inspectAndHarvestUserMemory(text);
+  let processedPromptContent = text;
+  
+  if (activeAttachedFileData) {
+    if (activeAttachedFileData.type === "pdf" || activeAttachedFileData.type === "text") {
+      processedPromptContent = `[CONTEXT ATTACHED WORKSPACE FILE: ${activeAttachedFileData.name}]\n\n${activeAttachedFileData.text}\n\nUser Question:\n${text}`;
+    }
+  }
+
   chat.messages.push({ role: "user", content: text });
   
   if (chat.messages.length === 1) {
@@ -1227,68 +1468,113 @@ async function sendMessage() {
   const msgElements = document.getElementById("messages").querySelectorAll(".prose");
   const targetBubble = msgElements[msgElements.length - 1];
   
-  targetBubble.innerHTML = `
-    <div class="flex flex-col gap-2 py-1">
-      <span class="typing-cursor font-bold text-emerald-400 font-mono text-xs md:text-sm tracking-wider uppercase shimmer-text">
-        Routing Neural Core Pipelines...
-      </span>
-      <div class="w-3/4 h-1.5 bg-white/5 rounded-full overflow-hidden relative">
-        <div class="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-500 to-teal-400 w-1/3 rounded-full animate-bounce" style="animation-duration: 2s"></div>
-      </div>
-    </div>
-  `;
+  const structuralAnimIntervalId = startDynamicTypingAnimation(targetBubble);
 
   isGenerating = true;
   document.getElementById("sendBtn").disabled = true;
 
   try {
     let responseText = "";
-    if (activeEngine === "gemini") {
-      responseText = await triggerQuantumTextAPI(chat.messages.slice(0, -1));
-    } else {
-      responseText = await triggerVelocityTextAPI(chat.messages.slice(0, -1));
+    let payloadHistory = JSON.parse(JSON.stringify(chat.messages.slice(0, -1)));
+    if (activeAttachedFileData && activeAttachedFileData.type !== "image") {
+      payloadHistory[payloadHistory.length - 1].content = processedPromptContent;
     }
+
+    let currentCallEngine = activeEngine;
+    if (activeAttachedFileData && activeAttachedFileData.type === "image") {
+       currentCallEngine = "gemini"; 
+    }
+
+    if (currentCallEngine === "gemini") {
+      responseText = await triggerQuantumTextAPI(payloadHistory);
+    } else {
+      responseText = await triggerVelocityTextAPI(payloadHistory);
+    }
+    
     chat.messages[chat.messages.length - 1].content = responseText;
   } catch (err) {
-    console.error(err);
-    chat.messages[chat.messages.length - 1].content = `⚠️ **Transmission Error:** Deep routing nodes are currently saturated.`;
+    console.error("Main API Flow Error: ", err);
+    chat.messages[chat.messages.length - 1].content = `⚠️ **Transmission Error:** Core routing nodes failed. Please verify API connections.`;
   } finally {
+    clearInterval(structuralAnimIntervalId);
     isGenerating = false;
     document.getElementById("sendBtn").disabled = false;
+    clearAttachedWorkspaceDocument();
     saveChatsToLocal();
     renderMessages();
+    calculateBrainMirrorMatrix();
   }
 }
 
 async function triggerQuantumTextAPI(chatHistory) {
-  const contents = chatHistory.map(m => ({
-    role: m.role === "user" ? "user" : "model",
-    parts: [{ text: m.content }]
-  }));
-  const systemInstructionText = systemPrompts[currentPersona] || systemPrompts.friendly;
+  const contents = chatHistory.map((m, index) => {
+    let structure = {
+      role: m.role === "user" ? "user" : "model",
+      parts: [{ text: m.content || " " }]
+    };
+    
+    const isLastMessage = index === chatHistory.length - 1;
+    if (isLastMessage && m.role === "user" && activeAttachedFileData && activeAttachedFileData.type === "image") {
+      structure.parts.push({
+        inlineData: {
+          mimeType: activeAttachedFileData.mimeType,
+          data: activeAttachedFileData.base64
+        }
+      });
+    }
+    return structure;
+  });
+
+  let memoryPromptString = "";
+  if (systemMemoryProfile.userName) memoryPromptString += ` Remember: User name is "${systemMemoryProfile.userName}". Always respond accordingly if asked.`;
+  if (systemMemoryProfile.profession) memoryPromptString += ` User background: ${systemMemoryProfile.profession}.`;
+  if (isWebSearchEnabled) memoryPromptString += ` [WEB SEARCH SIMULATION MODE INTERNET RE-ROUTING LIVE ACTIVE: Synthesize responses with latest 2026 data projections]`;
+
+  const systemInstructionText = (systemPrompts[currentPersona] || systemPrompts.friendly) + memoryPromptString;
+  
   const payload = {
     contents: contents,
     systemInstruction: { parts: [{ text: systemInstructionText }] },
     generationConfig: { temperature: currentTemperature }
   };
+  
+  // FIX: Model switched to production compatible version 2.5-flash endpoint matrix
   const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${getSecureQA()}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
+  
   const result = await response.json();
-  return result.candidates?.[0]?.content?.parts?.[0]?.text || "*(Connection dropped)*";
+  
+  if (!response.ok) {
+     console.error("Gemini API Error: ", result);
+     return `*(System API Error: ${result.error?.message || "Connection dropped"})*`;
+  }
+  
+  return result.candidates?.[0]?.content?.parts?.[0]?.text || "*(Connection dropped - Missing Candidate Payload)*";
 }
 
 async function triggerVelocityTextAPI(chatHistory) {
-  const systemPrompt = `You are ${BRAND_NAME} Core Assistant. Neural Instructions: ${systemPrompts[currentPersona]}`;
+  let memoryPromptString = "";
+  if (systemMemoryProfile.userName) memoryPromptString += ` User context details: Name is "${systemMemoryProfile.userName}".`;
+  if (isWebSearchEnabled) memoryPromptString += ` [SIMULATE LIVE INTERNET WIRE SEARCH PATTERNS FOR YEAR 2026]`;
+
+  const systemPrompt = `You are ${BRAND_NAME} Core Assistant. Neural Instructions: ${systemPrompts[currentPersona]} ${memoryPromptString}`;
   const messages = [{ role: "system", content: systemPrompt }, ...chatHistory.map(m => ({ role: m.role === "user" ? "user" : "assistant", content: m.content }))];
+  
   const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getSecureVL()}` },
     body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: messages, temperature: currentTemperature })
   });
   const result = await response.json();
+  
+  if (!response.ok) {
+     console.error("Groq API Error: ", result);
+     return `*(Velocity API Error: ${result.error?.message || "Buffer matrix error"})*`;
+  }
+  
   return result.choices?.[0]?.message?.content || "*(Velocity buffer matrix error)*";
 }
 
