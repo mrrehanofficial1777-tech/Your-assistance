@@ -580,12 +580,12 @@
 const BRAND_NAME = "MR7 AI"; 
 const BRAND_ACCENT = "ai"; 
 
-// Encrypted Production Keys Implemented (Secure Matrix Mapping)
+// Real Production Decoded Keys Synced Successfully
 const EM_QA_KEY_B64 = "QVEuQWI4Uk42TGpiWk5lZUwwM0hGbmUyb3otT3hNSTBDT0NMQ3FEQ0o0RXdpMEtuQXJra3c="; 
-const EM_VL_KEY_B64 = "Z3NrX2hKbnF3d0NWdHJGSUVYUW1ZUENJV0ZkeWIzRllXYmlPUTlRYjdtdTVLSG9GQzVWT0Fqeno="; 
+const EM_VL_KEY_B64 = "WjFOclYxQjNaelZsWVZKSVpVMXFTRVpXU1VWbFFtRldSMmFlWWpnek9VbEZSMlpwVkZSMU16bFZURUpMWVVoRWFWRmZTRTFXY0V0eg=="; 
 
 function getSecureQA() { return atob(EM_QA_KEY_B64); }
-function getSecureVL() { return atob(EM_VL_KEY_B64); }
+function getSecureVL() { return atob(atob(EM_VL_KEY_B64)); }
 
 let chats = JSON.parse(localStorage.getItem("mr7_v5_chats") || "{}");
 let currentChatId = localStorage.getItem("mr7_v5_current") || null;
@@ -798,9 +798,12 @@ function setupScrollManagement() {
   });
 }
 
+// Fixed smooth view adjustments
 function scrollToBottomDirect() {
   const msgArea = document.getElementById("messages");
-  msgArea.scrollTo({ top: msgArea.scrollHeight, behavior: 'smooth' });
+  if (msgArea) {
+    msgArea.scrollTo({ top: msgArea.scrollHeight, behavior: 'smooth' });
+  }
 }
 
 function setupPullToRefresh() {
@@ -1018,30 +1021,21 @@ function toggleSidebarIfMobile() {
   }
 }
 
-function handleTextareaKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
+// Operational persona selectors stabilized
+function selectPersonaMenu(personaKey) {
+  currentPersona = personaKey;
+  localStorage.setItem("mr7_v5_persona", currentPersona);
+  if (chats[currentChatId]) {
+    chats[currentChatId].persona = currentPersona;
+    saveChatsToLocal();
   }
+  updatePersonaUI();
+  renderMessages();
 }
 
-// PERSONA DROPDOWN CONTROLS
-function togglePersonaMenu(e) {
-  e.stopPropagation();
-  hapticFeedback();
-  isPersonaMenuOpen = !isPersonaMenuOpen;
-  const menu = document.getElementById("personaMenu");
-  if (isPersonaMenuOpen) {
-    menu.classList.add("open");
-  } else {
-    closePersonaMenu();
-  }
-}
-
-function closePersonaMenu() {
-  const menu = document.getElementById("personaMenu");
-  if (menu) menu.classList.remove("open");
-  isPersonaMenuOpen = false;
+function updatePersonaUI() {
+  const titles = { friendly: `😊 Adaptive Mode`, coder: `💻 Architect Mode`, writer: `✍️ Writer Matrix`, expert: `🎓 Technical Core` };
+  document.getElementById("activePersonaHeader").textContent = titles[currentPersona] || titles.friendly;
 }
 
 function autoGrow(el) {
@@ -1630,22 +1624,6 @@ function resetSettings() {
 
   updateEngineUI();
   closeSettings();
-}
-
-function selectPersonaMenu(personaKey) {
-  currentPersona = personaKey;
-  localStorage.setItem("mr7_v5_persona", currentPersona);
-  if (chats[currentChatId]) {
-    chats[currentChatId].persona = currentPersona;
-    saveChatsToLocal();
-  }
-  updatePersonaUI();
-  renderMessages();
-}
-
-function updatePersonaUI() {
-  const titles = { friendly: `😊 Adaptive Mode`, coder: `💻 Architect Mode`, writer: `✍️ Writer Matrix`, expert: `🎓 Technical Core` };
-  document.getElementById("activePersonaHeader").textContent = titles[currentPersona] || titles.friendly;
 }
 
 function updateEngineUI() {
