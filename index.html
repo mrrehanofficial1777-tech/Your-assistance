@@ -993,61 +993,11 @@ function toggleSidebarIfMobile() {
   }
 }
 
-function selectPersonaMenu(personaKey) {
-  currentPersona = personaKey;
-  localStorage.setItem("mr7_v5_persona", currentPersona);
-  if (chats[currentChatId]) {
-    chats[currentChatId].persona = currentPersona;
-    saveChatsToLocal();
+function handleTextareaKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
   }
-  updatePersonaUI();
-  renderMessages();
-}
-
-function updatePersonaUI() {
-  const titles = { friendly: `😊 Adaptive Mode Enacted`, coder: `💻 Architect Mode Enacted`, writer: `✍️ Writer Matrix Enacted`, expert: `🎓 Technical Core Enacted` };
-  document.getElementById("activePersonaHeader").textContent = titles[currentPersona] || titles.friendly;
-}
-
-function autoGrow(el) {
-  el.style.height = "auto";
-  el.style.height = Math.min(el.scrollHeight, 120) + "px";
-}
-
-function clearInput() {
-  const inp = document.getElementById("input");
-  inp.value = "";
-  autoGrow(inp);
-}
-
-function newChat() {
-  const id = "chat_" + Date.now();
-  chats[id] = {
-    id: id,
-    title: "New Conversation",
-    messages: [],
-    persona: currentPersona
-  };
-  currentChatId = id;
-  saveChatsToLocal();
-  renderChatList();
-  renderMessages();
-  
-  const inp = document.getElementById("input");
-  if (inp) inp.focus();
-}
-
-// Random Dynamic Greeting Phrases Added Securely (Excluding "Namaste")
-function generateCoolUniqueGreeting() {
-  const coolGreetings = [
-    "Transmission online. Hey! How can I assist your workflow today?",
-    "System active. Hello there! What extraordinary problem are we decoding together?",
-    "Core ready. Yo! Drop your queries, let's build something optimized.",
-    "Data streams stabilized. Hey! Ready to spin up some elite answers?",
-    "Greetings terminal companion. Hello! Tell me what you're plotting next.",
-    "Quantum layer responsive. What's up? Ready to process structural data sets."
-  ];
-  return coolGreetings[Math.floor(Math.random() * coolGreetings.length)];
 }
 
 // Random Dashboard Greetings Hook Array (Flips on initialization)
@@ -1061,73 +1011,6 @@ function generateRandomDashboardHeader() {
     "Workspace active! Type what's on your mind"
   ];
   return randomHeaders[Math.floor(Math.random() * randomHeaders.length)];
-}
-
-function switchChat(id) {
-  currentChatId = id;
-  localStorage.setItem("mr7_v5_current", id);
-  if (chats[id] && chats[id].persona) {
-    currentPersona = chats[id].persona;
-    updatePersonaUI();
-  }
-  toggleSidebarIfMobile();
-  renderChatList();
-  renderMessages();
-}
-
-function deleteChat(id, e) {
-  e.stopPropagation();
-  hapticFeedback();
-  const btn = e.target.closest('button');
-  if (btn.getAttribute('data-confirm') === 'true') {
-    delete chats[id];
-    if (currentChatId === id) {
-      const remainingIds = Object.keys(chats);
-      currentChatId = remainingIds[0] || null;
-      if (!currentChatId) newChat();
-    }
-    saveChatsToLocal();
-    renderChatList();
-    renderMessages();
-    calculateBrainMirrorMatrix();
-  } else {
-    btn.setAttribute('data-confirm', 'true');
-    btn.innerHTML = `<i class="fas fa-exclamation-triangle text-red-500"></i>`;
-    setTimeout(() => {
-      if (btn) {
-        btn.setAttribute('data-confirm', 'false');
-        btn.innerHTML = `<i class="fas fa-trash"></i>`;
-      }
-    }, 3000);
-  }
-}
-
-function initSwipeToDelete(elementId) {
-  const el = document.getElementById(elementId);
-  if (!el) return;
-  let startX = 0, dist = 0;
-
-  el.addEventListener("touchstart", (e) => {
-    startX = e.touches[0].clientX;
-  }, {passive:true});
-
-  el.addEventListener("touchmove", (e) => {
-    dist = e.touches[0].clientX - startX;
-    if (dist > 0 && dist < 120) {
-      el.style.transform = `translateX(${dist}px)`;
-    }
-  }, {passive:true});
-
-  el.addEventListener("touchend", () => {
-    if (dist > 85) {
-      el.style.transform = `translateX(30px)`;
-      const delBtn = el.querySelector("button");
-      if (delBtn) delBtn.click();
-    } else {
-      el.style.transform = "translateX(0px)";
-    }
-    dist = 0;
-  });
 }
 
 function saveChatsToLocal() {
@@ -1417,13 +1300,6 @@ function inspectAndHarvestUserMemory(text) {
   localStorage.setItem("mr7_v5_memory_matrix", JSON.stringify(systemMemoryProfile));
 }
 
-function handleTextareaKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
-}
-
 async function sendMessage() {
   if (isGenerating) return;
 
@@ -1479,11 +1355,6 @@ async function sendMessage() {
       payloadHistory[payloadHistory.length - 1].content = processedPromptContent;
     }
 
-    let customInitialPrefix = "";
-    if (chat.messages.length === 2) { 
-      customInitialPrefix = generateCoolUniqueGreeting() + "\n\n";
-    }
-
     let currentCallEngine = activeEngine;
     if (activeAttachedFileData && activeAttachedFileData.type === "image") {
        currentCallEngine = "gemini"; 
@@ -1495,7 +1366,7 @@ async function sendMessage() {
       responseText = await triggerVelocityTextAPI(payloadHistory);
     }
     
-    chat.messages[chat.messages.length - 1].content = customInitialPrefix + responseText;
+    chat.messages[chat.messages.length - 1].content = responseText;
   } catch (err) {
     console.error("Main API Flow Error: ", err);
     chat.messages[chat.messages.length - 1].content = `⚠️ **Transmission Error:** Core routing nodes failed. Please verify API connections.`;
@@ -1607,6 +1478,7 @@ function setAccent(hex, glow) {
   document.documentElement.style.setProperty('--accent-glow', glow);
 }
 
+// Adjusted layout selectors to strictly avoid conflicts
 function saveAllSettings() {
   activeEngine = document.getElementById("apiEngine").value;
   activeVoiceAccent = document.getElementById("ttsAccent").value;
