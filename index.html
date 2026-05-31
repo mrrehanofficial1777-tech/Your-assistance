@@ -368,16 +368,11 @@
         </button>
         <div class="flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" id="top-pulse"></span>
-          <span class="text-[11px] md:text-xs font-semibold text-gray-300 font-mono tracking-wider uppercase truncate max-w-[150px] md:max-w-none" id="activePersonaHeader">😊 Adaptive Conversation Mode</span>
+          <span class="text-[11px] md:text-xs font-semibold text-gray-300 font-mono tracking-wider uppercase truncate max-w-[150px] md:max-w-none" id="activePersonaHeader">😊 Adaptive Mode Enacted</span>
         </div>
       </div>
 
       <div class="flex items-center gap-1.5">
-        <button onclick="toggleWebSearchMatrix()" id="webSearchBtnToggle" class="text-gray-400 hover:text-white bg-white/5 border border-white/10 px-3 py-1.5 rounded-xl text-xs font-medium flex items-center gap-2 transition-all">
-          <i id="webSearchIcon" class="fas fa-globe text-gray-500"></i>
-          <span id="webSearchText">Search OFF</span>
-        </button>
-
         <button onclick="toggleVisuals()" id="visualToggleBtn" class="text-gray-300 hover:text-white bg-gradient-to-r from-emerald-500/10 via-transparent to-teal-500/10 hover:from-emerald-500/20 hover:to-teal-500/20 border border-emerald-500/30 px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-md shadow-emerald-950/40 tracking-wide">
           <span class="relative flex h-2 w-2">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -457,10 +452,14 @@
             </div>
           </div>
 
-          <div id="radialMenu" class="absolute bottom-16 left-3 bg-zinc-950/95 border border-white/10 p-2 rounded-2xl shadow-2xl flex flex-col gap-2 scale-0 opacity-0 origin-bottom-left transition-all duration-200 z-40 min-w-[170px]">
+          <div id="radialMenu" class="absolute bottom-16 left-3 bg-zinc-950/95 border border-white/10 p-2 rounded-2xl shadow-2xl flex flex-col gap-2 scale-0 opacity-0 origin-bottom-left transition-all duration-200 z-40 min-w-[190px]">
             <button onclick="triggerWorkspaceUpload()" class="w-full p-2.5 rounded-xl hover:bg-white/5 text-left text-gray-300 flex items-center gap-3 transition-colors">
               <i class="fas fa-file-upload text-emerald-400 w-4"></i>
               <span class="text-xs font-semibold">Upload Photo / PDF / Text</span>
+            </button>
+            <button onclick="toggleWebSearchMatrix()" id="webSearchBtnToggle" class="w-full p-2.5 rounded-xl hover:bg-white/5 text-left text-gray-300 flex items-center gap-3 transition-colors">
+              <i id="webSearchIcon" class="fas fa-globe text-emerald-400"></i>
+              <span id="webSearchText" class="text-xs font-semibold">Search OFF</span>
             </button>
           </div>
 
@@ -524,31 +523,6 @@
         <input type="range" id="apiTemperature" min="0.0" max="1.2" step="0.1" value="0.7" 
           oninput="document.getElementById('tempValueDisplay').textContent = this.value"
           class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-500">
-      </div>
-
-      <div>
-        <label class="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5 font-mono">
-          <i class="fas fa-user-cog mr-1"></i> Direct System Persona Select
-        </label>
-        <select id="directPersonaSelect" onchange="selectPersonaMenu(this.value)" class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-xs text-white focus:outline-none focus:border-emerald-500">
-          <option value="friendly" class="bg-zinc-950">😊 Adaptive Mode</option>
-          <option value="coder" class="bg-zinc-950">💻 Software Architect</option>
-          <option value="writer" class="bg-zinc-950">✍️ Creative Matrix</option>
-          <option value="expert" class="bg-zinc-950">🎓 System Analyst</option>
-        </select>
-      </div>
-
-      <div>
-        <label class="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5 font-mono">
-          <i class="fas fa-palette mr-1"></i> Interactive Accent Glow Theme
-        </label>
-        <div class="flex gap-2 justify-between items-center bg-white/5 p-2 rounded-xl border border-white/5">
-          <button onclick="setAccent('#10a37f', 'rgba(16,163,127,0.15)')" class="w-7 h-7 rounded-full bg-[#10a37f] border border-white/20 hover:scale-110 active:scale-95 transition-all" title="Emerald"></button>
-          <button onclick="setAccent('#00d2ff', 'rgba(0,210,255,0.15)')" class="w-7 h-7 rounded-full bg-[#00d2ff] border border-white/20 hover:scale-110 active:scale-95 transition-all" title="Electric Blue"></button>
-          <button onclick="setAccent('#8b5cf6', 'rgba(139,92,246,0.15)')" class="w-7 h-7 rounded-full bg-[#8b5cf6] border border-white/20 hover:scale-110 active:scale-95 transition-all" title="Cyber Violet"></button>
-          <button onclick="setAccent('#ec4899', 'rgba(236,72,153,0.15)')" class="w-7 h-7 rounded-full bg-[#ec4899] border border-white/20 hover:scale-110 active:scale-95 transition-all" title="Neon Pink"></button>
-          <button onclick="setAccent('#f59e0b', 'rgba(245,158,11,0.15)')" class="w-7 h-7 rounded-full bg-[#f59e0b] border border-white/20 hover:scale-110 active:scale-95 transition-all" title="Tropic Gold"></button>
-        </div>
       </div>
 
       <div>
@@ -942,23 +916,21 @@ function toggleWebSearchMatrix() {
 }
 
 function updateWebSearchUI() {
-  const btn = document.getElementById("webSearchBtnToggle");
   const icon = document.getElementById("webSearchIcon");
   const txt = document.getElementById("webSearchText");
 
   if (isWebSearchEnabled) {
-    btn.classList.remove("border-white/10");
-    btn.classList.add("border-emerald-500/50", "bg-emerald-500/10");
-    icon.className = "fas fa-globe text-emerald-400 animate-spin";
-    icon.style.animationDuration = "6s";
-    txt.textContent = "Search ON";
-    txt.className = "text-emerald-400 font-bold";
+    if(icon) icon.className = "fas fa-globe text-emerald-400 animate-spin";
+    if(txt) {
+      txt.textContent = "Search ON";
+      txt.className = "text-emerald-400 font-bold text-xs font-semibold";
+    }
   } else {
-    btn.classList.remove("border-emerald-500/50", "bg-emerald-500/10");
-    btn.classList.add("border-white/10");
-    icon.className = "fas fa-globe text-gray-500";
-    txt.textContent = "Search OFF";
-    txt.className = "text-gray-400";
+    if(icon) icon.className = "fas fa-globe text-gray-500";
+    if(txt) {
+      txt.textContent = "Search OFF";
+      txt.className = "text-gray-400 text-xs font-semibold";
+    }
   }
 }
 
@@ -987,7 +959,6 @@ function importChatMatrixLogs(event) {
   event.target.value = ''; 
 }
 
-// Sidebar logic fixed
 function toggleSidebar() {
   hapticFeedback();
   const sidebar = document.getElementById("sidebar");
@@ -1022,6 +993,13 @@ function toggleSidebarIfMobile() {
   }
 }
 
+function handleTextareaKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
 function selectPersonaMenu(personaKey) {
   currentPersona = personaKey;
   localStorage.setItem("mr7_v5_persona", currentPersona);
@@ -1034,7 +1012,7 @@ function selectPersonaMenu(personaKey) {
 }
 
 function updatePersonaUI() {
-  const titles = { friendly: `😊 Adaptive Mode`, coder: `💻 Architect Mode`, writer: `✍️ Writer Matrix`, expert: `🎓 Technical Core` };
+  const titles = { friendly: `😊 Adaptive Mode Enacted`, coder: `💻 Architect Mode Enacted`, writer: `✍️ Writer Matrix Enacted`, expert: `🎓 Technical Core Enacted` };
   document.getElementById("activePersonaHeader").textContent = titles[currentPersona] || titles.friendly;
 }
 
@@ -1142,6 +1120,19 @@ function filterChats(query) {
   const val = query.trim().toLowerCase();
   const filteredIds = Object.keys(chats).reverse().filter(id => chats[id].title.toLowerCase().includes(val));
   renderChatList(filteredIds);
+}
+
+// Random Dynamic Greeting Phrases Added Securely (Excluding "Namaste")
+function generateCoolUniqueGreeting() {
+  const coolGreetings = [
+    "Transmission online. Hey! How can I assist your workflow today?",
+    "System active. Hello there! What extraordinary problem are we decoding together?",
+    "Core ready. Yo! Drop your queries, let's build something optimized.",
+    "Data streams stabilized. Hey! Ready to spin up some elite answers?",
+    "Greetings terminal companion. Hello! Tell me what you're plotting next.",
+    "Quantum layer responsive. What's up? Ready to process structural data sets."
+  ];
+  return coolGreetings[Math.floor(Math.random() * coolGreetings.length)];
 }
 
 function renderChatList(customIdArray = null) {
@@ -1419,14 +1410,6 @@ function inspectAndHarvestUserMemory(text) {
   localStorage.setItem("mr7_v5_memory_matrix", JSON.stringify(systemMemoryProfile));
 }
 
-// Enter submission logic securely managed
-function handleTextareaKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
-}
-
 async function sendMessage() {
   if (isGenerating) return;
 
@@ -1482,6 +1465,12 @@ async function sendMessage() {
       payloadHistory[payloadHistory.length - 1].content = processedPromptContent;
     }
 
+    // Checking if first message to apply custom random unique greeting securely
+    let customInitialPrefix = "";
+    if (chat.messages.length === 2) { 
+      customInitialPrefix = generateCoolUniqueGreeting() + "\n\n";
+    }
+
     let currentCallEngine = activeEngine;
     if (activeAttachedFileData && activeAttachedFileData.type === "image") {
        currentCallEngine = "gemini"; 
@@ -1493,7 +1482,7 @@ async function sendMessage() {
       responseText = await triggerVelocityTextAPI(payloadHistory);
     }
     
-    chat.messages[chat.messages.length - 1].content = responseText;
+    chat.messages[chat.messages.length - 1].content = customInitialPrefix + responseText;
   } catch (err) {
     console.error("Main API Flow Error: ", err);
     chat.messages[chat.messages.length - 1].content = `⚠️ **Transmission Error:** Core routing nodes failed. Please verify API connections.`;
@@ -1556,7 +1545,7 @@ async function triggerQuantumTextAPI(chatHistory) {
     
     return result.candidates?.[0]?.content?.parts?.[0]?.text || "*(Missing Candidate Payload)*";
   } catch (geminiError) {
-    console.warn("Gemini Engine Down or Quota Exceeded. Activating Auto-Fallback to Groq Velocity Pipeline...", geminiError);
+    console.warn("Gemini Engine Down or Quota Exceeded. Fallback trigger activated safely...", geminiError);
     return await triggerVelocityTextAPI(chatHistory);
   }
 }
@@ -1589,7 +1578,6 @@ function openSettings() {
   modal.style.opacity = "1";
   modal.style.pointerEvents = "auto";
   document.getElementById("settingsModalCard").style.transform = "scale(1)";
-  document.getElementById("directPersonaSelect").value = currentPersona;
 }
 
 function closeSettings() {
@@ -1762,3 +1750,4 @@ function init3DSpace() {
 </script>
 </body>
 </html>
+
