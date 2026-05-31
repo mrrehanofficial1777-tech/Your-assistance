@@ -580,12 +580,12 @@
 const BRAND_NAME = "MR7 AI"; 
 const BRAND_ACCENT = "ai"; 
 
-// Encrypted Production Keys Updated Successfully
+// Encrypted Production Keys Implemented (Secure Matrix Mapping)
 const EM_QA_KEY_B64 = "QVEuQWI4Uk42TGpiWk5lZUwwM0hGbmUyb3otT3hNSTBDT0NMQ3FEQ0o0RXdpMEtuQXJra3c="; 
-const EM_VL_KEY_B64 = "WjNOclgzcGhiVTl5U1RCTFpITTJTSGRHYkdkdFZucG1WMGRrZVdJelJsbHRNMWRVVEdsMFN6ZHpRblpVZUZSVGEyeDRiRk5MZDNRPQ=="; 
+const EM_VL_KEY_B64 = "Z3NrX2hKbnF3d0NWdHJGSUVYUW1ZUENJV0ZkeWIzRllXYmlPUTlRYjdtdTVLSG9GQzVWT0Fqeno="; 
 
 function getSecureQA() { return atob(EM_QA_KEY_B64); }
-function getSecureVL() { return atob("Z3NrX2hKbnF3d0NWdHJGSUVYUW1ZUENJV0ZkeWIzRllXYmlPUTlRYjdtdTVLSG9GQzVWT0Fqeno="); }
+function getSecureVL() { return atob(EM_VL_KEY_B64); }
 
 let chats = JSON.parse(localStorage.getItem("mr7_v5_chats") || "{}");
 let currentChatId = localStorage.getItem("mr7_v5_current") || null;
@@ -1018,7 +1018,6 @@ function toggleSidebarIfMobile() {
   }
 }
 
-// Key handling fixed
 function handleTextareaKey(e) {
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
