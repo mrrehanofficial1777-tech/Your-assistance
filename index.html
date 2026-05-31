@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>MR7 AI - Next-Gen Autonomous Workspace</title>
 <link class="rounded-full" rel="icon" type="image/png" href="logo.png">
-<link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIk1SNyBBSSIsCiAgInNob3J0X25hbWUiOiAiTVI3IEFJIiwKICAic3RhcnRfdXJsIjogIi4vIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMDYwNjA4IiwKICAidGhlbWVfY29sb3IiOiAiIzEwYTM3ZiIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImxvZ28ucG5nIiwgInNpemVzIjogIjE5MngxOTIiLCAidHlwZSI6ICJpbWFnZS9wbmciIH0gXSB9" />
+<link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIk1SNyBBSSIsCiAgInNob3J0X25hbWUiOiAiTVI3IEFJIiwKICAic3RhcnRfdXJsIjogIi4vIiwKICAkeyIic3JjIjogImxvZ28ucG5nIiwgInNpemVzIjogIjE5MngxOTIiLCAidHlwZSI6ICJpbWFnZS9wbmciIH0gXSB9" />
 <script src="https://cdn.tailwindcss.com"></script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700;800&family=Space+Grotesk:wght=400;500;600;700&family=Fira+Code:wght=400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2 family=Plus+Jakarta+Sans:wght=300;400;500;600;700;800&family=Space+Grotesk:wght=400;500;600;700&family=Fira+Code:wght=400;500&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-dark.min.css">
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
@@ -144,10 +144,12 @@
     50% { border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
   }
 
+  /* FIXED LAYER COLLISION BUG ON DESKTOP & MOBILE CORES */
   #sidebarOverlay {
-    background: rgba(0, 0, 0, 0.4) !important;
+    background: rgba(0, 0, 0, 0.5) !important;
     backdrop-filter: blur(4px) !important;
     -webkit-backdrop-filter: blur(4px) !important;
+    z-index: 35 !important; /* Kept behind headers and main boxes but blocks click bugs */
   }
 
   .no-scrollbar::-webkit-scrollbar {
@@ -243,7 +245,7 @@
   <span id="toast-msg" class="text-xs md:text-sm font-medium">System Aligned!</span>
 </div>
 
-<div id="sidebarOverlay" class="fixed inset-0 z-30 hidden opacity-0" onclick="toggleSidebar()"></div>
+<div id="sidebarOverlay" class="fixed inset-0 hidden opacity-0" onclick="toggleSidebar()"></div>
 
 <div class="relative z-10 flex h-full w-full overflow-hidden">
   
@@ -339,7 +341,7 @@
         <button onclick="toggleVisuals()" id="visualToggleBtn" class="text-gray-300 hover:text-white bg-gradient-to-r from-emerald-500/10 via-transparent to-teal-500/10 hover:from-emerald-500/20 hover:to-teal-500/20 border border-emerald-500/30 px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-md shadow-emerald-950/40">
           <span id="visualToggleText">3D Grid On</span>
         </button>
-        <button onclick="openSettings()" class="text-gray-400 hover:text-white bg-white/5 border border-white/5 p-2 rounded-xl text-xs transition-colors" title="Speech Profiles">
+        <button onclick="openSettings()" class="text-gray-400 hover:text-white bg-white/5 border border-white/5 p-2 rounded-xl text-xs transition-colors" title="Speech Profiles" style="position: relative; z-index: 45;">
           <i class="fas fa-sliders-h"></i>
         </button>
       </div>
@@ -367,7 +369,7 @@
 
     <div class="p-3 md:p-6 bg-gradient-to-t from-black/80 to-transparent w-full">
       <div class="max-w-4xl mx-auto w-full">
-        <div id="inputContainer" class="bg-zinc-900/90 border border-white/5 rounded-2xl p-2 md:p-3 shadow-2xl backdrop-blur-xl relative breathing-glow-input flex flex-col">
+        <div id="inputContainer" class="bg-zinc-900/90 border border-white/5 rounded-2xl p-2 md:p-3 shadow-2xl backdrop-blur-xl relative breathing-glow-input flex flex-col" style="position: relative; z-index: 45;">
           <div class="flex items-end gap-2 md:gap-3 w-full">
             <button id="quickActionDot" onclick="triggerWorkspaceUpload()" class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-emerald-400 flex items-center justify-center transition-all shrink-0 active:scale-95" title="Upload Media/PDF">
               <i class="fas fa-paperclip text-sm"></i>
@@ -394,8 +396,8 @@
   </main>
 </div>
 
-<div id="settingsModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
-  <div id="settingsModalCard" class="bg-zinc-950 border border-white/10 rounded-3xl w-full max-w-lg p-5 md:p-6 m-4 shadow-2xl transform scale-95 transition-all duration-300 flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
+<div id="settingsModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-[999] flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
+  <div id="settingsModalCard" class="bg-zinc-950 border border-white/10 rounded-3xl w-full max-w-lg p-5 md:p-6 m-4 shadow-2xl transform scale(0.95) transition-all duration-300 flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between border-b border-white/10 pb-3">
       <div class="flex items-center gap-2 text-emerald-400">
         <i class="fas fa-volume-up text-base md:text-lg"></i>
@@ -459,7 +461,7 @@ const globalPromptLibrary = [
   "Write a robust clean algorithm to find missing matrix sequences"
 ];
 
-// FORCED RE-SHUFFLE EXECUTED NATIVELY ON CYCLES
+// DYNAMIC SHUFFLER IMPLEMENTATION
 function injectDynamicShuffledSuggestions() {
   let shuffled = [...globalPromptLibrary].sort(() => 0.5 - Math.random());
   const suggestionsBox = document.getElementById("contextSuggestions");
@@ -473,18 +475,21 @@ function injectDynamicShuffledSuggestions() {
   `).join("");
 }
 
-const fixedSystemPrompt = `You are ${BRAND_NAME}, a highly advanced cognitive intelligence platform created by the "MR7 Team" (co-founded by "Md Rehan"). Projections and current timeline state is updated to year 2026. 
-CRITICAL OUTPUT STRUCTURAL INSTRUCTION: Whenever formatting sequences, items, listings, or structured counts, you MUST explicitly output your data using ordered list counters starting exactly with standard labels like:
-1. First Point Name: Deep context breakdown response text.
-2. Second Point Name: Deep context breakdown response text.
-Do NOT drop numbered list prefix tags or build paragraphs out of clean arrays. Maintain alignment.`;
+const sequences = [
+  "Routing Neural Core Pipelines...",
+  "Searching Synaptic Knowledge Nodes...",
+  "Scanning Live Matrix Servers...",
+  "Analyzing Data Context Filters...",
+  "Formulating Core Transmission Text..."
+];
+
+const fixedSystemPrompt = `You are ${BRAND_NAME}, a highly advanced cognitive intelligence platform created by the "MR7 Team" (co-founded by "Md Rehan"). Projections and current state are in year 2026.
+CRITICAL FORMATTING INSTRUCTION: Whenever formatting elements, lists, or sequences are expected, you MUST explicitly output your response step-by-step using strict ordered list structures starting exactly with standard labels like:
+1. First Item: Details text.
+2. Second Item: Details text.
+Do NOT condense lists into blocks or remove prefix counters. Ensure lists are fully viewable on mobile viewports.`;
 
 let pointsMesh, lineMesh, material, lineMaterial, renderer;
-let lastScrollTop = 0;
-
-function hapticFeedback() {
-  if (navigator.vibrate) navigator.vibrate(12);
-}
 
 window.addEventListener("load", () => {
   document.documentElement.style.setProperty('--accent', currentAccent);
@@ -652,7 +657,7 @@ function handleWorkspaceFileUpload(event) {
         fileNameText.textContent = `📄 PDF: ${file.name} (${pdf.numPages} Pages)`;
         previewBanner.classList.remove("hidden");
       } catch (err) {
-        alert("Error reading document timeline nodes.");
+        alert("Error reading document nodes.");
       }
     };
     reader.readAsArrayBuffer(file);
@@ -751,7 +756,6 @@ function newChat() {
   renderChatList();
   renderMessages();
   
-  // INJECT ROTATED ARRAYS ON FRESH NODES
   injectDynamicShuffledSuggestions();
 
   const inp = document.getElementById("input");
@@ -765,7 +769,6 @@ function switchChat(id) {
   renderChatList();
   renderMessages();
   
-  // INJECT ROTATED ARRAYS ON CONVERSATION MATRIX SWITCH
   injectDynamicShuffledSuggestions();
 }
 
@@ -850,7 +853,6 @@ function renderMessages() {
         <p class="text-gray-400 text-xs md:text-sm mt-3 max-w-md">
           Processed via Multimodal Vision Pipelines. Text, images, and files handle automatically.
         </p>
-
         <div class="flex flex-nowrap md:grid md:grid-cols-2 gap-2 w-full mt-8 overflow-x-auto no-scrollbar pb-2" id="contextSuggestions">
         </div>
       </div>
@@ -952,6 +954,23 @@ function copyToClipboard(btn, index) {
   });
 }
 
+function startDynamicTypingAnimation(targetBubble) {
+  let idx = 0;
+  targetBubble.innerHTML = `
+    <div class="flex flex-col gap-2 py-1">
+      <span id="liveDynamicLoadingText" class="typing-cursor font-bold text-emerald-400 font-mono text-xs md:text-sm tracking-wider uppercase shimmer-text">${sequences[0]}</span>
+      <div class="w-3/4 h-1.5 bg-white/5 rounded-full overflow-hidden relative">
+        <div class="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-500 to-teal-400 w-1/3 rounded-full animate-bounce"></div>
+      </div>
+    </div>
+  `;
+  return setInterval(() => {
+    idx = (idx + 1) % sequences.length;
+    const txtEl = document.getElementById("liveDynamicLoadingText");
+    if (txtEl) txtEl.textContent = sequences[idx];
+  }, 1100);
+}
+
 function calculateBrainMirrorMatrix() {
   let textLength = 0;
   let codeKeywords = 0;
@@ -994,7 +1013,7 @@ function calculateBrainMirrorMatrix() {
     focusEl.textContent = "Deep Context Comprehension";
     strengthEl.textContent = "Exhaustive Knowledge Drilling";
   } else {
-    styleEl.textContent = "FAST VELOCITY PROTOTYPER";
+    styleEl.textContent = "FAST VELORITY PROTOTYPER";
     focusEl.textContent = "Iterative Direct Questions";
     strengthEl.textContent = "Rapid Workflow Agility";
   }
@@ -1148,6 +1167,7 @@ function toggleVisuals() {
   document.getElementById("visualToggleText").textContent = is3DActive ? "3D Grid On" : "3D Grid Off";
 }
 
+// RESTORED INDEPENDENT SUGGESTION EXECUTOR VIA DOM
 function useSuggestion(text) {
   const inp = document.getElementById("input");
   if (inp) {
