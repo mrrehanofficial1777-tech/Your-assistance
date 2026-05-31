@@ -95,20 +95,23 @@
     margin-bottom: 0.75rem;
   }
 
-  /* FORCED RESPONSIVE SYSTEM OVERRIDES FOR LIST STRUCTURE */
-  .prose ul, .prose ol {
+  /* FORCED SYSTEM RENDER OVERRIDES FOR LIST LABELS ON EVERY SCREEN */
+  .prose ul {
     padding-left: 1.5rem !important;
     margin-top: 0.5rem !important;
     margin-bottom: 0.5rem !important;
+    list-style-type: disc !important;
+  }
+  .prose ol {
+    padding-left: 1.5rem !important;
+    margin-top: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
+    list-style-type: decimal !important;
   }
   .prose li {
     margin-top: 0.4rem !important;
     margin-bottom: 0.4rem !important;
-    list-style-type: decimal !important;
     display: list-item !important;
-  }
-  .prose ul li {
-    list-style-type: disc !important;
   }
 
   @keyframes shimmer {
@@ -323,7 +326,7 @@
         </button>
         <div class="flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" id="top-pulse"></span>
-          <span class="text-[11px] md:text-xs font-semibold text-gray-300 font-mono tracking-wider uppercase truncate" id="activePersonaHeader">😊 Multimodal Omnicore Engine</span>
+          <span class="text-[11px] md:text-xs font-semibold text-gray-300 font-mono tracking-wider uppercase truncate" id="activePersonaHeader">😊 Multimodal Omnicore System</span>
         </div>
       </div>
 
@@ -335,6 +338,9 @@
 
         <button onclick="toggleVisuals()" id="visualToggleBtn" class="text-gray-300 hover:text-white bg-gradient-to-r from-emerald-500/10 via-transparent to-teal-500/10 hover:from-emerald-500/20 hover:to-teal-500/20 border border-emerald-500/30 px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-md shadow-emerald-950/40">
           <span id="visualToggleText">3D Grid On</span>
+        </button>
+        <button onclick="openSettings()" class="text-gray-400 hover:text-white bg-white/5 border border-white/5 p-2 rounded-xl text-xs transition-colors" title="Speech Profiles">
+          <i class="fas fa-sliders-h"></i>
         </button>
       </div>
     </header>
@@ -388,6 +394,43 @@
   </main>
 </div>
 
+<div id="settingsModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
+  <div id="settingsModalCard" class="bg-zinc-950 border border-white/10 rounded-3xl w-full max-w-lg p-5 md:p-6 m-4 shadow-2xl transform scale-95 transition-all duration-300 flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between border-b border-white/10 pb-3">
+      <div class="flex items-center gap-2 text-emerald-400">
+        <i class="fas fa-volume-up text-base md:text-lg"></i>
+        <h2 class="text-base md:text-lg font-bold font-heading">Audio Output Configuration</h2>
+      </div>
+      <button onclick="closeSettings()" class="text-gray-400 hover:text-white hover:bg-white/10 w-8 h-8 rounded-full flex items-center justify-center transition-all">
+        <i class="fas fa-times text-sm"></i>
+      </button>
+    </div>
+
+    <div class="flex flex-col gap-3 md:gap-4">
+      <div>
+        <label class="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5 font-mono">
+          <i class="fas fa-microphone-alt mr-1"></i> Built-In Reader Synthesis Accent
+        </label>
+        <select id="ttsAccent" class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono">
+          <option value="en-US" class="bg-zinc-950">English (US Accent - Clean Standard)</option>
+          <option value="en-GB" class="bg-zinc-950">English (UK Accent - Polished Tone)</option>
+          <option value="en-IN" class="bg-zinc-950">English (Indian Accent - Native Pronunciation)</option>
+          <option value="hi-IN" class="bg-zinc-950">Hindi (Multilingual Accent Output)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="flex gap-3 mt-3 pt-3 border-t border-white/10">
+      <button onclick="resetSettings()" class="flex-1 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl py-2.5 text-xs font-semibold text-gray-400 transition-colors">
+        Restore Defaults
+      </button>
+      <button onclick="saveAllSettings()" class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-black rounded-xl py-2.5 text-xs font-bold shadow-lg">
+        Sync Settings
+      </button>
+    </div>
+  </div>
+</div>
+
 <script>
 const BRAND_NAME = "MR7 AI"; 
 const BRAND_ACCENT = "ai"; 
@@ -400,6 +443,7 @@ let chats = JSON.parse(localStorage.getItem("mr7_v5_chats") || "{}");
 let currentChatId = localStorage.getItem("mr7_v5_current") || null;
 let currentAccent = localStorage.getItem("mr7_v5_accent") || "#10a37f";
 let currentAccentGlow = localStorage.getItem("mr7_v5_accent_glow") || "rgba(16,163,127,0.15)";
+let activeVoiceAccent = localStorage.getItem("mr7_v5_voice_accent") || "en-US";
 let isGenerating = false;
 let is3DActive = localStorage.getItem("mr7_v5_3d") !== "false";
 
@@ -407,34 +451,33 @@ let isWebSearchEnabled = localStorage.getItem("mr7_v5_websearch") === "true";
 let activeAttachedFileData = null; 
 let systemMemoryProfile = JSON.parse(localStorage.getItem("mr7_v5_memory_matrix") || "{}");
 
+// STATIC RAW SUGGESTION MATRIX ARCHITECTURE
 const globalPromptLibrary = [
   "Who is your co-founder and creator? 🌟",
-  "How can I manage my schedule effectively?",
-  "Explain space-time relativity using a direct analogy!",
   "Give me some fun ideas to practice active learning",
+  "How can I manage my schedule effectively?",
   "Write a robust clean algorithm to find missing matrix sequences"
 ];
 
-function getRandomPromptSet() {
+// FORCED RE-SHUFFLE EXECUTED NATIVELY ON CYCLES
+function injectDynamicShuffledSuggestions() {
   let shuffled = [...globalPromptLibrary].sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, 4);
+  const suggestionsBox = document.getElementById("contextSuggestions");
+  if (!suggestionsBox) return;
+  
+  suggestionsBox.innerHTML = shuffled.map(s => `
+    <button onclick="useSuggestion('${s}')" class="p-2.5 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl text-left text-[11px] font-semibold text-gray-300 hover:text-white transition-all flex items-center gap-2 group whitespace-nowrap shrink-0 font-sans">
+      <span>${s}</span>
+      <i class="fas fa-arrow-right text-[9px] text-emerald-400 opacity-0 group-hover:opacity-100 transition-all shrink-0"></i>
+    </button>
+  `).join("");
 }
 
-// RESTORED FULL MULTI-STAGE STEP TEXT CHARTS FOR LOADING TRANSITIONS
-const sequences = [
-  "Routing Neural Core Pipelines...",
-  "Searching Synaptic Knowledge Nodes...",
-  "Scanning Live Matrix Servers...",
-  "Analyzing Data Context Filters...",
-  "Formulating Core Transmission Text..."
-];
-
-// CRITICAL RE-INFORCED PROMPT INSTRUCTIONS FOR STRUCTURAL RESPONSES
-const fixedSystemPrompt = `You are ${BRAND_NAME}, a highly advanced cognitive intelligence platform created by the "MR7 Team" (co-founded by "Md Rehan"). Projections and base date are set in 2026. 
-CRITICAL SYSTEM INSTRUCTION: Whenever formatting elements, lists, or sequences are expected, you MUST explicitly output your response step-by-step using ordered list structures starting exactly with:
-1. Item Title: Breakdown text details
-2. Item Title: Breakdown text details
-Do NOT condense lists into paragraphs or drop numbered list counters. Maintain strict alignment.`;
+const fixedSystemPrompt = `You are ${BRAND_NAME}, a highly advanced cognitive intelligence platform created by the "MR7 Team" (co-founded by "Md Rehan"). Projections and current timeline state is updated to year 2026. 
+CRITICAL OUTPUT STRUCTURAL INSTRUCTION: Whenever formatting sequences, items, listings, or structured counts, you MUST explicitly output your data using ordered list counters starting exactly with standard labels like:
+1. First Point Name: Deep context breakdown response text.
+2. Second Point Name: Deep context breakdown response text.
+Do NOT drop numbered list prefix tags or build paragraphs out of clean arrays. Maintain alignment.`;
 
 let pointsMesh, lineMesh, material, lineMaterial, renderer;
 let lastScrollTop = 0;
@@ -448,6 +491,8 @@ window.addEventListener("load", () => {
   document.documentElement.style.setProperty('--accent-glow', currentAccentGlow);
 
   updateDynamicLogoAndBranding();
+
+  document.getElementById("ttsAccent").value = activeVoiceAccent;
 
   if (window.innerWidth < 768) {
     document.getElementById("sidebar").classList.add("-translate-x-full");
@@ -706,6 +751,9 @@ function newChat() {
   renderChatList();
   renderMessages();
   
+  // INJECT ROTATED ARRAYS ON FRESH NODES
+  injectDynamicShuffledSuggestions();
+
   const inp = document.getElementById("input");
   if (inp) inp.focus();
 }
@@ -716,6 +764,9 @@ function switchChat(id) {
   toggleSidebarIfMobile();
   renderChatList();
   renderMessages();
+  
+  // INJECT ROTATED ARRAYS ON CONVERSATION MATRIX SWITCH
+  injectDynamicShuffledSuggestions();
 }
 
 function deleteChat(id, e) {
@@ -788,8 +839,6 @@ function renderMessages() {
   const chat = chats[currentChatId];
 
   if (!chat || chat.messages.length === 0) {
-    const currentRandomPrompts = getRandomPromptSet();
-
     container.innerHTML = `
       <div class="flex-1 flex flex-col justify-center items-center text-center py-12 max-w-2xl mx-auto w-full px-4">
         <div class="w-16 h-16 rounded-[20px] overflow-hidden flex items-center justify-center border border-white/10 mb-6">
@@ -802,16 +851,11 @@ function renderMessages() {
           Processed via Multimodal Vision Pipelines. Text, images, and files handle automatically.
         </p>
 
-        <div class="grid grid-cols-1 gap-2 w-full mt-8">
-          ${currentRandomPrompts.map(s => `
-            <button onclick="useSuggestion('${s}')" class="p-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl text-left text-[11px] md:text-xs font-semibold text-gray-300 hover:text-white transition-all flex items-center justify-between group">
-              <span class="truncate pr-2">${s}</span>
-              <i class="fas fa-arrow-right text-[10px] text-emerald-400 opacity-0 group-hover:opacity-100 transition-all shrink-0"></i>
-            </button>
-          `).join("")}
+        <div class="flex flex-nowrap md:grid md:grid-cols-2 gap-2 w-full mt-8 overflow-x-auto no-scrollbar pb-2" id="contextSuggestions">
         </div>
       </div>
     `;
+    injectDynamicShuffledSuggestions();
     document.getElementById("contextualSuggestionsWrap").style.display = "block";
     return;
   }
@@ -906,23 +950,6 @@ function copyToClipboard(btn, index) {
     lbl.textContent = "Copied!";
     setTimeout(() => lbl.textContent = "Copy Text", 2000);
   });
-}
-
-function startDynamicTypingAnimation(targetBubble) {
-  let idx = 0;
-  targetBubble.innerHTML = `
-    <div class="flex flex-col gap-2 py-1">
-      <span id="liveDynamicLoadingText" class="typing-cursor font-bold text-emerald-400 font-mono text-xs md:text-sm tracking-wider uppercase shimmer-text">${sequences[0]}</span>
-      <div class="w-3/4 h-1.5 bg-white/5 rounded-full overflow-hidden relative">
-        <div class="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-500 to-teal-400 w-1/3 rounded-full animate-bounce"></div>
-      </div>
-    </div>
-  `;
-  return setInterval(() => {
-    idx = (idx + 1) % sequences.length;
-    const txtEl = document.getElementById("liveDynamicLoadingText");
-    if (txtEl) txtEl.textContent = sequences[idx];
-  }, 1100);
 }
 
 function calculateBrainMirrorMatrix() {
@@ -1101,6 +1128,19 @@ function setAccent(hex, glow) {
   document.documentElement.style.setProperty('--accent-glow', glow);
 }
 
+function saveAllSettings() {
+  activeVoiceAccent = document.getElementById("ttsAccent").value;
+  localStorage.setItem("mr7_v5_voice_accent", activeVoiceAccent);
+  closeSettings();
+}
+
+function resetSettings() {
+  setAccent('#10a37f', 'rgba(16,163,127,0.15)');
+  activeVoiceAccent = "en-US";
+  document.getElementById("ttsAccent").value = "en-US";
+  closeSettings();
+}
+
 function toggleVisuals() {
   is3DActive = !is3DActive;
   localStorage.setItem("mr7_v5_3d", is3DActive);
@@ -1193,3 +1233,4 @@ function init3DSpace() {
 </script>
 </body>
 </html>
+
