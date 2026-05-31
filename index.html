@@ -584,7 +584,7 @@ const BRAND_ACCENT = "ai";
 const EM_QA_KEY_B64 = "QVEuQWI4Uk42TGpiWk5lZUwwM0hGbmUyb3otT3hNSTBDT0NMQ3FEQ0o0RXdpMEtuQXJra3c="; 
 
 // 🛠️ APNI NEW GROQ API KEY BILKUL DIRECT YAHAN INVERTED COMMAS KE ANDAR PASTE KAREIN
-const DIRECT_GROQ_KEY = "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";
+const DIRECT_GROQ_KEY = "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"; 
 
 function getSecureQA() { return atob(EM_QA_KEY_B64); }
 function getSecureVL() { return DIRECT_GROQ_KEY; }
@@ -987,6 +987,7 @@ function importChatMatrixLogs(event) {
   event.target.value = ''; 
 }
 
+// Sidebar logic fixed
 function toggleSidebar() {
   hapticFeedback();
   const sidebar = document.getElementById("sidebar");
@@ -1418,6 +1419,14 @@ function inspectAndHarvestUserMemory(text) {
   localStorage.setItem("mr7_v5_memory_matrix", JSON.stringify(systemMemoryProfile));
 }
 
+// Enter submission logic securely managed
+function handleTextareaKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
 async function sendMessage() {
   if (isGenerating) return;
 
@@ -1753,4 +1762,3 @@ function init3DSpace() {
 </script>
 </body>
 </html>
-
