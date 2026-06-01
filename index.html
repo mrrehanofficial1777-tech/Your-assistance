@@ -22,8 +22,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';</script>
 
-<script src="https://js.puter.com/v2/"></script>
-
 <style>
   :root {
     --accent: #6ED987;
@@ -840,6 +838,7 @@ function toggleRadialMenu(e) {
   }
 }
 
+// STACK AND EVENT CONTROL FIX FOR MOBILE ACCESSIBILITY
 function closeRadialMenu() {
   const menu = document.getElementById("radialMenu");
   const icon = document.getElementById("actionDotIcon");
@@ -1011,7 +1010,6 @@ function handleTextareaKey(e) {
   }
 }
 
-// PERSONA SELECTION LOGIC
 function selectPersonaMenu(personaKey) {
   currentPersona = personaKey;
   localStorage.setItem("mr7_v5_persona", currentPersona);
@@ -1068,12 +1066,11 @@ function switchChat(id) {
   renderMessages();
 }
 
-// Fixed Double Confirm Handling Loop Error 
+// Clean functional delete process mapping
 function deleteChat(id, e) {
   e.stopPropagation();
   e.preventDefault();
   
-  // Safely look up parent item container without using e.target inside delayed interval frames
   delete chats[id];
   if (currentChatId === id) {
     const remainingIds = Object.keys(chats);
@@ -1125,7 +1122,6 @@ function filterChats(query) {
   renderChatList(filteredIds);
 }
 
-// Array containing unique dynamic lines for user welcome greetings
 const matrixUniqueGreetings = [
   "System online. What knowledge matrix can I generate for you?",
   "Neural link established. Drop your baseline inquiry guidelines below.",
@@ -1161,7 +1157,7 @@ function renderChatList(customIdArray = null) {
           <span class="text-xs ${isSel ? 'text-emerald-500' : 'text-gray-400'}" id="chat-icon-${id}"><i class="fas ${icon}"></i></span>
           <span class="text-xs text-gray-700 truncate pr-2 max-w-[140px] block">${escapeHtml(title)}</span>
         </div>
-        <button onclick="deleteChat('${id}', event)" class="p-2 rounded hover:bg-black/10 text-gray-400 hover:text-red-500 transition-all text-xs" title="Delete Log">
+        <button onclick="deleteChat('${id}', event)" class="p-2 rounded hover:bg-white/10 text-gray-400 hover:text-red-500 transition-all text-xs" title="Delete Log">
           <i class="fas fa-trash"></i>
         </button>
       </div>
@@ -1321,7 +1317,97 @@ function copySnippetDirect(button) {
   });
 }
 
-// PURE DIRECT IMAGE PIPELINE DOWNGRADE TO SERVER ROUTE TO FIX CROSS-ORIGIN POPUPS
+function copyToClipboard(btn, index) {
+  const chat = chats[currentChatId];
+  if (!chat || !chat.messages[index]) return;
+  
+  const text = chat.messages[index].content;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.innerHTML = `<i class="fas fa-check text-emerald-500"></i> <span>Copied!</span>`;
+    setTimeout(() => {
+      btn.innerHTML = `<i class="fas fa-plus text-xs text-emerald-500"></i> <span>Copy Text</span>`;
+    }, 2000);
+  }).catch(() => {});
+}
+
+function startDynamicTypingAnimation(targetBubble) {
+  let loaderMessage = "READING USER MATRIX...";
+  if (activeAttachedFileData) {
+    if (activeAttachedFileData.type === "image") {
+      loaderMessage = "EXTRACTING VISUAL DATA CORE...";
+    } else {
+      loaderMessage = "ANALYZING EXTRACTED MATRIX...";
+    }
+  }
+  targetBubble.innerHTML = `
+    <div class="flex flex-col gap-2 py-1">
+      <span id="liveDynamicLoadingText" class="typing-cursor font-bold text-emerald-600 font-mono text-xs tracking-wider uppercase shimmer-text">
+        ${loaderMessage}
+      </span>
+    </div>
+  `;
+}
+
+function calculateBrainMirrorMatrix() {
+  let textLength = 0;
+  let codeKeywords = 0;
+  let totalMessages = 0;
+
+  Object.values(chats).forEach(c => {
+    if(c.messages) {
+      c.messages.forEach(m => {
+        if (m.role === "user") {
+          totalMessages++;
+          textLength += m.content.length;
+          if (m.content.includes("{") || m.content.includes("function") || m.content.includes("code") || m.content.includes("bug")) {
+            codeKeywords++;
+          }
+        }
+      });
+    }
+  });
+
+  const loader = document.getElementById("brainMirrorLoader");
+  const stats = document.getElementById("brainMirrorStats");
+
+  if (totalMessages === 0) {
+    loader.classList.remove("hidden");
+    stats.classList.add("hidden");
+    return;
+  }
+
+  loader.classList.add("hidden");
+  stats.classList.remove("hidden");
+
+  const styleEl = document.getElementById("bmStyle");
+  const focusEl = document.getElementById("bmFocus");
+  const strengthEl = document.getElementById("bmStrength");
+
+  if (codeKeywords > 0) {
+    styleEl.textContent = "STRUCTURAL ARCHITECT";
+    focusEl.textContent = "Logic & Syntax Optimization";
+    strengthEl.textContent = "System Scalability";
+  } else {
+    styleEl.textContent = "FAST VELOCITY PROTOTYPER";
+    focusEl.textContent = "Iterative Direct Questions";
+    strengthEl.textContent = "Rapid Workflow Agility";
+  }
+}
+
+function inspectAndHarvestUserMemory(text) {
+  const lower = text.toLowerCase();
+  const matchHindi = text.match(/(?:mera\s+naam\s+is|mera\s+naam\s+hai|mera\s+name\s+hai)\s+([A-Za-z0-9\s]+)/i);
+  const matchEnglish = text.match(/my\s+name\s+is\s+([A-Za-z0-9\s]+)/i);
+
+  let detectedName = null;
+  if (matchHindi && matchHindi[1]) detectedName = matchHindi[1].trim();
+  if (matchEnglish && matchEnglish[1]) detectedName = matchEnglish[1].trim();
+
+  if (detectedName) systemMemoryProfile.userName = detectedName;
+  localStorage.setItem("mr7_v5_memory_matrix", JSON.stringify(systemMemoryProfile));
+}
+
+// 🌐 Pure Free Custom Processing Connection Module (No Puter Library Calls for Messaging)
 async function sendMessage() {
   if (isGenerating) return;
 
@@ -1376,7 +1462,7 @@ async function sendMessage() {
   try {
     let payloadHistory = JSON.parse(JSON.stringify(chat.messages.slice(0, -1)));
     if (processedPromptContent !== text) {
-      payloadHistory[payloadHistory.length - 1].content = processedPromptContent;
+        payloadHistory[payloadHistory.length - 1].content = processedPromptContent;
     }
     
     // Completely routed to back-end server endpoint to bypass Puter authorization popups 
@@ -1479,10 +1565,7 @@ function useSuggestion(text) {
   }
 }
 
-function escapeHtml(s) {
-  return (s || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-}
-
+// 🤖 Premium Ultra 3D Robot Generation Engine Setup (Image Reference Match)
 function init3DSpace() {
   const canvas = document.getElementById("bg-canvas");
   renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
@@ -1642,7 +1725,6 @@ function init3DSpace() {
     targetX += (mouseX - targetX) * 0.08;
     targetY += (mouseY - targetY) * 0.08;
 
-    // Elegant stabilization and hovering float paths
     avatarGroup.position.y = -0.5 + Math.sin(elapsedTime * 1.5) * 0.5;
     avatarGroup.rotation.y = targetX * 0.2 + Math.sin(elapsedTime * 0.2) * 0.03;
 
@@ -1654,13 +1736,11 @@ function init3DSpace() {
     visorMesh.rotation.y = targetX * 0.2;
     visorMesh.rotation.x = targetY * 0.1;
 
-    // Fixed Flat Plane tracking positioning loop alignment
     leftEye.position.x = -0.85 + (targetX * 0.15);
     leftEye.position.y = 6.25 - (targetY * 0.1);
     rightEye.position.x = 0.85 + (targetX * 0.15);
     rightEye.position.y = 6.25 - (targetY * 0.1);
 
-    // Visor eye blinking cycles
     let blink = Math.floor(elapsedTime) % 6 === 0 && Math.sin(elapsedTime * 25) > 0.7;
     if (blink) {
       leftEye.scale.y = 0.05;
@@ -1680,6 +1760,10 @@ function init3DSpace() {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
+}
+
+function escapeHtml(s) {
+  return (s || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 </script>
 </body>
