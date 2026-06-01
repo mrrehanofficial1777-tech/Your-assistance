@@ -452,7 +452,7 @@
             </div>
           </div>
 
-          <div id="radialMenu" class="absolute bottom-16 left-3 bg-zinc-950/95 border border-white/10 p-2 rounded-2xl shadow-2xl flex flex-col gap-2 scale-0 opacity-0 origin-bottom-left transition-all duration-200 z-40 min-w-[170px]">
+          <div id="radialMenu" class="absolute bottom-16 left-3 bg-zinc-950/95 border border-white/10 p-2 rounded-2xl shadow-2xl flex flex-col gap-2 scale-0 opacity-0 origin-bottom-left transition-all duration-200 z-40 min-w-[190px]">
             <button onclick="triggerWorkspaceUpload()" class="w-full p-2.5 rounded-xl hover:bg-white/5 text-left text-gray-300 flex items-center gap-3 transition-colors">
               <i class="fas fa-file-upload text-emerald-400 w-4"></i>
               <span class="text-xs font-semibold">Upload Photo / PDF / Text</span>
@@ -554,11 +554,14 @@
 const BRAND_NAME = "MR7 AI"; 
 const BRAND_ACCENT = "ai"; 
 
-const EM_QA_KEY_B64 = "QUl6YVN5Q3Q1cFBwLXI1UEVnTU1sM1NFUzI5dkNXZFJsMklrWUF3"; 
-const EM_VL_KEY_B64 = "Z3NrX0Y1c0NQd01ZZzZYS2tzSFV0aERNV0dyeWIzRlk1NnAzQXR6cHBaZTFWZGZnNTFYNU1qNEM="; 
+// GEMINI PRODUCTION KEY (ENCRYPTED MATRIX)
+const EM_QA_KEY_B64 = "QVEuQWI4Uk42TGpiWk5lZUwwM0hGbmUyb3otT3hNSTBDT0NMQ3FEQ0o0RXdpMEtuQXJra3c="; 
+
+// 🛠️ APNI NEW GROQ API KEY BILKUL DIRECT YAHAN INVERTED COMMAS KE ANDAR PASTE KAREIN
+const DIRECT_GROQ_KEY = "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"; 
 
 function getSecureQA() { return atob(EM_QA_KEY_B64); }
-function getSecureVL() { return atob(EM_VL_KEY_B64); }
+function getSecureVL() { return DIRECT_GROQ_KEY; }
 
 let chats = JSON.parse(localStorage.getItem("mr7_v5_chats") || "{}");
 let currentChatId = localStorage.getItem("mr7_v5_current") || null;
@@ -598,10 +601,10 @@ function getRandomPromptSet() {
 }
 
 const systemPrompts = {
-  friendly: `You are ${BRAND_NAME}, a highly advanced cognitive intelligence platform created by the "MR7 Team" (co-founded by "Md Rehan"). Current date is Monday, June 1, 2026. Keep answers short, smart, extremely concise, and crisp. Absolutely no unnecessary paragraphs, prefixes, or explanations unless specifically requested. Avoid "Namaste". If user says casual things like "hey", "hello", "hey bro", respond exactly like: "wats up bro i am fine whats on your mind" or similar ultra-short dynamic patterns.`,
-  coder: `You are ${BRAND_NAME}, an elite Software Architect created by the "MR7 Team" (co-founded by "Md Rehan"). Write highly clean, optimized, minimal code without unnecessary descriptive text wrappers. Response must be extremely short.`,
-  writer: `You are ${BRAND_NAME}, a creative copywriter built by the "MR7 Team" (co-founded by "Md Rehan"). Focus on direct engagement and sharp, elegant expressions without long intros.`,
-  expert: `You are ${BRAND_NAME}, a technical research consultant built by the "MR7 Team" (co-founded by "Md Rehan"). Provide straight, objective data points without preamble or conversational filler.`
+  friendly: `You are ${BRAND_NAME}, a highly advanced cognitive intelligence platform created by the "MR7 Team" (co-founded by "Md Rehan"). Base current date is Sunday, May 31, 2026. Match input syntax perfect.`,
+  coder: `You are ${BRAND_NAME}, an elite Software Architect created by the "MR7 Team" (co-founded by "Md Rehan").`,
+  writer: `You are ${BRAND_NAME}, a creative copywriter and poet built by the "MR7 Team" (co-founded by "Md Rehan").`,
+  expert: `You are ${BRAND_NAME}, a technical research consultant built by the "MR7 Team" (co-founded by "Md Rehan").`
 };
 
 let speechUtterance = null;
@@ -990,6 +993,13 @@ function toggleSidebarIfMobile() {
   }
 }
 
+function handleTextareaKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
 function selectPersonaMenu(personaKey) {
   currentPersona = personaKey;
   localStorage.setItem("mr7_v5_persona", currentPersona);
@@ -1006,16 +1016,32 @@ function updatePersonaUI() {
   document.getElementById("activePersonaHeader").textContent = titles[currentPersona] || titles.friendly;
 }
 
-function generateRandomDashboardHeader() {
-  const randomHeaders = [
-    "Welcome to MR7 ai Matrix Core",
-    "Hey! What's on your mind today?",
-    "Yo! Ready to spin some logic queries?",
-    "Wats up! Let's build something optimized",
-    "Hello! Ready to process secure pipelines?",
-    "Workspace active! Type what's on your mind"
-  ];
-  return randomHeaders[Math.floor(Math.random() * randomHeaders.length)];
+function autoGrow(el) {
+  el.style.height = "auto";
+  el.style.height = Math.min(el.scrollHeight, 120) + "px";
+}
+
+function clearInput() {
+  const inp = document.getElementById("input");
+  inp.value = "";
+  autoGrow(inp);
+}
+
+function newChat() {
+  const id = "chat_" + Date.now();
+  chats[id] = {
+    id: id,
+    title: "New Conversation",
+    messages: [],
+    persona: currentPersona
+  };
+  currentChatId = id;
+  saveChatsToLocal();
+  renderChatList();
+  renderMessages();
+  
+  const inp = document.getElementById("input");
+  if (inp) inp.focus();
 }
 
 function switchChat(id) {
@@ -1085,6 +1111,30 @@ function initSwipeToDelete(elementId) {
   });
 }
 
+function saveChatsToLocal() {
+  localStorage.setItem("mr7_v5_chats", JSON.stringify(chats));
+  localStorage.setItem("mr7_v5_current", currentChatId);
+}
+
+function filterChats(query) {
+  const val = query.trim().toLowerCase();
+  const filteredIds = Object.keys(chats).reverse().filter(id => chats[id].title.toLowerCase().includes(val));
+  renderChatList(filteredIds);
+}
+
+// Random Dynamic Greeting Phrases Added Securely (Excluding "Namaste")
+function generateCoolUniqueGreeting() {
+  const coolGreetings = [
+    "Transmission online. Hey! How can I assist your workflow today?",
+    "System active. Hello there! What extraordinary problem are we decoding together?",
+    "Core ready. Yo! Drop your queries, let's build something optimized.",
+    "Data streams stabilized. Hey! Ready to spin up some elite answers?",
+    "Greetings terminal companion. Hello! Tell me what you're plotting next.",
+    "Quantum layer responsive. What's up? Ready to process structural data sets."
+  ];
+  return coolGreetings[Math.floor(Math.random() * coolGreetings.length)];
+}
+
 function renderChatList(customIdArray = null) {
   const container = document.getElementById("chatList");
   const ids = customIdArray || Object.keys(chats).reverse();
@@ -1125,7 +1175,6 @@ function renderMessages() {
 
   if (!chat || chat.messages.length === 0) {
     const currentRandomPrompts = getRandomPromptSet();
-    const currentDashboardHeader = generateRandomDashboardHeader();
 
     container.innerHTML = `
       <div class="flex-1 flex flex-col justify-center items-center text-center py-6 md:py-10 max-w-2xl mx-auto">
@@ -1133,7 +1182,7 @@ function renderMessages() {
           <img src="logo.png" alt="Central Logo" class="w-full h-full object-cover" />
         </div>
         <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white font-heading">
-          <span class="text-white">${currentDashboardHeader}</span>
+          Welcome to <span class="text-emerald-400">MR7 ai</span>
         </h2>
         <p class="text-gray-400 text-xs md:text-sm mt-3 leading-relaxed max-w-md font-sans">
           Safely write files, design programs, and analyze systems with absolute privacy.
@@ -1416,6 +1465,12 @@ async function sendMessage() {
       payloadHistory[payloadHistory.length - 1].content = processedPromptContent;
     }
 
+    // Checking if first message to apply custom random unique greeting securely
+    let customInitialPrefix = "";
+    if (chat.messages.length === 2) { 
+      customInitialPrefix = generateCoolUniqueGreeting() + "\n\n";
+    }
+
     let currentCallEngine = activeEngine;
     if (activeAttachedFileData && activeAttachedFileData.type === "image") {
        currentCallEngine = "gemini"; 
@@ -1427,7 +1482,7 @@ async function sendMessage() {
       responseText = await triggerVelocityTextAPI(payloadHistory);
     }
     
-    chat.messages[chat.messages.length - 1].content = responseText;
+    chat.messages[chat.messages.length - 1].content = customInitialPrefix + responseText;
   } catch (err) {
     console.error("Main API Flow Error: ", err);
     chat.messages[chat.messages.length - 1].content = `⚠️ **Transmission Error:** Core routing nodes failed. Please verify API connections.`;
@@ -1561,6 +1616,7 @@ function resetSettings() {
   document.getElementById("apiEngine").value = "groq";
   document.getElementById("ttsAccent").value = "en-US";
   document.getElementById("apiTemperature").value = 0.7;
+  document.getElementById("tempValueDisplay").textContent = 0.7;
 
   updateEngineUI();
   closeSettings();
