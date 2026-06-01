@@ -55,7 +55,7 @@
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    opacity: 0.45;
+    opacity: 0.75;
     transition: opacity 0.5s;
   }
 
@@ -600,17 +600,18 @@ function getRandomPromptSet() {
   return shuffled.slice(0, 4);
 }
 
+// Fixed June 2026 Date and Super Short Casual Chat Prompting
 const systemPrompts = {
-  friendly: `You are ${BRAND_NAME}, a highly advanced cognitive intelligence platform created by the "MR7 Team" (co-founded by "Md Rehan"). Base current date is Sunday, May 31, 2026. Match input syntax perfect.`,
-  coder: `You are ${BRAND_NAME}, an elite Software Architect created by the "MR7 Team" (co-founded by "Md Rehan").`,
-  writer: `You are ${BRAND_NAME}, a creative copywriter and poet built by the "MR7 Team" (co-founded by "Md Rehan").`,
-  expert: `You are ${BRAND_NAME}, a technical research consultant built by the "MR7 Team" (co-founded by "Md Rehan").`
+  friendly: `You are ${BRAND_NAME} Core, created by the "MR7 Team" (co-founded by "Md Rehan"). Today's date is Monday, June 1, 2026. Give extremely short, sweet, point-to-point, friendly casual replies in Hinglish/English. Answer like a human peer in chat rooms (e.g., "kuch nahi bhai...", "aur batao tum"). Never use long intros or verbose greetings.`,
+  coder: `You are ${BRAND_NAME} Architect. Give extremely direct, clean code solutions without meta explanations. Today's date is June 2026.`,
+  writer: `You are ${BRAND_NAME} Creative Matrix. Give precise, elegant, short responses. Today's date is June 2026.`,
+  expert: `You are ${BRAND_NAME} Analyst. Answer in highly compressed, direct technical insights. Today's date is June 2026.`
 };
 
 let speechUtterance = null;
 let activeSpeakerBtn = null;
 let lastScrollTop = 0;
-let pointsMesh, lineMesh, material, lineMaterial, renderer;
+let renderer, scene, camera, avatarGroup, headMesh, leftEye, rightEye, leftArm, rightArm;
 
 function hapticFeedback() {
   if (navigator.vibrate) navigator.vibrate(12);
@@ -704,7 +705,9 @@ window.addEventListener("load", () => {
   const btn = document.getElementById("visualToggleBtn");
   if (!is3DActive) {
     document.getElementById("bg-canvas").style.opacity = "0";
-    btn.querySelector("span").textContent = "3D Grid Off";
+    btn.querySelector("span").textContent = "3D Avatar Off";
+  } else {
+    btn.querySelector("span").textContent = "3D Avatar On";
   }
 
   window.addEventListener("click", (e) => {
@@ -859,7 +862,7 @@ function handleWorkspaceFileUpload(event) {
         base64: e.target.result.split(",")[1],
         mimeType: file.type
       };
-      fileNameText.textContent = `🖼️ Image: ${file.name}`;
+      fileNameText.textContent = `🖼️ Image Selected: ${file.name}`;
       previewBanner.classList.remove("hidden");
     };
     reader.readAsDataURL(file);
@@ -883,7 +886,7 @@ function handleWorkspaceFileUpload(event) {
         fileNameText.textContent = `📄 PDF: ${file.name} (${pdf.numPages} Pages)`;
         previewBanner.classList.remove("hidden");
       } catch (err) {
-        alert("Error parsing PDF matrix pipeline safely.");
+        alert("Error parsing PDF safely.");
       }
     };
     reader.readAsArrayBuffer(file);
@@ -1031,7 +1034,7 @@ function newChat() {
   const id = "chat_" + Date.now();
   chats[id] = {
     id: id,
-    title: "New Conversation",
+    title: "New Chat Session",
     messages: [],
     persona: currentPersona
   };
@@ -1122,16 +1125,13 @@ function filterChats(query) {
   renderChatList(filteredIds);
 }
 
-// Random Greeting Phrases for Welcome Screen (Changes on every new chat reload)
 function generateCoolUniqueGreeting() {
   const coolGreetings = [
-    "Hey! How can I assist your workflow today?",
-    "Hello there! What extraordinary problem are we decoding together?",
-    "Yo! Drop your queries, let's build something optimized.",
-    "Hey! Ready to spin up some elite answers?",
-    "Hello! Tell me what you're plotting next.",
-    "What's up? Ready to process structural data sets.",
-    "Whats on your mind today? Let's get to work!"
+    "Hey! Kaise ho? Batao aaj kya chal raha hai?",
+    "Whats on your mind? Kuch badhiya karte hain!",
+    "Yo! Kaise aana hua? Drop your query here.",
+    "Hey friend! Sab sahi chal raha haina? Aur batao!",
+    "Batao bhai, aaj kya help chahiye? Short & sweet batana."
   ];
   return coolGreetings[Math.floor(Math.random() * coolGreetings.length)];
 }
@@ -1141,7 +1141,7 @@ function renderChatList(customIdArray = null) {
   const ids = customIdArray || Object.keys(chats).reverse();
   
   if (ids.length === 0) {
-    container.innerHTML = `<p class="text-center text-xs text-gray-500 py-6 font-medium">No active histories found.</p>`;
+    container.innerHTML = `<p class="text-center text-xs text-gray-500 py-6 font-medium">No histories found.</p>`;
     return;
   }
 
@@ -1179,20 +1179,20 @@ function renderMessages() {
     const dynamicGreeting = generateCoolUniqueGreeting();
 
     container.innerHTML = `
-      <div class="flex-1 flex flex-col justify-center items-center text-center py-6 md:py-10 max-w-2xl mx-auto">
+      <div class="flex-1 flex flex-col justify-center items-center text-center py-6 md:py-10 max-w-2xl mx-auto z-10 relative">
         <div class="w-16 h-16 rounded-[20px] overflow-hidden flex items-center justify-center border border-white/10 mb-6" id="welcomeGlow">
           <img src="logo.png" alt="Central Logo" class="w-full h-full object-cover" />
         </div>
-        <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white font-heading">
+        <h2 class="text-xl md:text-2xl font-extrabold tracking-tight text-white font-heading px-4">
           <span class="text-emerald-400">${dynamicGreeting}</span>
         </h2>
-        <p class="text-gray-400 text-xs md:text-sm mt-3 leading-relaxed max-w-md font-sans">
-          Welcome to MR7 AI workspace. Safely write files, design programs, and analyze systems with absolute privacy.
+        <p class="text-gray-400 text-xs mt-2 leading-relaxed max-w-md px-6">
+          MR7 Autonomous Workspace Layer active.
         </p>
 
-        <div class="grid grid-cols-1 gap-2 w-full mt-8 px-4">
+        <div class="grid grid-cols-1 gap-2 w-full mt-6 px-4 max-w-md">
           ${currentRandomPrompts.map(s => `
-            <button onclick="useSuggestion('${s}')" class="p-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl text-left text-[11px] md:text-xs font-semibold text-gray-300 hover:text-white transition-all flex items-center justify-between group font-sans">
+            <button onclick="useSuggestion('${s}')" class="p-3 bg-zinc-900/60 hover:bg-white/10 border border-white/5 rounded-xl text-left text-[11px] font-semibold text-gray-300 hover:text-white transition-all flex items-center justify-between group">
               <span class="truncate pr-2">${s}</span>
               <i class="fas fa-arrow-right text-[10px] text-emerald-400 opacity-0 group-hover:opacity-100 transition-all shrink-0"></i>
             </button>
@@ -1220,17 +1220,17 @@ function renderMessageBubble(m, idx) {
 
   const actionControls = !isUser ? `
     <div class="flex items-center gap-2 mt-3 pt-2.5 border-t border-white/5 font-sans">
-      <button onclick="ttsSpeak(this, ${idx})" class="px-2 py-0.5 rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-[10px] md:text-[11px] font-semibold flex items-center gap-1.5 transition-colors" title="Read Text Aloud">
+      <button onclick="ttsSpeak(this, ${idx})" class="px-2 py-0.5 rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-[10px] font-semibold flex items-center gap-1.5 transition-colors">
         <i class="fas fa-volume-up text-xs text-emerald-400"></i> <span class="audio-label">Read Aloud</span>
       </button>
-      <button onclick="copyToClipboard(this, ${idx})" class="px-2 py-0.5 rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-[10px] md:text-[11px] font-semibold flex items-center gap-1.5 transition-colors">
+      <button onclick="copyToClipboard(this, ${idx})" class="px-2 py-0.5 rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-[10px] font-semibold flex items-center gap-1.5 transition-colors">
         <i class="fas fa-plus text-xs text-emerald-400"></i> <span>Copy Text</span>
       </button>
     </div>
   ` : "";
 
   return `
-    <div class="w-full ${isUser ? 'bg-transparent' : 'bg-white/[0.015] border-y border-white/[0.02]'} py-4 px-3 md:px-6 rounded-2xl">
+    <div class="w-full ${isUser ? 'bg-transparent' : 'bg-black/40 border-y border-white/[0.02]'} py-4 px-3 md:px-6 rounded-2xl backdrop-blur-xs">
       <div class="max-w-4xl mx-auto flex gap-3 md:gap-5 items-start">
         <div class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold shrink-0 ${isUser ? 'bg-[#3b82f6]/20 text-[#3b82f6]' : 'bg-emerald-500/20 text-emerald-400'}">
           ${isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-brain"></i>'}
@@ -1313,29 +1313,14 @@ function copyToClipboard(btn, index) {
 }
 
 function startDynamicTypingAnimation(targetBubble) {
-  const sequences = [
-    "Routing Neural Core Pipelines...",
-    "Searching Synaptic Knowledge Nodes...",
-    "Scanning Live Matrix Servers...",
-    "Analyzing Data Context Filters...",
-    "Formulating Core Transmission Text..."
-  ];
-  let idx = 0;
+  const sequences = ["Processing Content..."];
   targetBubble.innerHTML = `
     <div class="flex flex-col gap-2 py-1">
-      <span id="liveDynamicLoadingText" class="typing-cursor font-bold text-emerald-400 font-mono text-xs md:text-sm tracking-wider uppercase shimmer-text">
+      <span id="liveDynamicLoadingText" class="typing-cursor font-bold text-emerald-400 font-mono text-xs tracking-wider uppercase shimmer-text">
         ${sequences[0]}
       </span>
-      <div class="w-3/4 h-1.5 bg-white/5 rounded-full overflow-hidden relative">
-        <div class="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-500 to-teal-400 w-1/3 rounded-full animate-bounce" style="animation-duration: 2s"></div>
-      </div>
     </div>
   `;
-  return setInterval(() => {
-    idx = (idx + 1) % sequences.length;
-    const txtEl = document.getElementById("liveDynamicLoadingText");
-    if (txtEl) txtEl.textContent = sequences[idx];
-  }, 1200);
 }
 
 function calculateBrainMirrorMatrix() {
@@ -1377,10 +1362,6 @@ function calculateBrainMirrorMatrix() {
     styleEl.textContent = "STRUCTURAL ARCHITECT";
     focusEl.textContent = "Logic & Syntax Optimization";
     strengthEl.textContent = "System Scalability";
-  } else if (textLength / totalMessages > 60) {
-    styleEl.textContent = "ANALYTICAL RESEARCHER";
-    focusEl.textContent = "Deep Context Comprehension";
-    strengthEl.textContent = "Exhaustive Knowledge Drilling";
   } else {
     styleEl.textContent = "FAST VELOCITY PROTOTYPER";
     focusEl.textContent = "Iterative Direct Questions";
@@ -1390,7 +1371,6 @@ function calculateBrainMirrorMatrix() {
 
 function inspectAndHarvestUserMemory(text) {
   const lower = text.toLowerCase();
-  
   const matchHindi = text.match(/(?:mera\s+naam\s+is|mera\s+naam\s+hai|mera\s+name\s+hai)\s+([A-Za-z0-9\s]+)/i);
   const matchEnglish = text.match(/my\s+name\s+is\s+([A-Za-z0-9\s]+)/i);
 
@@ -1398,17 +1378,7 @@ function inspectAndHarvestUserMemory(text) {
   if (matchHindi && matchHindi[1]) detectedName = matchHindi[1].trim();
   if (matchEnglish && matchEnglish[1]) detectedName = matchEnglish[1].trim();
 
-  if (detectedName) {
-    systemMemoryProfile.userName = detectedName;
-  }
-
-  if (lower.includes("developer") || lower.includes("coder") || lower.includes("programming")) {
-    systemMemoryProfile.profession = "Software Developer";
-  }
-  if (lower.includes("student") || lower.includes("college") || lower.includes("school")) {
-    systemMemoryProfile.profession = "Academic Learner";
-  }
-
+  if (detectedName) systemMemoryProfile.userName = detectedName;
   localStorage.setItem("mr7_v5_memory_matrix", JSON.stringify(systemMemoryProfile));
 }
 
@@ -1419,29 +1389,27 @@ async function sendMessage() {
   let text = inp.value.trim();
   
   if (!text && activeAttachedFileData && activeAttachedFileData.type === "image") {
-      text = "Describe this image in detail.";
+      text = "Describe this uploaded image clearly and tell me what is inside it.";
   } else if (!text && activeAttachedFileData) {
-      text = "Please analyze this attached file.";
+      text = "Analyze this attached context matrix.";
   } else if (!text) {
       return; 
   }
   
   hapticFeedback();
   const chat = chats[currentChatId];
-  
   inspectAndHarvestUserMemory(text);
   let processedPromptContent = text;
   
   if (activeAttachedFileData) {
     if (activeAttachedFileData.type === "pdf" || activeAttachedFileData.type === "text") {
-      processedPromptContent = `[CONTEXT ATTACHED WORKSPACE FILE: ${activeAttachedFileData.name}]\n\n${activeAttachedFileData.text}\n\nUser Question:\n${text}`;
+      processedPromptContent = `[ATTACHED CORE MATRIX DATA: ${activeAttachedFileData.name}]\n\n${activeAttachedFileData.text}\n\nQuestion:\n${text}`;
     }
   }
 
   chat.messages.push({ role: "user", content: text });
-  
   if (chat.messages.length === 1) {
-    chat.title = text.length > 22 ? text.slice(0, 20) + "..." : text;
+    chat.title = text.length > 20 ? text.slice(0, 18) + "..." : text;
   }
 
   clearInput();
@@ -1454,8 +1422,7 @@ async function sendMessage() {
   
   const msgElements = document.getElementById("messages").querySelectorAll(".prose");
   const targetBubble = msgElements[msgElements.length - 1];
-  
-  const structuralAnimIntervalId = startDynamicTypingAnimation(targetBubble);
+  startDynamicTypingAnimation(targetBubble);
 
   isGenerating = true;
   document.getElementById("sendBtn").disabled = true;
@@ -1467,6 +1434,7 @@ async function sendMessage() {
       payloadHistory[payloadHistory.length - 1].content = processedPromptContent;
     }
 
+    // Force Image Analysis to use Gemini Production Engine Pipeline
     let currentCallEngine = activeEngine;
     if (activeAttachedFileData && activeAttachedFileData.type === "image") {
        currentCallEngine = "gemini"; 
@@ -1478,13 +1446,10 @@ async function sendMessage() {
       responseText = await triggerVelocityTextAPI(payloadHistory);
     }
     
-    // Yahan se faltu prefix strings ko permanently hata diya gaya hai simple clean answers ke liye.
     chat.messages[chat.messages.length - 1].content = responseText;
   } catch (err) {
-    console.error("Main API Flow Error: ", err);
-    chat.messages[chat.messages.length - 1].content = `⚠️ **Transmission Error:** Core routing nodes failed. Please verify API connections.`;
+    chat.messages[chat.messages.length - 1].content = `⚠️ Engine connectivity disrupted. Try again.`;
   } finally {
-    clearInterval(structuralAnimIntervalId);
     isGenerating = false;
     document.getElementById("sendBtn").disabled = false;
     clearAttachedWorkspaceDocument();
@@ -1516,10 +1481,7 @@ async function triggerQuantumTextAPI(chatHistory) {
     });
 
     let memoryPromptString = "";
-    if (systemMemoryProfile.userName) memoryPromptString += ` Remember: User name is "${systemMemoryProfile.userName}". Always respond accordingly if asked.`;
-    if (systemMemoryProfile.profession) memoryPromptString += ` User background: ${systemMemoryProfile.profession}.`;
-    if (isWebSearchEnabled) memoryPromptString += ` [WEB SEARCH SIMULATION MODE INTERNET RE-ROUTING LIVE ACTIVE: Synthesize responses with latest 2026 data projections]`;
-
+    if (systemMemoryProfile.userName) memoryPromptString += ` User name is ${systemMemoryProfile.userName}.`;
     const systemInstructionText = (systemPrompts[currentPersona] || systemPrompts.friendly) + memoryPromptString;
     
     const payload = {
@@ -1535,24 +1497,17 @@ async function triggerQuantumTextAPI(chatHistory) {
     });
     
     const result = await response.json();
-    
-    if (!response.ok) {
-       throw new Error(result.error?.message || "Quota Exceeded/Server Down");
-    }
-    
-    return result.candidates?.[0]?.content?.parts?.[0]?.text || "*(Missing Candidate Payload)*";
-  } catch (geminiError) {
-    console.warn("Gemini Engine Down or Quota Exceeded. Fallback trigger activated safely...", geminiError);
+    return result.candidates?.[0]?.content?.parts?.[0]?.text || "*(Empty Response)*";
+  } catch (e) {
     return await triggerVelocityTextAPI(chatHistory);
   }
 }
 
 async function triggerVelocityTextAPI(chatHistory) {
   let memoryPromptString = "";
-  if (systemMemoryProfile.userName) memoryPromptString += ` User context details: Name is "${systemMemoryProfile.userName}".`;
-  if (isWebSearchEnabled) memoryPromptString += ` [SIMULATE LIVE INTERNET WIRE SEARCH PATTERNS FOR YEAR 2026]`;
+  if (systemMemoryProfile.userName) memoryPromptString += ` User Context: Name is ${systemMemoryProfile.userName}.`;
 
-  const systemPrompt = `You are ${BRAND_NAME} Core Assistant. Neural Instructions: ${systemPrompts[currentPersona]} ${memoryPromptString}`;
+  const systemPrompt = `${systemPrompts[currentPersona]} ${memoryPromptString}`;
   const messages = [{ role: "system", content: systemPrompt }, ...chatHistory.map(m => ({ role: m.role === "user" ? "user" : "assistant", content: m.content }))];
   
   const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -1561,13 +1516,7 @@ async function triggerVelocityTextAPI(chatHistory) {
     body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: messages, temperature: currentTemperature })
   });
   const result = await response.json();
-  
-  if (!response.ok) {
-     console.error("Groq API Error: ", result);
-     return `*(Velocity API Error: ${result.error?.message || "Buffer matrix error"})*`;
-  }
-  
-  return result.choices?.[0]?.message?.content || "*(Velocity buffer matrix error)*";
+  return result.choices?.[0]?.message?.content || "*(Empty response pipeline)*";
 }
 
 function openSettings() {
@@ -1595,11 +1544,9 @@ function saveAllSettings() {
   activeEngine = document.getElementById("apiEngine").value;
   activeVoiceAccent = document.getElementById("ttsAccent").value;
   currentTemperature = parseFloat(document.getElementById("apiTemperature").value);
-
   localStorage.setItem("mr7_v5_engine", activeEngine);
   localStorage.setItem("mr7_v5_voice_accent", activeVoiceAccent);
   localStorage.setItem("mr7_v5_temp", currentTemperature);
-
   updateEngineUI();
   closeSettings();
 }
@@ -1609,12 +1556,10 @@ function resetSettings() {
   activeVoiceAccent = "en-US";
   activeEngine = "groq";
   currentTemperature = 0.7;
-
   document.getElementById("apiEngine").value = "groq";
   document.getElementById("ttsAccent").value = "en-US";
   document.getElementById("apiTemperature").value = 0.7;
   document.getElementById("tempValueDisplay").textContent = 0.7;
-
   updateEngineUI();
   closeSettings();
 }
@@ -1622,24 +1567,20 @@ function resetSettings() {
 function updateEngineUI() {
   const engineLabel = document.getElementById("activeEngineLabel");
   const engineSub = document.getElementById("activeEngineSub");
-  const bottomIcon = document.getElementById("bottom-icon");
-
   if (activeEngine === "gemini") {
     engineLabel.textContent = "MR7 Quantum";
     engineSub.textContent = "Synthesis Core v5.1";
-    bottomIcon.innerHTML = `<i class="fas fa-brain text-sm"></i>`;
   } else {
     engineLabel.textContent = "MR7 Velocity";
     engineSub.textContent = "Transmission Core v5.1";
-    bottomIcon.innerHTML = `<i class="fas fa-bolt text-sm"></i>`;
   }
 }
 
 function toggleVisuals() {
   is3DActive = !is3DActive;
   localStorage.setItem("mr7_v5_3d", is3DActive);
-  document.getElementById("bg-canvas").style.opacity = is3DActive ? "0.45" : "0";
-  document.getElementById("visualToggleText").textContent = is3DActive ? "3D Grid On" : "3D Grid Off";
+  document.getElementById("bg-canvas").style.opacity = is3DActive ? "0.75" : "0";
+  document.getElementById("visualToggleText").textContent = is3DActive ? "3D Avatar On" : "3D Avatar Off";
 }
 
 function useSuggestion(text) {
@@ -1655,93 +1596,138 @@ function escapeHtml(s) {
   return (s || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
+// 🤖 Elite 3D Dancing & Eye-Blinking Interactive Character Engine Code Loop
 function init3DSpace() {
   const canvas = document.getElementById("bg-canvas");
   renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.2));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
   renderer.setSize(window.innerWidth, window.innerHeight);
 
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.z = 70;
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.set(0, 5, 45);
 
-  let particleCount = window.innerWidth < 768 ? 90 : 260;
-  const geometry = new THREE.BufferGeometry();
-  const positions = new Float32Array(particleCount * 3);
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+  scene.add(ambientLight);
+  const directionalLight = new THREE.DirectionalLight(0x10a37f, 1.5);
+  directionalLight.position.set(10, 20, 15);
+  scene.add(directionalLight);
+
+  avatarGroup = new THREE.Group();
+
+  // Avatar Main Torso Body
+  const bodyGeom = new THREE.CylinderGeometry(4, 5, 10, 32);
+  const bodyMat = new THREE.MeshStandardMaterial({ color: 0x0c0c10, roughness: 0.3, metalness: 0.8, side: THREE.DoubleSide });
+  const bodyMesh = new THREE.Mesh(bodyGeom, bodyMat);
+  bodyMesh.position.y = 0;
+  avatarGroup.add(bodyMesh);
+
+  // Core Glowing Chest Crystal
+  const crystalGeom = new THREE.OctahedronGeometry(1.5);
+  const crystalMat = new THREE.MeshBasicMaterial({ color: 0x10a37f, wireframe: true });
+  const crystalMesh = new THREE.Mesh(crystalGeom, crystalMat);
+  crystalMesh.position.set(0, 2, 4.2);
+  avatarGroup.add(crystalMesh);
+
+  // Head Element
+  const headGeom = new THREE.SphereGeometry(3.5, 32, 32);
+  const headMat = new THREE.MeshStandardMaterial({ color: 0x181820, roughness: 0.4 });
+  headMesh = new THREE.Mesh(headGeom, headMat);
+  headMesh.position.y = 8.5;
+  avatarGroup.add(headMesh);
+
+  // Eyes Base
+  const eyeGeom = new THREE.SphereGeometry(0.4, 16, 16);
+  const eyeMat = new THREE.MeshBasicMaterial({ color: 0x10a37f });
   
-  for (let i = 0; i < particleCount * 3; i++) {
-    positions[i] = (Math.random() - 0.5) * 150;     
-  }
-  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  leftEye = new THREE.Mesh(eyeGeom, eyeMat);
+  leftEye.position.set(-1.2, 9, 3);
+  avatarGroup.add(leftEye);
 
-  material = new THREE.PointsMaterial({ color: 0x10a37f, size: 1.1, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending });
-  pointsMesh = new THREE.Points(geometry, material);
-  scene.add(pointsMesh);
+  rightEye = new THREE.Mesh(eyeGeom, eyeMat);
+  rightEye.position.set(1.2, 9, 3);
+  avatarGroup.add(rightEye);
 
-  const lineGeometry = new THREE.BufferGeometry();
-  const linePositions = [];
-  for (let i = 0; i < particleCount; i++) {
-    for (let j = i + 1; j < particleCount; j++) {
-      const dx = positions[i*3] - positions[j*3];
-      const dy = positions[i*3+1] - positions[j*3+1];
-      const dz = positions[i*3+2] - positions[j*3+2];
-      if (Math.sqrt(dx*dx + dy*dy + dz*dz) < 28) {
-        linePositions.push(positions[i*3], positions[i*3+1], positions[i*3+2], positions[j*3], positions[j*3+1], positions[j*3+2]);
-      }
-    }
-  }
-  lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
-  lineMaterial = new THREE.LineBasicMaterial({ color: 0x10a37f, transparent: true, opacity: 0.06, blending: THREE.AdditiveBlending });
-  lineMesh = new THREE.LineSegments(lineGeometry, lineMaterial);
-  scene.add(lineMesh);
+  // Arms
+  const armGeom = new THREE.CylinderGeometry(0.7, 0.5, 7, 16);
+  const armMat = new THREE.MeshStandardMaterial({ color: 0x10a37f, roughness: 0.5 });
+  
+  leftArm = new THREE.Mesh(armGeom, armMat);
+  leftArm.position.set(-5.5, 1, 0);
+  leftArm.rotation.z = Math.PI / 6;
+  avatarGroup.add(leftArm);
+
+  rightArm = new THREE.Mesh(armGeom, armMat);
+  rightArm.position.set(5.5, 1, 0);
+  rightArm.rotation.z = -Math.PI / 6;
+  avatarGroup.add(rightArm);
+
+  // Adjusted position for background alignment
+  avatarGroup.position.set(0, -2, 0);
+  scene.add(avatarGroup);
 
   let mouseX = 0, mouseY = 0;
+  let screenLeapForce = 0;
+
   window.addEventListener('mousemove', (e) => {
     mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
     mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+    screenLeapForce = Math.min(screenLeapForce + 0.1, 8.5); // Push forward towards screen bounds
   });
 
-  let fps = 0, lastTime = performance.now();
-  function renderLoop() {
-    requestAnimationFrame(renderLoop);
-    fps++; let time = performance.now();
-    if (time >= lastTime + 1000) {
-      if (fps < 24 && particleCount > 100) {
-        particleCount = 70; init3DSpace();
-      }
-      fps = 0; lastTime = time;
+  window.addEventListener('touchmove', (e) => {
+    if(e.touches.length > 0) {
+      mouseX = (e.touches[0].clientX / window.innerWidth - 0.5) * 2;
+      mouseY = (e.touches[0].clientY / window.innerHeight - 0.5) * 2;
+      screenLeapForce = Math.min(screenLeapForce + 0.15, 8.5);
     }
-    pointsMesh.rotation.y += 0.0002;
-    lineMesh.rotation.y += 0.0002;
-    camera.position.x += (mouseX * 8 - camera.position.x) * 0.02;
-    camera.position.y += (-mouseY * 8 - camera.position.y) * 0.02;
-    camera.lookAt(scene.position);
-    const activeColorHex = parseInt(currentAccent.replace("#", "0x"), 16);
-    material.color.setHex(activeColorHex);
-    lineMaterial.color.setHex(activeColorHex);
+  }, {passive: true});
+
+  let clock = new THREE.Clock();
+  
+  function animateLoop() {
+    requestAnimationFrame(animateLoop);
+    
+    let elapsedTime = clock.getElapsedTime();
+
+    // 🕺 Dynamic Rhythm Dancing Logic Loops
+    avatarGroup.position.y = -2 + Math.sin(elapsedTime * 2.8) * 1.5;
+    avatarGroup.rotation.y = Math.sin(elapsedTime * 1.5) * 0.25;
+    avatarGroup.rotation.z = Math.cos(elapsedTime * 2) * 0.08;
+
+    leftArm.rotation.x = Math.sin(elapsedTime * 4) * 0.5;
+    rightArm.rotation.x = Math.cos(elapsedTime * 4) * 0.5;
+    crystalMesh.rotation.y += 0.04;
+
+    // Head looks tracking interaction
+    headMesh.rotation.y = mouseX * 0.4;
+    headMesh.rotation.x = mouseY * 0.3;
+
+    // 👁️ Random Automatic Eye-Blinking Loop Execution
+    let blinkValue = Math.floor(elapsedTime) % 4 === 0 && Math.sin(elapsedTime * 15) > 0;
+    if (blinkValue) {
+      leftEye.scale.y = 0.1;
+      rightEye.scale.y = 0.1;
+    } else {
+      leftEye.scale.y = 1.0;
+      rightEye.scale.y = 1.0;
+    }
+
+    // 🚀 Screen Break-Out Escape Force Logic Interaction
+    if(screenLeapForce > 0) {
+      screenLeapForce -= 0.05; // Friction return down
+    }
+    avatarGroup.position.z = screenLeapForce + Math.sin(elapsedTime * 3) * 0.5;
+
     renderer.render(scene, camera);
   }
-  renderLoop();
+  
+  animateLoop();
 
   window.addEventListener("resize", () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    
-    const overlay = document.getElementById("sidebarOverlay");
-    if (window.innerWidth >= 768) {
-      overlay.classList.add("hidden");
-      overlay.style.pointerEvents = "none";
-      overlay.style.opacity = "0";
-      document.getElementById("sidebar").classList.remove("-translate-x-full");
-    } else {
-      if (!overlay.classList.contains("hidden") && overlay.style.opacity === "1") {
-        overlay.style.pointerEvents = "auto";
-      } else {
-        overlay.classList.add("hidden");
-        overlay.style.pointerEvents = "none";
-      }
-    }
   });
 }
 </script>
