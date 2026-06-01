@@ -253,8 +253,8 @@
 
 <canvas id="bg-canvas"></canvas>
 
-<input type="file" id="userWorkspaceUploaderInput" class="hidden" accept="image/*, .pdf, .txt, .json" onchange="handleWorkspaceFileUpload(event)">
-<input type="file" id="importChatLogsInput" class="hidden" accept=".json" onchange="importChatMatrixLogs(event)">
+<input type="file" id="userWorkspaceUploaderInput" style="display: none !important; visibility: hidden !important;" accept="image/*, .pdf, .txt, .json" onchange="handleWorkspaceFileUpload(event)">
+<input type="file" id="importChatLogsInput" style="display: none !important; visibility: hidden !important;" accept=".json" onchange="importChatMatrixLogs(event)">
 
 <div id="pull-indicator" class="pointer-events-none">
   <div class="flex items-center gap-2 text-xs font-mono text-emerald-400">
@@ -755,6 +755,7 @@ window.addEventListener("load", () => {
     btn.querySelector("span").textContent = "3D Off";
     icon.className = "fas fa-robot text-gray-500";
   } else {
+    document.getElementById("bg-canvas").style.opacity = "0.85";
     btn.querySelector("span").textContent = "3D On";
     icon.className = "fas fa-robot text-emerald-400";
   }
@@ -832,7 +833,6 @@ function scrollToBottomDirect() {
   }
 }
 
-// REST OF BASE FUNCTIONS PRESERVED PRECISELY
 function setupPullToRefresh() {
   const msgArea = document.getElementById("messages");
   const ind = document.getElementById("pull-indicator");
@@ -890,7 +890,10 @@ function closeRadialMenu() {
 
 function triggerWorkspaceUpload() {
   closeRadialMenu();
-  document.getElementById("userWorkspaceUploaderInput").click();
+  const inputEl = document.getElementById("userWorkspaceUploaderInput");
+  if(inputEl) {
+    inputEl.click();
+  }
 }
 
 function handleWorkspaceFileUpload(event) {
@@ -1092,6 +1095,7 @@ function newChat() {
   if (inp) inp.focus();
 }
 
+// DROPPED HINGLISH WELCOME LABELS OVERRIDE WITH MATTE TEXT COLOR PRESETS
 function switchChat(id) {
   currentChatId = id;
   localStorage.setItem("mr7_v5_current", id);
@@ -1158,6 +1162,7 @@ function initSwipeToDelete(elementId) {
   });
 }
 
+// SAVING STATE PIPELINES
 function saveChatsToLocal() {
   localStorage.setItem("mr7_v5_chats", JSON.stringify(chats));
   localStorage.setItem("mr7_v5_current", currentChatId);
@@ -1170,13 +1175,7 @@ function filterChats(query) {
 }
 
 function generateCoolUniqueGreeting() {
-  const coolGreetings = [
-    "Welcome back. Let's start building something epic today.",
-    "System online. What knowledge matrix can I generate for you?",
-    "How can I accelerate your creative workflow today?",
-    "Workspace ready. Drop your data matrix or core inquiries below."
-  ];
-  return coolGreetings[Math.floor(Math.random() * coolGreetings.length)];
+  return "System online. What knowledge matrix can I generate for you?";
 }
 
 function renderChatList(customIdArray = null) {
@@ -1226,8 +1225,8 @@ function renderMessages() {
         <div class="w-16 h-16 rounded-[20px] overflow-hidden flex items-center justify-center border border-white/10 mb-6" id="welcomeGlow">
           <img src="logo.png" alt="Central Logo" class="w-full h-full object-cover" />
         </div>
-        <h2 class="text-xl md:text-2xl font-extrabold tracking-tight text-white font-heading px-4">
-          <span class="text-emerald-400">${dynamicGreeting}</span>
+        <h2 class="text-xl md:text-2xl font-bold tracking-tight text-white font-heading px-4">
+          <span>${dynamicGreeting}</span>
         </h2>
         <p class="text-gray-400 text-xs mt-2 leading-relaxed max-w-md px-6">
           MR7 Autonomous Workspace Layer active.
@@ -1577,7 +1576,6 @@ function saveAllSettings() {
   closeSettings();
 }
 
-// SETTINGS & CONTROL INITIALIZATIONS
 function resetSettings() {
   setAccent('#10a37f', 'rgba(16,163,127,0.15)');
   activeVoiceAccent = "en-US-female";
@@ -1703,19 +1701,22 @@ function init3DSpace() {
   visorMesh.scale.set(1, 0.65, 1);
   avatarGroup.add(visorMesh);
 
-  // Bright Arc-shaped Digital Soft Glowing Eyes
-  const eyeGeomLeft = new THREE.CylinderGeometry(0.4, 0.4, 0.15, 16);
-  const eyeGeomRight = new THREE.CylinderGeometry(0.4, 0.4, 0.15, 16);
-  const eyeMat = new THREE.MeshBasicMaterial({ color: 0x5cd6ff });
+  // Fixed Flat Digital Glow Eyes Configuration (Visible Mesh Mapping)
+  const eyeGeomLeft = new THREE.PlaneGeometry(0.8, 0.3);
+  const eyeGeomRight = new THREE.PlaneGeometry(0.8, 0.3);
+  const eyeMat = new THREE.MeshBasicMaterial({ 
+    color: 0x5cd6ff, 
+    side: THREE.DoubleSide,
+    transparent: true,
+    opacity: 0.95
+  });
   
   leftEye = new THREE.Mesh(eyeGeomLeft, eyeMat);
-  leftEye.position.set(-0.8, 6.2, 3.2);
-  leftEye.rotation.x = Math.PI / 2;
+  leftEye.position.set(-0.8, 6.15, 3.52);
   avatarGroup.add(leftEye);
 
   rightEye = new THREE.Mesh(eyeGeomRight, eyeMat);
-  rightEye.position.set(0.8, 6.2, 3.2);
-  rightEye.rotation.x = Math.PI / 2;
+  rightEye.position.set(0.8, 6.15, 3.52);
   avatarGroup.add(rightEye);
 
   // Horizontally Outstretched Mechanical Arms
@@ -1807,14 +1808,20 @@ function init3DSpace() {
     visorMesh.rotation.y = targetX * 0.2;
     visorMesh.rotation.x = targetY * 0.1;
 
+    // Fixed Flat Plane tracking positioning loop alignment
+    leftEye.position.x = -0.8 + (targetX * 0.12);
+    leftEye.position.y = 6.15 - (targetY * 0.08);
+    rightEye.position.x = 0.8 + (targetX * 0.12);
+    rightEye.position.y = 6.15 - (targetY * 0.08);
+
     // Visor eye blinking cycles
     let blink = Math.floor(elapsedTime) % 6 === 0 && Math.sin(elapsedTime * 25) > 0.7;
     if (blink) {
-      leftEye.scale.x = 0.05;
-      rightEye.scale.x = 0.05;
+      leftEye.scale.y = 0.05;
+      rightEye.scale.y = 0.05;
     } else {
-      leftEye.scale.x = 1.0;
-      rightEye.scale.x = 1.0;
+      leftEye.scale.y = 1.0;
+      rightEye.scale.y = 1.0;
     }
 
     renderer.render(scene, camera);
