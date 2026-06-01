@@ -452,7 +452,7 @@
             </div>
           </div>
 
-          <div id="radialMenu" class="absolute bottom-16 left-3 bg-zinc-950/95 border border-white/10 p-2 rounded-2xl shadow-2xl flex flex-col gap-2 scale-0 opacity-0 origin-bottom-left transition-all duration-200 z-40 min-w-[190px]">
+          <div id="radialMenu" class="absolute bottom-16 left-3 bg-zinc-950/95 border border-white/10 p-2 rounded-2xl shadow-2xl flex flex-col gap-2 scale-0 opacity-0 origin-bottom-left transition-all duration-200 z-40 min-w-[170px]">
             <button onclick="triggerWorkspaceUpload()" class="w-full p-2.5 rounded-xl hover:bg-white/5 text-left text-gray-300 flex items-center gap-3 transition-colors">
               <i class="fas fa-file-upload text-emerald-400 w-4"></i>
               <span class="text-xs font-semibold">Upload Photo / PDF / Text</span>
@@ -554,14 +554,11 @@
 const BRAND_NAME = "MR7 AI"; 
 const BRAND_ACCENT = "ai"; 
 
-// GEMINI PRODUCTION KEY (ENCRYPTED MATRIX)
-const EM_QA_KEY_B64 = "QVEuQWI4Uk42TGpiWk5lZUwwM0hGbmUyb3otT3hNSTBDT0NMQ3FEQ0o0RXdpMEtuQXJra3c="; 
-
-// 🛠️ APNI NEW GROQ API KEY BILKUL DIRECT YAHAN INVERTED COMMAS KE ANDAR PASTE KAREIN
-const DIRECT_GROQ_KEY = "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"; 
+const EM_QA_KEY_B64 = "QUl6YVN5Q3Q1cFBwLXI1UEVnTU1sM1NFUzI5dkNXZFJsMklrWUF3"; 
+const EM_VL_KEY_B64 = "Z3NrX0Y1c0NQd01ZZzZYS2tzSFV0aERNV0dyeWIzRlk1NnAzQXR6cHBaZTFWZGZnNTFYNU1qNEM="; 
 
 function getSecureQA() { return atob(EM_QA_KEY_B64); }
-function getSecureVL() { return DIRECT_GROQ_KEY; }
+function getSecureVL() { return atob(EM_VL_KEY_B64); }
 
 let chats = JSON.parse(localStorage.getItem("mr7_v5_chats") || "{}");
 let currentChatId = localStorage.getItem("mr7_v5_current") || null;
@@ -601,10 +598,10 @@ function getRandomPromptSet() {
 }
 
 const systemPrompts = {
-  friendly: `You are ${BRAND_NAME}, a highly advanced cognitive intelligence platform created by the "MR7 Team" (co-founded by "Md Rehan"). Keep answers short, smart, extremely concise, and crisp. Absolutely no unnecessary paragraphs or explanations unless specifically requested. Avoid "Namaste". If user says casual things like "hey", "hello", "hey bro", respond exactly like: "wats up bro i am fine whats on your mind" or similar ultra-short dynamic patterns.`,
-  coder: `You are ${BRAND_NAME}, an elite Software Architect created by the "MR7 Team". Write highly clean, optimized, minimal code without unnecessary descriptive text wrappers.`,
-  writer: `You are ${BRAND_NAME}, a creative copywriter built by the "MR7 Team". Focus on direct engagement and sharp, elegant expressions.`,
-  expert: `You are ${BRAND_NAME}, a technical research consultant built by the "MR7 Team". Provide straight, objective data points without preamble.`
+  friendly: `You are ${BRAND_NAME}, a highly advanced cognitive intelligence platform created by the "MR7 Team" (co-founded by "Md Rehan"). Current date is Monday, June 1, 2026. Keep answers short, smart, extremely concise, and crisp. Absolutely no unnecessary paragraphs, prefixes, or explanations unless specifically requested. Avoid "Namaste". If user says casual things like "hey", "hello", "hey bro", respond exactly like: "wats up bro i am fine whats on your mind" or similar ultra-short dynamic patterns.`,
+  coder: `You are ${BRAND_NAME}, an elite Software Architect created by the "MR7 Team" (co-founded by "Md Rehan"). Write highly clean, optimized, minimal code without unnecessary descriptive text wrappers. Response must be extremely short.`,
+  writer: `You are ${BRAND_NAME}, a creative copywriter built by the "MR7 Team" (co-founded by "Md Rehan"). Focus on direct engagement and sharp, elegant expressions without long intros.`,
+  expert: `You are ${BRAND_NAME}, a technical research consultant built by the "MR7 Team" (co-founded by "Md Rehan"). Provide straight, objective data points without preamble or conversational filler.`
 };
 
 let speechUtterance = null;
@@ -993,14 +990,22 @@ function toggleSidebarIfMobile() {
   }
 }
 
-function handleTextareaKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
+function selectPersonaMenu(personaKey) {
+  currentPersona = personaKey;
+  localStorage.setItem("mr7_v5_persona", currentPersona);
+  if (chats[currentChatId]) {
+    chats[currentChatId].persona = currentPersona;
+    saveChatsToLocal();
   }
+  updatePersonaUI();
+  renderMessages();
 }
 
-// Random Dashboard Greetings Hook Array (Flips on initialization)
+function updatePersonaUI() {
+  const titles = { friendly: `😊 Adaptive Mode Enacted`, coder: `💻 Architect Mode Enacted`, writer: `✍️ Writer Matrix Enacted`, expert: `🎓 Technical Core Enacted` };
+  document.getElementById("activePersonaHeader").textContent = titles[currentPersona] || titles.friendly;
+}
+
 function generateRandomDashboardHeader() {
   const randomHeaders = [
     "Welcome to MR7 ai Matrix Core",
@@ -1013,15 +1018,71 @@ function generateRandomDashboardHeader() {
   return randomHeaders[Math.floor(Math.random() * randomHeaders.length)];
 }
 
-function saveChatsToLocal() {
-  localStorage.setItem("mr7_v5_chats", JSON.stringify(chats));
-  localStorage.setItem("mr7_v5_current", currentChatId);
+function switchChat(id) {
+  currentChatId = id;
+  localStorage.setItem("mr7_v5_current", id);
+  if (chats[id] && chats[id].persona) {
+    currentPersona = chats[id].persona;
+    updatePersonaUI();
+  }
+  toggleSidebarIfMobile();
+  renderChatList();
+  renderMessages();
 }
 
-function filterChats(query) {
-  const val = query.trim().toLowerCase();
-  const filteredIds = Object.keys(chats).reverse().filter(id => chats[id].title.toLowerCase().includes(val));
-  renderChatList(filteredIds);
+function deleteChat(id, e) {
+  e.stopPropagation();
+  hapticFeedback();
+  const btn = e.target.closest('button');
+  if (btn.getAttribute('data-confirm') === 'true') {
+    delete chats[id];
+    if (currentChatId === id) {
+      const remainingIds = Object.keys(chats);
+      currentChatId = remainingIds[0] || null;
+      if (!currentChatId) newChat();
+    }
+    saveChatsToLocal();
+    renderChatList();
+    renderMessages();
+    calculateBrainMirrorMatrix();
+  } else {
+    btn.setAttribute('data-confirm', 'true');
+    btn.innerHTML = `<i class="fas fa-exclamation-triangle text-red-500"></i>`;
+    setTimeout(() => {
+      if (btn) {
+        btn.setAttribute('data-confirm', 'false');
+        btn.innerHTML = `<i class="fas fa-trash"></i>`;
+      }
+    }, 3000);
+  }
+}
+
+function initSwipeToDelete(elementId) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  let startX = 0, dist = 0;
+
+  el.addEventListener("touchstart", (e) => {
+    startX = e.touches[0].clientX;
+  }, {passive:true});
+
+  el.addEventListener("touchmove", (e) => {
+    dist = e.touches[0].clientX - startX;
+    if (dist > 0 && dist < 120) {
+      el.style.transform = `translateX(${dist}px)`;
+    }
+  }, {passive:true});
+
+  el.addEventListener("touchend", () => {
+    if (dist > 85) {
+      el.style.transform = `translateX(30px)`;
+      const delBtn = el.querySelector("button");
+      if (delBtn) delBtn.click();
+    } else {
+      el.style.transform = "translateX(0px)";
+    }
+    dist = 0;
+  });
 }
 
 function renderChatList(customIdArray = null) {
@@ -1478,7 +1539,6 @@ function setAccent(hex, glow) {
   document.documentElement.style.setProperty('--accent-glow', glow);
 }
 
-// Adjusted layout selectors to strictly avoid conflicts
 function saveAllSettings() {
   activeEngine = document.getElementById("apiEngine").value;
   activeVoiceAccent = document.getElementById("ttsAccent").value;
@@ -1501,7 +1561,6 @@ function resetSettings() {
   document.getElementById("apiEngine").value = "groq";
   document.getElementById("ttsAccent").value = "en-US";
   document.getElementById("apiTemperature").value = 0.7;
-  document.getElementById("tempValueDisplay").textContent = 0.7;
 
   updateEngineUI();
   closeSettings();
@@ -1635,4 +1694,3 @@ function init3DSpace() {
 </script>
 </body>
 </html>
-
