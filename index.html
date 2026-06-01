@@ -266,7 +266,7 @@
   <span id="toast-msg" class="text-xs md:text-sm font-medium">System Aligned!</span>
 </div>
 
-<div id="sidebarOverlay" class="fixed inset-0 z-45 hidden opacity-0" onclick="toggleSidebar()"></div>
+<div id="sidebarOverlay" class="fixed inset-0 z-45 hidden opacity-0"></div>
 
 <div class="relative z-10 flex h-full w-full overflow-hidden">
   
@@ -326,11 +326,11 @@
         </div>
         <div class="flex justify-between">
           <span>LATENCY MATRIX:</span>
-          <span class="text-emerald-400" id="liveLatency">8ms</span>
+          <span class="text-emerald-400" id="liveLatency">6ms</span>
         </div>
         <div class="flex justify-between">
           <span>CPU THREADS:</span>
-          <span class="text-gray-300" id="liveCpu">NODE_02: 12.4%</span>
+          <span class="text-gray-300" id="liveCpu">NODE_02: 5.2%</span>
         </div>
         <div class="flex justify-between">
           <span>SYSTEM STATE:</span>
@@ -361,7 +361,7 @@
 
   <main class="flex-1 flex flex-col min-w-0 bg-transparent relative z-10">
     
-    <header id="mainHeader" class="fixed md:sticky top-0 left-0 right-0 h-16 border-b border-white/5 flex items-center justify-between px-4 md:px-6 bg-black/10 backdrop-blur-md z-30 w-full">
+    <header id="mainHeader" class="fixed top-0 left-0 right-0 h-16 border-b border-white/5 flex items-center justify-between px-4 bg-black/10 backdrop-blur-md z-30 w-full">
       <div class="flex items-center gap-2">
         <button id="sidebarToggle" onclick="toggleSidebar()" class="text-gray-400 hover:text-white p-2.5 hover:bg-white/5 rounded-xl mr-1">
           <i class="fas fa-bars"></i>
@@ -372,18 +372,15 @@
         </div>
       </div>
 
-      <div class="flex items-center gap-1.5">
-        <button onclick="toggleVisuals()" id="visualToggleBtn" class="text-gray-300 hover:text-white bg-gradient-to-r from-emerald-500/10 via-transparent to-teal-500/10 hover:from-emerald-500/20 hover:to-teal-500/20 border border-emerald-500/30 px-2.5 py-1 rounded-xl text-[11px] md:text-xs font-bold flex items-center gap-1.5 transition-all shadow-md shadow-emerald-950/40 tracking-wide max-w-[110px] md:max-w-none">
-          <span class="relative flex h-2 w-2 shrink-0">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-          </span>
-          <span id="visualToggleText" class="truncate">3D On</span>
+      <div class="flex items-center">
+        <button onclick="toggleVisuals()" id="visualToggleBtn" class="text-gray-300 hover:text-white bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-md tracking-wide">
+          <i class="fas fa-robot text-emerald-400" id="visualToggleIcon"></i>
+          <span id="visualToggleText">3D On</span>
         </button>
       </div>
     </header>
 
-    <div class="flex-1 overflow-y-auto px-4 md:px-12 pt-20 pb-6 md:pt-6 flex flex-col gap-5" id="messages"></div>
+    <div class="flex-1 overflow-y-auto px-4 md:px-12 pt-20 pb-6 flex flex-col gap-5" id="messages"></div>
 
     <div id="scrollToBottomWrap" class="fixed bottom-24 right-6 z-20 hidden">
       <button onclick="scrollToBottomDirect()" class="w-9 h-9 rounded-full bg-zinc-900/90 border border-white/10 text-emerald-400 flex items-center justify-center shadow-2xl active:scale-90 transition-transform">
@@ -580,16 +577,16 @@ let systemMemoryProfile = JSON.parse(localStorage.getItem("mr7_v5_memory_matrix"
 const globalPromptLibrary = [
   "Who is your co-founder and creator? 🌟",
   "How can I manage my schedule effectively?",
-  "Explain space-time relativity using a direct analogy!",
-  "Give me some fun ideas to practice active learning",
-  "Write a robust clean algorithm to find missing matrix sequences",
-  "Design a modern clean CSS login screen snippet code",
-  "Explain how server-side rendering acts against standard static single pages",
-  "Give me 5 premium high-conversion concept logs for a modern business startup",
-  "Compose a short poetic narrative outlining digital cyberspace landscapes",
-  "Analyze structural differences between synchronous and event-driven backends",
-  "How do transformers handle weights during self-attention processing loops?",
-  "Outline a multi-stage workflow plan for launching an absolute mobile application"
+  "Give me 5 highly scaling business ideas for modern startups",
+  "What are the best tips to stay focused while working remotely?",
+  "How can I learn a new language fast and practically?",
+  "What are some essential daily health and fitness habits?",
+  "Explain the basic concept of stock market investing simply",
+  "Give me an absolute travel packing guide for foreign trips",
+  "How do I practice creative writing consistently every day?",
+  "What are the most popular tourist places in the world?",
+  "How do I build a premium high-conversion resume?",
+  "Give me 5 quick and healthy breakfast options for busy mornings"
 ];
 
 function getRandomPromptSet() {
@@ -598,7 +595,7 @@ function getRandomPromptSet() {
 }
 
 const systemPrompts = {
-  friendly: `You are ${BRAND_NAME} Core, created by the "MR7 Team" (co-founded by "Md Rehan"). Today's date is Monday, June 1, 2026. Give extremely short, sweet, point-to-point, friendly casual replies in Hinglish/English. Answer like a human peer in chat rooms (e.g., "kuch nahi bhai...", "aur batao tum"). Never use long intros or verbose greetings.`,
+  friendly: `You are ${BRAND_NAME} Core, created by the "MR7 Team" (co-founded by "Md Rehan"). Today's date is Monday, June 1, 2026. Keep responses clean, precise, and human-like. When delivering rankings, lists, or top-items (e.g., top players, books, locations), you must start each line with an incremental number followed by a dot like '1. ', '2. ' sequentially so it formats as a beautiful ordered list block. Keep the tone premium yet friendly.`,
   coder: `You are ${BRAND_NAME} Architect. Give extremely direct, clean code solutions without meta explanations. Today's date is June 2026.`,
   writer: `You are ${BRAND_NAME} Creative Matrix. Give precise, elegant, short responses. Today's date is June 2026.`,
   expert: `You are ${BRAND_NAME} Analyst. Answer in highly compressed, direct technical insights. Today's date is June 2026.`
@@ -699,11 +696,14 @@ window.addEventListener("load", () => {
   setupPullToRefresh();
 
   const btn = document.getElementById("visualToggleBtn");
+  const icon = document.getElementById("visualToggleIcon");
   if (!is3DActive) {
     document.getElementById("bg-canvas").style.opacity = "0";
     btn.querySelector("span").textContent = "3D Off";
+    icon.className = "fas fa-robot text-gray-500";
   } else {
     btn.querySelector("span").textContent = "3D On";
+    icon.className = "fas fa-robot text-emerald-400";
   }
 
   window.addEventListener("click", (e) => {
@@ -1207,11 +1207,27 @@ function renderMessages() {
   scrollToBottomDirect();
 }
 
+function parseCustomMarkdown(content) {
+  let lines = content.split('\n');
+  let formattedLines = lines.map(line => {
+    let trimmed = line.trim();
+    let listMatch = trimmed.match(/^(\d+)\.\s+(.*)/);
+    if (listMatch) {
+      return `<div class="bg-zinc-900/60 border border-white/5 rounded-xl p-3 my-2 font-medium flex items-start gap-3 shadow-sm hover:border-emerald-500/20 transition-all">
+                <span class="bg-emerald-500/10 text-emerald-400 text-xs font-bold rounded-lg w-6 h-6 flex items-center justify-center shrink-0 font-mono">${listMatch[1]}</span>
+                <span class="text-gray-200 text-sm leading-relaxed pt-0.5">${marked.parseInline(listMatch[2])}</span>
+              </div>`;
+    }
+    return marked.parse(line);
+  });
+  return formattedLines.join('');
+}
+
 function renderMessageBubble(m, idx) {
   const isUser = m.role === "user";
   let content = isUser 
     ? `<p class="whitespace-pre-wrap">${escapeHtml(m.content)}</p>` 
-    : marked.parse(m.content || "");
+    : parseCustomMarkdown(m.content || "");
 
   const actionControls = !isUser ? `
     <div class="flex items-center gap-2 mt-3 pt-2.5 border-t border-white/5 font-sans">
@@ -1574,7 +1590,17 @@ function toggleVisuals() {
   is3DActive = !is3DActive;
   localStorage.setItem("mr7_v5_3d", is3DActive);
   document.getElementById("bg-canvas").style.opacity = is3DActive ? "0.75" : "0";
-  document.getElementById("visualToggleText").textContent = is3DActive ? "3D On" : "3D Off";
+  
+  const btnText = document.getElementById("visualToggleText");
+  const btnIcon = document.getElementById("visualToggleIcon");
+  
+  if (is3DActive) {
+    btnText.textContent = "3D On";
+    btnIcon.className = "fas fa-robot text-emerald-400";
+  } else {
+    btnText.textContent = "3D Off";
+    btnIcon.className = "fas fa-robot text-gray-500";
+  }
 }
 
 function useSuggestion(text) {
