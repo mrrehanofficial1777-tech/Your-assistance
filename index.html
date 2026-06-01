@@ -130,9 +130,9 @@
   }
 
   #sidebarOverlay {
-    background: rgba(0, 0, 0, 0.02) !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
   }
 
   .no-scrollbar::-webkit-scrollbar {
@@ -266,11 +266,11 @@
   <span id="toast-msg" class="text-xs md:text-sm font-medium">System Aligned!</span>
 </div>
 
-<div id="sidebarOverlay" class="fixed inset-0 z-30 hidden opacity-0" onclick="toggleSidebar()"></div>
+<div id="sidebarOverlay" class="fixed inset-0 z-45 hidden opacity-0" onclick="toggleSidebar()"></div>
 
 <div class="relative z-10 flex h-full w-full overflow-hidden">
   
-  <aside id="sidebar" class="fixed md:relative inset-y-0 left-0 w-72 md:w-80 bg-zinc-950 md:bg-black/55 backdrop-blur-2xl border-r border-white/5 flex flex-col justify-between transition-transform duration-300 transform -translate-x-full md:translate-x-0 z-40">
+  <aside id="sidebar" class="fixed md:relative inset-y-0 left-0 w-72 md:w-80 bg-zinc-950 md:bg-black/55 backdrop-blur-2xl border-r border-white/5 flex flex-col justify-between transition-transform duration-300 transform -translate-x-full md:translate-x-0 z-50">
     <div class="flex flex-col flex-1 min-h-0">
       <div class="p-5 border-b border-white/5 items-center justify-between flex shrink-0">
         <div class="flex items-center gap-3">
@@ -288,7 +288,7 @@
       </div>
 
       <div class="p-4 shrink-0">
-        <button onclick="newChat(); toggleSidebarIfMobile();" class="w-full bg-white/5 hover:bg-white/10 border border-white/5 text-white rounded-2xl py-3 px-4 flex items-center justify-center gap-2 font-medium transition-all group hover:shadow-lg text-sm" style="position: relative; z-index: 50;">
+        <button onclick="newChat(); toggleSidebarIfMobile();" class="w-full bg-white/5 hover:bg-white/10 border border-white/5 text-white rounded-2xl py-3 px-4 flex items-center justify-center gap-2 font-medium transition-all group hover:shadow-lg text-sm">
           <i class="fas fa-plus text-xs text-emerald-400 group-hover:rotate-90 transition-transform"></i>
           <span>New Conversation</span>
         </button>
@@ -301,7 +301,7 @@
         </div>
       </div>
 
-      <div class="flex-1 overflow-y-auto px-2 space-y-1 max-h-[30vh]" id="chatList" style="position: relative; z-index: 50;"></div>
+      <div class="flex-1 overflow-y-auto px-2 space-y-1 max-h-[40vh]" id="chatList"></div>
 
       <div class="px-4 py-2 mt-2 shrink-0 border-t border-white/5">
         <div class="bg-gradient-to-br from-zinc-900 to-black rounded-xl p-3 border border-emerald-500/10 flex flex-col gap-2">
@@ -318,7 +318,7 @@
       </div>
     </div>
 
-    <div class="p-4 border-t border-white/5 bg-black/20 flex flex-col gap-3 shrink-0" style="position: relative; z-index: 50;">
+    <div class="p-4 border-t border-white/5 bg-black/20 flex flex-col gap-3 shrink-0">
       <div class="bg-black/40 rounded-xl p-3 border border-white/5 flex flex-col gap-1.5 text-[9px] font-mono text-gray-500">
         <div class="flex justify-between items-center text-gray-400 font-semibold border-b border-white/5 pb-1 mb-1">
           <span>DIAGNOSTIC TELEMETRY</span>
@@ -368,17 +368,17 @@
         </button>
         <div class="flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" id="top-pulse"></span>
-          <span class="text-[11px] md:text-xs font-semibold text-gray-300 font-mono tracking-wider uppercase truncate max-w-[150px] md:max-w-none" id="activePersonaHeader">😊 Adaptive Mode Enacted</span>
+          <span class="text-[11px] md:text-xs font-semibold text-gray-300 font-mono tracking-wider uppercase truncate max-w-[140px] md:max-w-none" id="activePersonaHeader">😊 Adaptive Mode Enacted</span>
         </div>
       </div>
 
       <div class="flex items-center gap-1.5">
-        <button onclick="toggleVisuals()" id="visualToggleBtn" class="text-gray-300 hover:text-white bg-gradient-to-r from-emerald-500/10 via-transparent to-teal-500/10 hover:from-emerald-500/20 hover:to-teal-500/20 border border-emerald-500/30 px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-md shadow-emerald-950/40 tracking-wide">
-          <span class="relative flex h-2 w-2">
+        <button onclick="toggleVisuals()" id="visualToggleBtn" class="text-gray-300 hover:text-white bg-gradient-to-r from-emerald-500/10 via-transparent to-teal-500/10 hover:from-emerald-500/20 hover:to-teal-500/20 border border-emerald-500/30 px-2.5 py-1 rounded-xl text-[11px] md:text-xs font-bold flex items-center gap-1.5 transition-all shadow-md shadow-emerald-950/40 tracking-wide max-w-[110px] md:max-w-none">
+          <span class="relative flex h-2 w-2 shrink-0">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
           </span>
-          <span id="visualToggleText">3D Grid On</span>
+          <span id="visualToggleText" class="truncate">3D On</span>
         </button>
       </div>
     </header>
@@ -554,10 +554,7 @@
 const BRAND_NAME = "MR7 AI"; 
 const BRAND_ACCENT = "ai"; 
 
-// GEMINI PRODUCTION KEY (ENCRYPTED MATRIX)
 const EM_QA_KEY_B64 = "QVEuQWI4Uk42TGpiWk5lZUwwM0hGbmUyb3otT3hNSTBDT0NMQ3FEQ0o0RXdpMEtuQXJra3c="; 
-
-// 🛠️ APNI NEW GROQ API KEY BILKUL DIRECT YAHAN INVERTED COMMAS KE ANDAR PASTE KAREIN
 const DIRECT_GROQ_KEY = "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"; 
 
 function getSecureQA() { return atob(EM_QA_KEY_B64); }
@@ -600,7 +597,6 @@ function getRandomPromptSet() {
   return shuffled.slice(0, 4);
 }
 
-// Fixed June 2026 Date and Super Short Casual Chat Prompting
 const systemPrompts = {
   friendly: `You are ${BRAND_NAME} Core, created by the "MR7 Team" (co-founded by "Md Rehan"). Today's date is Monday, June 1, 2026. Give extremely short, sweet, point-to-point, friendly casual replies in Hinglish/English. Answer like a human peer in chat rooms (e.g., "kuch nahi bhai...", "aur batao tum"). Never use long intros or verbose greetings.`,
   coder: `You are ${BRAND_NAME} Architect. Give extremely direct, clean code solutions without meta explanations. Today's date is June 2026.`,
@@ -705,13 +701,13 @@ window.addEventListener("load", () => {
   const btn = document.getElementById("visualToggleBtn");
   if (!is3DActive) {
     document.getElementById("bg-canvas").style.opacity = "0";
-    btn.querySelector("span").textContent = "3D Avatar Off";
+    btn.querySelector("span").textContent = "3D Off";
   } else {
-    btn.querySelector("span").textContent = "3D Avatar On";
+    btn.querySelector("span").textContent = "3D On";
   }
 
   window.addEventListener("click", (e) => {
-    if (document.getElementById("sidebar").contains(e.target) || document.getElementById("sidebarToggle").contains(e.target) || document.getElementById("quickActionDot").contains(e.target) || document.getElementById("radialMenu").contains(e.target)) {
+    if (document.getElementById("sidebar").contains(e.target) || document.getElementById("sidebarToggle").contains(e.target)) {
       return;
     }
 
@@ -1127,11 +1123,10 @@ function filterChats(query) {
 
 function generateCoolUniqueGreeting() {
   const coolGreetings = [
-    "Hey! Kaise ho? Batao aaj kya chal raha hai?",
-    "Whats on your mind? Kuch badhiya karte hain!",
-    "Yo! Kaise aana hua? Drop your query here.",
-    "Hey friend! Sab sahi chal raha haina? Aur batao!",
-    "Batao bhai, aaj kya help chahiye? Short & sweet batana."
+    "Welcome back. Let's start building something epic today.",
+    "System online. What knowledge matrix can I generate for you?",
+    "How can I accelerate your creative workflow today?",
+    "Workspace ready. Drop your data matrix or core inquiries below."
   ];
   return coolGreetings[Math.floor(Math.random() * coolGreetings.length)];
 }
@@ -1434,7 +1429,6 @@ async function sendMessage() {
       payloadHistory[payloadHistory.length - 1].content = processedPromptContent;
     }
 
-    // Force Image Analysis to use Gemini Production Engine Pipeline
     let currentCallEngine = activeEngine;
     if (activeAttachedFileData && activeAttachedFileData.type === "image") {
        currentCallEngine = "gemini"; 
@@ -1580,7 +1574,7 @@ function toggleVisuals() {
   is3DActive = !is3DActive;
   localStorage.setItem("mr7_v5_3d", is3DActive);
   document.getElementById("bg-canvas").style.opacity = is3DActive ? "0.75" : "0";
-  document.getElementById("visualToggleText").textContent = is3DActive ? "3D Avatar On" : "3D Avatar Off";
+  document.getElementById("visualToggleText").textContent = is3DActive ? "3D On" : "3D Off";
 }
 
 function useSuggestion(text) {
@@ -1596,7 +1590,6 @@ function escapeHtml(s) {
   return (s || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
-// 🤖 Elite 3D Dancing & Eye-Blinking Interactive Character Engine Code Loop
 function init3DSpace() {
   const canvas = document.getElementById("bg-canvas");
   renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
@@ -1615,28 +1608,24 @@ function init3DSpace() {
 
   avatarGroup = new THREE.Group();
 
-  // Avatar Main Torso Body
   const bodyGeom = new THREE.CylinderGeometry(4, 5, 10, 32);
   const bodyMat = new THREE.MeshStandardMaterial({ color: 0x0c0c10, roughness: 0.3, metalness: 0.8, side: THREE.DoubleSide });
   const bodyMesh = new THREE.Mesh(bodyGeom, bodyMat);
   bodyMesh.position.y = 0;
   avatarGroup.add(bodyMesh);
 
-  // Core Glowing Chest Crystal
   const crystalGeom = new THREE.OctahedronGeometry(1.5);
   const crystalMat = new THREE.MeshBasicMaterial({ color: 0x10a37f, wireframe: true });
   const crystalMesh = new THREE.Mesh(crystalGeom, crystalMat);
   crystalMesh.position.set(0, 2, 4.2);
   avatarGroup.add(crystalMesh);
 
-  // Head Element
   const headGeom = new THREE.SphereGeometry(3.5, 32, 32);
   const headMat = new THREE.MeshStandardMaterial({ color: 0x181820, roughness: 0.4 });
   headMesh = new THREE.Mesh(headGeom, headMat);
   headMesh.position.y = 8.5;
   avatarGroup.add(headMesh);
 
-  // Eyes Base
   const eyeGeom = new THREE.SphereGeometry(0.4, 16, 16);
   const eyeMat = new THREE.MeshBasicMaterial({ color: 0x10a37f });
   
@@ -1648,7 +1637,6 @@ function init3DSpace() {
   rightEye.position.set(1.2, 9, 3);
   avatarGroup.add(rightEye);
 
-  // Arms
   const armGeom = new THREE.CylinderGeometry(0.7, 0.5, 7, 16);
   const armMat = new THREE.MeshStandardMaterial({ color: 0x10a37f, roughness: 0.5 });
   
@@ -1662,7 +1650,6 @@ function init3DSpace() {
   rightArm.rotation.z = -Math.PI / 6;
   avatarGroup.add(rightArm);
 
-  // Adjusted position for background alignment
   avatarGroup.position.set(0, -2, 0);
   scene.add(avatarGroup);
 
@@ -1672,7 +1659,7 @@ function init3DSpace() {
   window.addEventListener('mousemove', (e) => {
     mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
     mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-    screenLeapForce = Math.min(screenLeapForce + 0.1, 8.5); // Push forward towards screen bounds
+    screenLeapForce = Math.min(screenLeapForce + 0.1, 8.5);
   });
 
   window.addEventListener('touchmove', (e) => {
@@ -1690,7 +1677,6 @@ function init3DSpace() {
     
     let elapsedTime = clock.getElapsedTime();
 
-    // 🕺 Dynamic Rhythm Dancing Logic Loops
     avatarGroup.position.y = -2 + Math.sin(elapsedTime * 2.8) * 1.5;
     avatarGroup.rotation.y = Math.sin(elapsedTime * 1.5) * 0.25;
     avatarGroup.rotation.z = Math.cos(elapsedTime * 2) * 0.08;
@@ -1699,11 +1685,9 @@ function init3DSpace() {
     rightArm.rotation.x = Math.cos(elapsedTime * 4) * 0.5;
     crystalMesh.rotation.y += 0.04;
 
-    // Head looks tracking interaction
     headMesh.rotation.y = mouseX * 0.4;
     headMesh.rotation.x = mouseY * 0.3;
 
-    // 👁️ Random Automatic Eye-Blinking Loop Execution
     let blinkValue = Math.floor(elapsedTime) % 4 === 0 && Math.sin(elapsedTime * 15) > 0;
     if (blinkValue) {
       leftEye.scale.y = 0.1;
@@ -1713,9 +1697,8 @@ function init3DSpace() {
       rightEye.scale.y = 1.0;
     }
 
-    // 🚀 Screen Break-Out Escape Force Logic Interaction
     if(screenLeapForce > 0) {
-      screenLeapForce -= 0.05; // Friction return down
+      screenLeapForce -= 0.05;
     }
     avatarGroup.position.z = screenLeapForce + Math.sin(elapsedTime * 3) * 0.5;
 
