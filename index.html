@@ -79,7 +79,7 @@
     border-radius: 99px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--accent);
+    background: #1BC237;
   }
 
   pre code {
@@ -339,7 +339,7 @@
       </div>
 
       <div class="flex items-center">
-        <button onclick="toggleVisuals()" id="visualToggleBtn" class="text-gray-700 hover:text-gray-900 bg-white border border-gray-200 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-sm tracking-wide">
+        <button onclick="toggleVisuals()" id="visualToggleBtn" class="text-gray-700 hover:text-gray-900 bg-white border border-gray-200 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-md tracking-wide">
           <i class="fas fa-robot text-[#1BC237]" id="visualToggleIcon"></i>
           <span id="visualToggleText">3D On</span>
         </button>
@@ -449,7 +449,7 @@
         <p class="text-center text-[8px] md:text-[9px] text-gray-400 mt-2 font-mono uppercase tracking-wider brandFooterText">MR7 AI · PROPRIETARY INTELLIGENCE SYSTEM · CREATED BY MR7 TEAM</p>
       </div>
     </div>
-  </aside>
+  </main>
 </div>
 
 <div id="settingsModal" class="fixed inset-0 bg-gray-900/40 backdrop-blur-md z-50 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
@@ -471,7 +471,6 @@
           <i class="fas fa-server mr-1"></i> Native Engine Pipeline
         </label>
         <select id="apiEngine" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 text-xs md:text-sm text-gray-900 focus:outline-none focus:border-emerald-500 font-sans">
-          <option value="gemini" class="bg-white">MR7 Quantum Engine (Google Gemini 3.5 Flash)</option>
           <option value="groq" class="bg-white">MR7 Velocity Engine (Instant Llama Speed)</option>
         </select>
       </div>
@@ -533,7 +532,7 @@ let currentPersona = localStorage.getItem("mr7_v5_persona") || "friendly";
 let currentAccent = localStorage.getItem("mr7_v5_accent") || "#6ED987";
 let currentAccentGlow = localStorage.getItem("mr7_v5_accent_glow") || "rgba(110,217,135,0.12)";
 let activeVoiceAccent = localStorage.getItem("mr7_v5_voice_accent") || "en-US-female";
-let activeEngine = localStorage.getItem("mr7_v5_engine") || "gemini"; 
+let activeEngine = localStorage.getItem("mr7_v5_engine") || "groq"; 
 let currentTemperature = parseFloat(localStorage.getItem("mr7_v5_temp") || "0.7");
 let isGenerating = false;
 let is3DActive = localStorage.getItem("mr7_v5_3d") !== "false";
@@ -1069,9 +1068,13 @@ function switchChat(id) {
   renderMessages();
 }
 
+// Fixed Double Confirm Handling Loop Error 
 function deleteChat(id, e) {
   e.stopPropagation();
+  e.preventDefault();
   const btn = e.target.closest('button');
+  if (!btn) return;
+
   if (btn.getAttribute('data-confirm') === 'true') {
     delete chats[id];
     if (currentChatId === id) {
@@ -1084,8 +1087,14 @@ function deleteChat(id, e) {
     renderMessages();
     calculateBrainMirrorMatrix();
   } else {
-    btn.setAttribute('data-confirm', 'false');
-    btn.innerHTML = `<i class="fas fa-trash"></i>`;
+    btn.setAttribute('data-confirm', 'true');
+    btn.innerHTML = `<i class="fas fa-exclamation-triangle text-red-500"></i>`;
+    setTimeout(() => {
+      if (chats[id]) {
+        btn.setAttribute('data-confirm', 'false');
+        btn.innerHTML = `<i class="fas fa-trash"></i>`;
+      }
+    }, 4000);
   }
 }
 
@@ -1128,7 +1137,7 @@ function filterChats(query) {
   renderChatList(filteredIds);
 }
 
-// Array containing unique dynamic lines for user welcome greetings
+// Unique Greeting randomizer matrix data array blocks
 const matrixUniqueGreetings = [
   "System online. What knowledge matrix can I generate for you?",
   "Neural link established. Drop your baseline inquiry guidelines below.",
@@ -1171,7 +1180,13 @@ function renderChatList(customIdArray = null) {
     `;
   }).join("");
 
-  ids.forEach(id => initSwipeToDelete(`item-log-${id}`));
+  // Target safe click configurations inside mapping iterations
+  ids.forEach(id => {
+    const el = document.getElementById(`item-log-${id}`);
+    if (el) {
+      el.addEventListener('touchstart', (e) => { e.stopPropagation(); }, {passive:true});
+    }
+  });
 }
 
 function renderMessages() {
@@ -1409,6 +1424,7 @@ function inspectAndHarvestUserMemory(text) {
   localStorage.setItem("mr7_v5_memory_matrix", JSON.stringify(systemMemoryProfile));
 }
 
+// 🌐 Advanced Free Puter JS Execution Logic Integration
 async function sendMessage() {
   if (isGenerating) return;
 
@@ -1462,7 +1478,7 @@ async function sendMessage() {
     let responseText = "";
     
     if (activeEngine === "gemini" || (activeAttachedFileData && activeAttachedFileData.type === "image")) {
-      // Free Puter Google Gemini model initialization pipeline
+      // 🚀 Free Puter Google Gemini execution module
       let puterModel = 'google/gemini-3.5-flash';
       let puterPrompt = getSystemInstructionText() + "\n\nUser Input Context:\n" + processedPromptContent;
       
@@ -1535,6 +1551,7 @@ function saveAllSettings() {
   closeSettings();
 }
 
+// SETTINGS & CONTROL INITIALIZATIONS
 function resetSettings() {
   setAccent('#6ED987', 'rgba(110,217,135,0.12)');
   activeVoiceAccent = "en-US-female";
@@ -1637,7 +1654,7 @@ function init3DSpace() {
   innerPlateMesh.rotation.y = -Math.PI / 2;
   avatarGroup.add(innerPlateMesh);
 
-  // Smooth Spherical Head Structure
+  // Large Smooth Spherical Head Structure
   const headGeom = new THREE.SphereGeometry(3.3, 32, 32);
   const headMat = new THREE.MeshStandardMaterial({ 
     color: 0xefedf0, 
@@ -1648,7 +1665,7 @@ function init3DSpace() {
   headMesh.position.y = 6.0;
   avatarGroup.add(headMesh);
 
-  // Dark Face Screen Visor Panel
+  // Iconic Dark Visor Face Screen Mask Panel
   const visorGeom = new THREE.SphereGeometry(2.8, 32, 16, 0, Math.PI * 2, 0.5, Math.PI / 2.5);
   const visorMat = new THREE.MeshStandardMaterial({ 
     color: 0x070b12, 
@@ -1660,24 +1677,20 @@ function init3DSpace() {
   visorMesh.scale.set(1, 0.65, 1);
   avatarGroup.add(visorMesh);
 
-  // Bright Arc-shaped Digital Spherical Eyes brought forward on z axis to bypass camera occlusion blocks
+  // 👁️ Bright Blue Cyber Eyes (Repositioned for Perfect Depth Integrity)
   const eyeGeomLeft = new THREE.SphereGeometry(0.35, 32, 32);
   const eyeGeomRight = new THREE.SphereGeometry(0.35, 32, 32);
-  const eyeMat = new THREE.MeshStandardMaterial({ 
-    color: 0x00d2ff,
-    emissive: 0x00a2ff,
-    roughness: 0.1
-  });
+  const eyeMat = new THREE.MeshStandardMaterial({ color: 0x00d2ff });
   
   leftEye = new THREE.Mesh(eyeGeomLeft, eyeMat);
-  leftEye.position.set(-0.85, 6.25, 3.42);
+  leftEye.position.set(-0.85, 6.25, 3.35);
   avatarGroup.add(leftEye);
 
   rightEye = new THREE.Mesh(eyeGeomRight, eyeMat);
-  rightEye.position.set(0.85, 6.25, 3.42);
+  rightEye.position.set(0.85, 6.25, 3.35);
   avatarGroup.add(rightEye);
 
-  // Mechanical Arms Setup
+  // Horizontally Outstretched Mechanical Arms
   const shoulderGeomLeft = new THREE.SphereGeometry(0.7, 16, 16);
   const shoulderGeomRight = new THREE.SphereGeometry(0.7, 16, 16);
   const jointMat = new THREE.MeshStandardMaterial({ color: 0x5a5a63, roughness: 0.4 });
@@ -1703,7 +1716,7 @@ function init3DSpace() {
   rightArm.rotation.z = -Math.PI / 2;
   avatarGroup.add(rightArm);
 
-  // Leg Pods Components
+  // Detailed Segmented Curved Upper Thigh Joints & Leg Pods
   const hipJointLeft = new THREE.SphereGeometry(0.6, 16, 16);
   const hipJointRight = new THREE.SphereGeometry(0.6, 16, 16);
   
@@ -1754,7 +1767,7 @@ function init3DSpace() {
     targetX += (mouseX - targetX) * 0.08;
     targetY += (mouseY - targetY) * 0.08;
 
-    // Elegant stabilization and floating paths tracking loops
+    // Elegant stabilization and hovering float paths
     avatarGroup.position.y = -0.5 + Math.sin(elapsedTime * 1.5) * 0.5;
     avatarGroup.rotation.y = targetX * 0.2 + Math.sin(elapsedTime * 0.2) * 0.03;
 
@@ -1766,7 +1779,7 @@ function init3DSpace() {
     visorMesh.rotation.y = targetX * 0.2;
     visorMesh.rotation.x = targetY * 0.1;
 
-    // Coordinates look alignment mapping updates for neon layers
+    // Fixed Flat Plane tracking positioning loop alignment
     leftEye.position.x = -0.85 + (targetX * 0.15);
     leftEye.position.y = 6.25 - (targetY * 0.1);
     rightEye.position.x = 0.85 + (targetX * 0.15);
