@@ -27,11 +27,11 @@
 <style>
   :root {
     --accent: #6ED987;
-    --accent-glow: rgba(110, 217, 135, 0.15);
-    --bg-dark: #ebebec;
-    --panel-dark: #fafafa;
-    --border-dark: rgba(0, 0, 0, 0.06);
-    --text-dark: #1f2937;
+    --accent-glow: rgba(110, 217, 135, 0.12);
+    --bg-dark: #f3f4f6;
+    --panel-dark: #ffffff;
+    --border-dark: rgba(0, 0, 0, 0.08);
+    --text-dark: #111827;
     --text-muted: #6b7280;
   }
 
@@ -56,7 +56,7 @@
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    opacity: 0.9;
+    opacity: 0.95;
     transition: opacity 0.5s;
   }
 
@@ -75,11 +75,11 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.08);
+    background: rgba(0, 0, 0, 0.06);
     border-radius: 99px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--accent);
+    background: #1BC237;
   }
 
   pre code {
@@ -87,8 +87,8 @@
   }
 
   .prose pre {
-    background-color: #111827 !important;
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    background-color: #1f2937 !important;
+    border: 1px solid rgba(0, 0, 0, 0.06);
     border-radius: 0.75rem;
     padding: 1rem;
     position: relative;
@@ -99,7 +99,7 @@
   .typing-cursor::after {
     content: '_';
     animation: blink-cursor 0.8s infinite;
-    color: var(--accent);
+    color: #1BC237;
     font-weight: bold;
   }
   @keyframes blink-cursor {
@@ -110,16 +110,12 @@
     animation: inputBreathe 3s infinite ease-in-out;
   }
   @keyframes inputBreathe {
-    0%, 100% { border-color: rgba(0, 0, 0, 0.06); box-shadow: none; }
-    50% { border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
-  }
-
-  * {
-    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    0%, 100% { border-color: rgba(0, 0, 0, 0.08); box-shadow: none; }
+    50% { border-color: #6ED987; box-shadow: 0 0 15px rgba(110, 217, 135, 0.2); }
   }
 
   #sidebarOverlay {
-    background: rgba(0, 0, 0, 0.2) !important;
+    background: rgba(0, 0, 0, 0.15) !important;
     backdrop-filter: blur(4px) !important;
     -webkit-backdrop-filter: blur(4px) !important;
   }
@@ -152,18 +148,16 @@
     transform: translateY(-100%);
     transition: transform 0.1s ease;
     z-index: 50;
-    background: linear-gradient(to bottom, rgba(235,235,236,0.95), transparent);
+    background: linear-gradient(to bottom, rgba(243,244,246,0.95), transparent);
   }
 
   @keyframes futuristicReveal {
-    0% { transform: scale(0.85); opacity: 0; filter: blur(10px) brightness(0.5); }
-    20% { transform: scale(1); opacity: 1; filter: blur(0px) brightness(1.2); }
-    85% { transform: scale(1.02); opacity: 1; filter: blur(0px) brightness(1); }
-    100% { transform: scale(1.15); opacity: 0; filter: blur(12px) brightness(0); }
+    0% { transform: scale(0.9); opacity: 0; filter: blur(5px); }
+    100% { transform: scale(1); opacity: 1; filter: blur(0px); }
   }
   
   .animate-portal-splash {
-    animation: futuristicReveal 4.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    animation: futuristicReveal 3.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
   @media (max-width: 767px) {
@@ -182,18 +176,7 @@
       transform: translateY(0);
       pointer-events: auto;
     }
-
-    button {
-      min-height: 36px;
-    }
-    #sendBtn {
-      width: 44px !important;
-      height: 44px !important;
-    }
     #sidebar {
-      height: 100dvh;
-    }
-    body {
       height: 100dvh;
     }
   }
@@ -219,29 +202,29 @@
 </head>
 <body class="relative h-screen w-screen overflow-hidden flex flex-col" style="height:100dvh">
 
-<div id="appCinematicPortalLayer" class="fixed inset-0 bg-[#fafafa] z-[9999] flex flex-col items-center justify-center pointer-events-none transition-opacity duration-700">
+<div id="appCinematicPortalLayer" class="fixed inset-0 bg-[#f9fafb] z-[9999] flex flex-col items-center justify-center pointer-events-none transition-opacity duration-700">
   <div class="flex flex-col items-center max-w-[85%] text-center animate-portal-splash">
-    <div class="relative p-2 rounded-3xl bg-white border border-gray-200 shadow-sm mb-4">
-      <img src="logo.png" alt="MR7 Core" class="w-28 h-28 md:w-36 md:h-36 object-contain">
+    <div class="relative p-3 rounded-3xl bg-white border border-gray-200/80 shadow-sm mb-4">
+      <img src="logo.png" alt="MR7 Core" class="w-24 h-24 md:w-32 h-32 object-contain">
     </div>
-    <div class="h-[2px] w-24 bg-gradient-to-r from-transparent via-[#6ED987] to-transparent mb-3 opacity-80"></div>
-    <p class="text-[10px] md:text-xs font-mono tracking-[0.3em] uppercase text-[#1BC237] font-bold">INITIALIZING QUANTUM LAYER</p>
+    <div class="h-[2px] w-20 bg-gradient-to-r from-transparent via-[#1BC237] to-transparent mb-3 opacity-60"></div>
+    <p class="text-[10px] md:text-xs font-mono tracking-[0.25em] uppercase text-[#1BC237] font-bold">INITIALIZING CORE LAYER</p>
   </div>
 </div>
 
 <canvas id="bg-canvas"></canvas>
 
-<input type="file" id="userWorkspaceUploaderInput" class="hidden" accept="image/*, .pdf, .txt, .json" onchange="handleWorkspaceFileUpload(event)">
-<input type="file" id="importChatLogsInput" class="hidden" accept=".json" onchange="importChatMatrixLogs(event)">
+<input type="file" id="userWorkspaceUploaderInput" class="hidden" style="display:none !important; visibility:hidden !important;" accept="image/*, .pdf, .txt, .json" onchange="handleWorkspaceFileUpload(event)">
+<input type="file" id="importChatLogsInput" class="hidden" style="display:none !important; visibility:hidden !important;" accept=".json" onchange="importChatMatrixLogs(event)">
 
 <div id="pull-indicator" class="pointer-events-none">
-  <div class="flex items-center gap-2 text-xs font-mono text-emerald-600">
+  <div class="flex items-center gap-2 text-xs font-mono text-gray-600">
     <i class="fas fa-sync-alt animate-spin" id="pull-icon"></i>
     <span id="pull-text">Pull down to open a new chat</span>
   </div>
 </div>
 
-<div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 bg-white border border-gray-200 text-gray-900 {{ 'text-dark' }} px-5 py-3 rounded-2xl shadow-xl backdrop-blur-md z-50 flex items-center gap-3 transition-all duration-300 pointer-events-none opacity-0 scale-95 max-w-[90%] text-center">
+<div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 bg-white border border-gray-200 text-gray-900 px-5 py-3 rounded-2xl shadow-xl backdrop-blur-md z-50 flex items-center gap-3 transition-all duration-300 pointer-events-none opacity-0 scale-95 max-w-[90%] text-center">
   <span id="toast-icon" class="text-emerald-500 text-lg"><i class="fas fa-check-circle"></i></span>
   <span id="toast-msg" class="text-xs md:text-sm font-medium">System Aligned!</span>
 </div>
@@ -250,11 +233,11 @@
 
 <div class="relative z-10 flex h-full w-full overflow-hidden">
   
-  <aside id="sidebar" class="fixed md:relative inset-y-0 left-0 w-72 md:w-80 bg-white backdrop-blur-2xl border-r border-gray-200 flex flex-col justify-between transition-transform duration-300 transform -translate-x-full md:translate-x-0 z-50">
+  <aside id="sidebar" class="fixed md:relative inset-y-0 left-0 w-72 md:w-80 bg-white border-r border-gray-200 flex flex-col justify-between transition-transform duration-300 transform -translate-x-full md:translate-x-0 z-50">
     <div class="flex flex-col flex-1 min-h-0">
       <div class="p-5 border-b border-gray-100 items-center justify-between flex shrink-0">
         <div class="flex items-center gap-3">
-          <div class="w-11 h-11 rounded-[14px] overflow-hidden flex items-center justify-center border border-gray-200 shadow-sm shrink-0" id="brandLogo">
+          <div class="w-11 h-11 rounded-[14px] overflow-hidden flex items-center justify-center border border-gray-200 shadow-xs shrink-0" id="brandLogo">
             <img src="logo.png" alt="Logo" class="w-full h-full object-cover">
           </div>
           <div>
@@ -268,7 +251,7 @@
       </div>
 
       <div class="p-4 shrink-0">
-        <button onclick="newChat(); toggleSidebarIfMobile();" class="w-full bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 rounded-2xl py-3 px-4 flex items-center justify-center gap-2 font-medium transition-all group hover:shadow-sm text-sm">
+        <button onclick="newChat(); toggleSidebarIfMobile();" class="w-full bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 rounded-2xl py-3 px-4 flex items-center justify-center gap-2 font-medium transition-all group hover:shadow-xs text-sm">
           <i class="fas fa-plus text-xs text-[#6ED987] group-hover:rotate-90 transition-transform"></i>
           <span>New Conversation</span>
         </button>
@@ -285,14 +268,14 @@
 
       <div class="px-4 py-2 mt-2 shrink-0 border-t border-gray-100">
         <div class="bg-gradient-to-br from-gray-50 to-white rounded-xl p-3 border border-gray-200 flex flex-col gap-2">
-          <div class="flex items-center gap-1.5 text-xs text-emerald-600 font-bold font-heading">
-            <i class="fas fa-brain"></i> <span>BRAIN MIRROR ANALYTICS</span>
+          <div class="flex items-center gap-1.5 text-xs text-gray-700 font-bold font-heading">
+            <i class="fas fa-brain text-[#1BC237]"></i> <span>BRAIN MIRROR ANALYTICS</span>
           </div>
           <div id="brainMirrorLoader" class="text-[9px] text-gray-400 font-mono">Awaiting conversation metrics...</div>
           <div id="brainMirrorStats" class="hidden text-[10px] font-mono flex flex-col gap-1 text-gray-600">
-            <div><span class="text-gray-400">STYLE:</span> <span id="bmStyle" class="text-emerald-600 font-bold"></span></div>
-            <div><span class="text-gray-400">FOCUS:</span> <span id="bmFocus"></span></div>
-            <div><span class="text-gray-400">STRENGTH:</span> <span id="bmStrength" class="text-emerald-500"></span></div>
+            <div><span class="text-gray-400">STYLE:</span> <span id="bmStyle" class="text-gray-800 font-bold"></span></div>
+            <div><span class="text-gray-400">FOCUS:</span> <span id="bmFocus" class="text-gray-700"></span></div>
+            <div><span class="text-gray-400">STRENGTH:</span> <span id="bmStrength" class="text-emerald-600"></span></div>
           </div>
         </div>
       </div>
@@ -300,13 +283,13 @@
 
     <div class="p-4 border-t border-gray-100 bg-gray-50/50 flex flex-col gap-3 shrink-0">
       <div class="bg-white rounded-xl p-3 border border-gray-200 flex flex-col gap-1.5 text-[9px] font-mono text-gray-400">
-        <div class="flex justify-between items-center text-gray-700 font-semibold border-b border-gray-100 pb-1 mb-1">
+        <div class="flex justify-between items-center text-gray-600 font-semibold border-b border-gray-100 pb-1 mb-1">
           <span>DIAGNOSTIC TELEMETRY</span>
           <span class="text-emerald-600 text-[8px] animate-pulse">● LIVE</span>
         </div>
         <div class="flex justify-between">
           <span>LATENCY MATRIX:</span>
-          <span class="text-emerald-600" id="liveLatency">6ms</span>
+          <span class="text-gray-700 font-medium" id="liveLatency">6ms</span>
         </div>
         <div class="flex justify-between">
           <span>CPU THREADS:</span>
@@ -318,13 +301,13 @@
         </div>
         <div class="flex justify-between">
           <span>CREATORS:</span>
-          <span class="text-emerald-600">MR7 TEAM</span>
+          <span class="text-gray-700 font-medium">MR7 TEAM</span>
         </div>
       </div>
 
       <div class="flex items-center justify-between gap-2 p-2.5 bg-white rounded-2xl border border-gray-200 shadow-sm">
         <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center text-[#1BC237]" id="bottom-icon">
+          <div class="w-8 h-8 rounded-xl bg-gray-50 flex items-center justify-center text-[#1BC237]" id="bottom-icon">
             <i class="fas fa-bolt"></i>
           </div>
           <div>
@@ -332,7 +315,7 @@
             <p class="text-[9px] text-[#1BC237] font-mono" id="activeEngineSub">Continuous Transmission</p>
           </div>
         </div>
-        <button onclick="openSettings()" class="text-gray-400 hover:text-gray-600 p-2.5 hover:bg-gray-50 rounded-xl transition-colors" title="Settings Center">
+        <button onclick="openSettings()" class="text-gray-400 hover:text-gray-600 p-2.5 hover:bg-gray-50 rounded-xl transition-colors">
           <i class="fas fa-sliders-h"></i>
         </button>
       </div>
@@ -363,12 +346,12 @@
     <div class="flex-1 overflow-y-auto px-4 md:px-12 pt-20 pb-6 flex flex-col gap-5" id="messages"></div>
 
     <div id="scrollToBottomWrap" class="fixed bottom-24 right-6 z-20 hidden">
-      <button onclick="scrollToBottomDirect()" class="w-9 h-9 rounded-full bg-white border border-gray-200 text-emerald-600 flex items-center justify-center shadow-lg active:scale-90 transition-transform">
+      <button onclick="scrollToBottomDirect()" class="w-9 h-9 rounded-full bg-white border border-gray-200 text-emerald-600 flex items-center justify-center shadow-md active:scale-90 transition-transform">
         <i class="fas fa-arrow-down text-sm"></i>
       </button>
     </div>
 
-    <div id="fileAttachmentPreviewBanner" class="hidden mx-4 md:mx-12 max-w-4xl px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-xs text-emerald-700 font-mono shadow-sm">
+    <div id="fileAttachmentPreviewBanner" class="hidden mx-4 md:mx-12 max-w-4xl px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-xs text-emerald-800 font-mono shadow-sm">
       <span class="flex items-center gap-2 truncate">
         <i class="fas fa-paperclip animate-pulse"></i>
         <span id="attachedFileNameText">No file uploaded</span>
@@ -454,7 +437,7 @@
               <button onclick="clearInput()" class="w-8 h-8 rounded-lg hover:bg-gray-50 text-gray-400 hover:text-gray-600 flex items-center justify-center transition-colors" title="Clear Entry">
                 <i class="fas fa-trash-alt text-xs"></i>
               </button>
-              <button id="sendBtn" onclick="sendMessage()" class="w-10 h-10 rounded-xl bg-[#6ED987] hover:bg-[#5bc273] text-gray-950 flex items-center justify-center transition-all shadow-md shadow-emerald-200">
+              <button id="sendBtn" onclick="sendMessage()" class="w-10 h-10 rounded-xl bg-[#6ED987] hover:bg-[#5bc273] text-gray-950 flex items-center justify-center transition-all shadow-md shadow-emerald-100">
                 <i class="fas fa-paper-plane text-sm"></i>
               </button>
             </div>
@@ -545,7 +528,7 @@ let chats = JSON.parse(localStorage.getItem("mr7_v5_chats") || "{}");
 let currentChatId = localStorage.getItem("mr7_v5_current") || null;
 let currentPersona = localStorage.getItem("mr7_v5_persona") || "friendly";
 let currentAccent = localStorage.getItem("mr7_v5_accent") || "#6ED987";
-let currentAccentGlow = localStorage.getItem("mr7_v5_accent_glow") || "rgba(110,217,135,0.15)";
+let currentAccentGlow = localStorage.getItem("mr7_v5_accent_glow") || "rgba(110,217,135,0.12)";
 let activeVoiceAccent = localStorage.getItem("mr7_v5_voice_accent") || "en-US-female";
 let activeEngine = localStorage.getItem("mr7_v5_engine") || "gemini"; 
 let currentTemperature = parseFloat(localStorage.getItem("mr7_v5_temp") || "0.7");
@@ -733,9 +716,9 @@ window.addEventListener("load", () => {
     btn.querySelector("span").textContent = "3D Off";
     icon.className = "fas fa-robot text-gray-400";
   } else {
-    document.getElementById("bg-canvas").style.opacity = "0.9";
+    document.getElementById("bg-canvas").style.opacity = "0.95";
     btn.querySelector("span").textContent = "3D On";
-    icon.className = "fas fa-robot text-emerald-500";
+    icon.className = "fas fa-robot text-[#1BC237]";
   }
 
   window.addEventListener("click", (e) => {
@@ -1026,7 +1009,6 @@ function handleTextareaKey(e) {
   }
 }
 
-// PERSONA SELECTION LOGIC
 function selectPersonaMenu(personaKey) {
   currentPersona = personaKey;
   localStorage.setItem("mr7_v5_persona", currentPersona);
@@ -1176,7 +1158,7 @@ function renderChatList(customIdArray = null) {
           <span class="text-xs ${isSel ? 'text-emerald-500' : 'text-gray-400'}" id="chat-icon-${id}"><i class="fas ${icon}"></i></span>
           <span class="text-xs text-gray-700 truncate pr-2 max-w-[140px] block">${escapeHtml(title)}</span>
         </div>
-        <button onclick="deleteChat('${id}', event)" data-confirm="false" class="p-2 rounded hover:bg-black/10 text-gray-400 hover:text-red-500 transition-all text-xs" title="Delete Log">
+        <button onclick="deleteChat('${id}', event)" data-confirm="false" class="p-2 rounded hover:bg-white/10 text-gray-400 hover:text-red-500 transition-all text-xs" title="Delete Log">
           <i class="fas fa-trash"></i>
         </button>
       </div>
@@ -1264,7 +1246,7 @@ function renderMessageBubble(m, idx) {
   return `
     <div class="w-full ${isUser ? 'bg-transparent' : 'bg-white border-y border-gray-200/50'} py-4 px-3 md:px-6 rounded-2xl">
       <div class="max-w-4xl mx-auto flex gap-3 md:gap-5 items-start">
-        <div class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold shrink-0 ${isUser ? 'bg-blue-500/10 text-blue-600' : 'bg-[#DBE5DD] text-gray-700'}">
+        <div class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold shrink-0 ${isUser ? 'bg-blue-500/10 text-blue-600' : 'bg-zinc-100 text-gray-700'}">
           ${isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-brain"></i>'}
         </div>
         <div class="flex-1 min-w-0">
@@ -1421,6 +1403,7 @@ function inspectAndHarvestUserMemory(text) {
   localStorage.setItem("mr7_v5_memory_matrix", JSON.stringify(systemMemoryProfile));
 }
 
+// 🌐 Advanced Free Puter JS Execution Logic Integration
 async function sendMessage() {
   if (isGenerating) return;
 
@@ -1474,16 +1457,19 @@ async function sendMessage() {
     let responseText = "";
     
     if (activeEngine === "gemini" || (activeAttachedFileData && activeAttachedFileData.type === "image")) {
+      // 🚀 Free Puter Google Gemini execution module
       let puterModel = 'google/gemini-3.5-flash';
       let puterPrompt = getSystemInstructionText() + "\n\nUser Input Context:\n" + processedPromptContent;
       
       if (activeAttachedFileData && activeAttachedFileData.type === "image") {
+        // Image parsing matrix pipeline via Puter base64 configuration object
         let rawDataUrl = `data:${activeAttachedFileData.mimeType};base64,${activeAttachedFileData.base64}`;
         responseText = await puter.ai.chat(puterPrompt, rawDataUrl, { model: puterModel, temperature: currentTemperature });
       } else {
         responseText = await puter.ai.chat(puterPrompt, { model: puterModel, temperature: currentTemperature });
       }
     } else {
+      // Direct backup system fallback connection pipeline
       let payloadHistory = JSON.parse(JSON.stringify(chat.messages.slice(0, -1)));
       responseText = await triggerVelocityTextAPI(payloadHistory);
     }
@@ -1546,8 +1532,9 @@ function saveAllSettings() {
   closeSettings();
 }
 
+// SETTINGS & CONTROL INITIALIZATIONS
 function resetSettings() {
-  setAccent('#6ED987', 'rgba(110,217,135,0.15)');
+  setAccent('#6ED987', 'rgba(110,217,135,0.12)');
   activeVoiceAccent = "en-US-female";
   activeEngine = "gemini";
   currentTemperature = 0.7;
@@ -1574,7 +1561,7 @@ function updateEngineUI() {
 function toggleVisuals() {
   is3DActive = !is3DActive;
   localStorage.setItem("mr7_v5_3d", is3DActive);
-  document.getElementById("bg-canvas").style.opacity = is3DActive ? "0.9" : "0";
+  document.getElementById("bg-canvas").style.opacity = is3DActive ? "0.95" : "0";
   
   const btnText = document.getElementById("visualToggleText");
   const btnIcon = document.getElementById("visualToggleIcon");
@@ -1601,7 +1588,7 @@ function escapeHtml(s) {
   return (s || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
-// 🤖 Fixed 3D Space & Eyes Mesh Tracking Pipelines
+// 🤖 Premium Ultra 3D Robot Generation Engine Setup (Image Reference Match)
 function init3DSpace() {
   const canvas = document.getElementById("bg-canvas");
   renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
@@ -1612,11 +1599,15 @@ function init3DSpace() {
   camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.set(0, 4, 38);
 
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
   scene.add(ambientLight);
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 1.4);
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
   directionalLight.position.set(10, 25, 20);
   scene.add(directionalLight);
+
+  const keyGlow = new THREE.DirectionalLight(0x6ED987, 1);
+  keyGlow.position.set(-10, -10, 10);
+  scene.add(keyGlow);
 
   avatarGroup = new THREE.Group();
 
@@ -1632,7 +1623,7 @@ function init3DSpace() {
   outerBodyMesh.position.y = 1;
   avatarGroup.add(outerBodyMesh);
 
-  // Inset Grey Chest Plate Contour
+  // Inset Grey Chest Plate Contour Matching Image
   const innerPlateGeom = new THREE.SphereGeometry(3.2, 16, 16, 0, Math.PI, 0, Math.PI);
   const innerPlateMat = new THREE.MeshStandardMaterial({ 
     color: 0xadadb5, 
@@ -1644,7 +1635,7 @@ function init3DSpace() {
   innerPlateMesh.rotation.y = -Math.PI / 2;
   avatarGroup.add(innerPlateMesh);
 
-  // Spherical Head Structure
+  // Large Smooth Spherical Head Structure
   const headGeom = new THREE.SphereGeometry(3.3, 32, 32);
   const headMat = new THREE.MeshStandardMaterial({ 
     color: 0xefedf0, 
@@ -1655,7 +1646,7 @@ function init3DSpace() {
   headMesh.position.y = 6.0;
   avatarGroup.add(headMesh);
 
-  // Face Screen Visor Panel
+  // Iconic Dark Visor Face Screen Mask Panel
   const visorGeom = new THREE.SphereGeometry(2.8, 32, 16, 0, Math.PI * 2, 0.5, Math.PI / 2.5);
   const visorMat = new THREE.MeshStandardMaterial({ 
     color: 0x070b12, 
@@ -1667,20 +1658,20 @@ function init3DSpace() {
   visorMesh.scale.set(1, 0.65, 1);
   avatarGroup.add(visorMesh);
 
-  // 👁️ Re-Calculated Flat Eye Geometries brought forward onto the visor surface layer to secure visibility
-  const eyeGeomLeft = new THREE.SphereGeometry(0.35, 16, 16);
-  const eyeGeomRight = new THREE.SphereGeometry(0.35, 16, 16);
+  // 👁️ Bright Blue Cyber Eyes (Repositioned for Perfect Depth Integrity)
+  const eyeGeomLeft = new THREE.SphereGeometry(0.35, 32, 32);
+  const eyeGeomRight = new THREE.SphereGeometry(0.35, 32, 32);
   const eyeMat = new THREE.MeshBasicMaterial({ color: 0x00d2ff });
   
   leftEye = new THREE.Mesh(eyeGeomLeft, eyeMat);
-  leftEye.position.set(-0.8, 6.3, 3.25);
+  leftEye.position.set(-0.85, 6.25, 3.35);
   avatarGroup.add(leftEye);
 
   rightEye = new THREE.Mesh(eyeGeomRight, eyeMat);
-  rightEye.position.set(0.8, 6.3, 3.25);
+  rightEye.position.set(0.85, 6.25, 3.35);
   avatarGroup.add(rightEye);
 
-  // Outstretched Arms
+  // Horizontally Outstretched Mechanical Arms
   const shoulderGeomLeft = new THREE.SphereGeometry(0.7, 16, 16);
   const shoulderGeomRight = new THREE.SphereGeometry(0.7, 16, 16);
   const jointMat = new THREE.MeshStandardMaterial({ color: 0x5a5a63, roughness: 0.4 });
@@ -1706,7 +1697,7 @@ function init3DSpace() {
   rightArm.rotation.z = -Math.PI / 2;
   avatarGroup.add(rightArm);
 
-  // Thigh Joints & Leg Pods
+  // Detailed Segmented Curved Upper Thigh Joints & Leg Pods
   const hipJointLeft = new THREE.SphereGeometry(0.6, 16, 16);
   const hipJointRight = new THREE.SphereGeometry(0.6, 16, 16);
   
@@ -1757,6 +1748,7 @@ function init3DSpace() {
     targetX += (mouseX - targetX) * 0.08;
     targetY += (mouseY - targetY) * 0.08;
 
+    // Elegant stabilization and hovering float paths
     avatarGroup.position.y = -0.5 + Math.sin(elapsedTime * 1.5) * 0.5;
     avatarGroup.rotation.y = targetX * 0.2 + Math.sin(elapsedTime * 0.2) * 0.03;
 
@@ -1768,12 +1760,13 @@ function init3DSpace() {
     visorMesh.rotation.y = targetX * 0.2;
     visorMesh.rotation.x = targetY * 0.1;
 
-    // Secure custom look-at coordinate synchronization tracking lines
+    // Fixed Flat Plane tracking positioning loop alignment
     leftEye.position.x = -0.85 + (targetX * 0.15);
-    leftEye.position.y = 6.3 - (targetY * 0.1);
+    leftEye.position.y = 6.25 - (targetY * 0.1);
     rightEye.position.x = 0.85 + (targetX * 0.15);
-    rightEye.position.y = 6.3 - (targetY * 0.1);
+    rightEye.position.y = 6.25 - (targetY * 0.1);
 
+    // Visor eye blinking cycles
     let blink = Math.floor(elapsedTime) % 6 === 0 && Math.sin(elapsedTime * 25) > 0.7;
     if (blink) {
       leftEye.scale.y = 0.05;
