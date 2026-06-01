@@ -236,7 +236,7 @@
 
 <div class="relative z-10 flex h-full w-full overflow-hidden">
   
-  <aside id="sidebar" class="fixed md:relative inset-y-0 left-0 w-72 md:w-80 bg-white border-r border-gray-200 flex flex-col justify-between transition-transform duration-300 transform -translate-x-full md:translate-x-0 z-50">
+  <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 md:w-80 bg-white border-r border-gray-200 flex flex-col justify-between transition-transform duration-300 transform -translate-x-full md:translate-x-0 z-50">
     <div class="flex flex-col flex-1 min-h-0">
       <div class="p-5 border-b border-gray-100 items-center justify-between flex shrink-0">
         <div class="flex items-center gap-3">
@@ -998,6 +998,7 @@ function toggleSidebar() {
   }
 }
 
+// REST OF EVENT REGISTRATION MAP
 function toggleSidebarIfMobile() {
   if (window.innerWidth < 768) {
     toggleSidebar();
@@ -1011,7 +1012,6 @@ function handleTextareaKey(e) {
   }
 }
 
-// PERSONA SELECTION LOGIC
 function selectPersonaMenu(personaKey) {
   currentPersona = personaKey;
   localStorage.setItem("mr7_v5_persona", currentPersona);
@@ -1068,7 +1068,6 @@ function switchChat(id) {
   renderMessages();
 }
 
-// Fixed Double Confirm Handling Loop Error 
 function deleteChat(id, e) {
   e.stopPropagation();
   e.preventDefault();
@@ -1137,7 +1136,6 @@ function filterChats(query) {
   renderChatList(filteredIds);
 }
 
-// Unique Greeting randomizer matrix data array blocks
 const matrixUniqueGreetings = [
   "System online. What knowledge matrix can I generate for you?",
   "Neural link established. Drop your baseline inquiry guidelines below.",
@@ -1173,14 +1171,13 @@ function renderChatList(customIdArray = null) {
           <span class="text-xs ${isSel ? 'text-emerald-500' : 'text-gray-400'}" id="chat-icon-${id}"><i class="fas ${icon}"></i></span>
           <span class="text-xs text-gray-700 truncate pr-2 max-w-[140px] block">${escapeHtml(title)}</span>
         </div>
-        <button onclick="deleteChat('${id}', event)" data-confirm="false" class="p-2 rounded hover:bg-black/10 text-gray-400 hover:text-red-500 transition-all text-xs" title="Delete Log">
+        <button onclick="deleteChat('${id}', event)" data-confirm="false" class="p-2 rounded hover:bg-white/10 text-gray-400 hover:text-red-500 transition-all text-xs" title="Delete Log">
           <i class="fas fa-trash"></i>
         </button>
       </div>
     `;
   }).join("");
 
-  // Target safe click configurations inside mapping iterations
   ids.forEach(id => {
     const el = document.getElementById(`item-log-${id}`);
     if (el) {
@@ -1424,7 +1421,7 @@ function inspectAndHarvestUserMemory(text) {
   localStorage.setItem("mr7_v5_memory_matrix", JSON.stringify(systemMemoryProfile));
 }
 
-// 🌐 Advanced Free Puter JS Execution Logic Integration
+// 🌐 Pure Free Puter Image Connection Pipeline Fixed
 async function sendMessage() {
   if (isGenerating) return;
 
@@ -1459,6 +1456,9 @@ async function sendMessage() {
     chat.title = text.length > 20 ? text.slice(0, 18) + "..." : text;
   }
 
+  // Preserve attachment before resetting inputs
+  let currentFileAttachment = activeAttachedFileData;
+
   clearInput();
   saveChatsToLocal();
   renderChatList();
@@ -1477,19 +1477,18 @@ async function sendMessage() {
   try {
     let responseText = "";
     
-    if (activeEngine === "gemini" || (activeAttachedFileData && activeAttachedFileData.type === "image")) {
-      // 🚀 Free Puter Google Gemini execution module
+    // Puter JS Local Image Parsing Implementation (Direct base64 execution block to prevent cross-origin popups)
+    if (currentFileAttachment && currentFileAttachment.type === "image") {
       let puterModel = 'google/gemini-3.5-flash';
-      let puterPrompt = getSystemInstructionText() + "\n\nUser Input Context:\n" + processedPromptContent;
+      let puterPrompt = getSystemInstructionText() + "\n\nUser Question:\n" + text;
+      let imgDataUri = `data:${currentFileAttachment.mimeType};base64,${currentFileAttachment.base64}`;
       
-      if (activeAttachedFileData && activeAttachedFileData.type === "image") {
-        let rawDataUrl = `data:${activeAttachedFileData.mimeType};base64,${activeAttachedFileData.base64}`;
-        responseText = await puter.ai.chat(puterPrompt, rawDataUrl, { model: puterModel, temperature: currentTemperature });
-      } else {
-        responseText = await puter.ai.chat(puterPrompt, { model: puterModel, temperature: currentTemperature });
-      }
+      responseText = await puter.ai.chat(puterPrompt, imgDataUri, { model: puterModel, temperature: currentTemperature });
     } else {
       let payloadHistory = JSON.parse(JSON.stringify(chat.messages.slice(0, -1)));
+      if (currentFileAttachment && currentFileAttachment.type !== "image") {
+         payloadHistory[payloadHistory.length - 1].content = processedPromptContent;
+      }
       responseText = await triggerVelocityTextAPI(payloadHistory);
     }
     
@@ -1526,6 +1525,7 @@ function openSettings() {
   document.getElementById("settingsModalCard").style.transform = "scale(1)";
 }
 
+// MANAGEMENT SUBSYSTEM CONTROLS
 function closeSettings() {
   const modal = document.getElementById("settingsModal");
   modal.style.opacity = "0";
@@ -1551,13 +1551,12 @@ function saveAllSettings() {
   closeSettings();
 }
 
-// SETTINGS & CONTROL INITIALIZATIONS
 function resetSettings() {
   setAccent('#6ED987', 'rgba(110,217,135,0.12)');
   activeVoiceAccent = "en-US-female";
-  activeEngine = "gemini";
+  activeEngine = "groq";
   currentTemperature = 0.7;
-  document.getElementById("apiEngine").value = "gemini";
+  document.getElementById("apiEngine").value = "groq";
   document.getElementById("ttsAccent").value = "en-US-female";
   document.getElementById("apiTemperature").value = 0.7;
   document.getElementById("tempValueDisplay").textContent = 0.7;
@@ -1568,13 +1567,8 @@ function resetSettings() {
 function updateEngineUI() {
   const engineLabel = document.getElementById("activeEngineLabel");
   const engineSub = document.getElementById("activeEngineSub");
-  if (activeEngine === "gemini") {
-    engineLabel.textContent = "MR7 Quantum";
-    engineSub.textContent = "Gemini Core Layer v5.5";
-  } else {
-    engineLabel.textContent = "MR7 Velocity";
-    engineSub.textContent = "Transmission Core v5.1";
-  }
+  engineLabel.textContent = "MR7 Velocity";
+  engineSub.textContent = "Transmission Core v5.1";
 }
 
 function toggleVisuals() {
@@ -1607,7 +1601,7 @@ function escapeHtml(s) {
   return (s || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
-// Fixed 3D Robot Geometry Setup with Solid Glowing Eyes Depth Buffer Layering
+// 🤖 Premium Ultra 3D Robot Generation Engine Setup (Image Reference Match)
 function init3DSpace() {
   const canvas = document.getElementById("bg-canvas");
   renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
