@@ -1122,15 +1122,16 @@ function filterChats(query) {
   renderChatList(filteredIds);
 }
 
-// Random Dynamic Greeting Phrases Added Securely (Excluding "Namaste")
+// Random Greeting Phrases for Welcome Screen (Changes on every new chat reload)
 function generateCoolUniqueGreeting() {
   const coolGreetings = [
-    "Transmission online. Hey! How can I assist your workflow today?",
-    "System active. Hello there! What extraordinary problem are we decoding together?",
-    "Core ready. Yo! Drop your queries, let's build something optimized.",
-    "Data streams stabilized. Hey! Ready to spin up some elite answers?",
-    "Greetings terminal companion. Hello! Tell me what you're plotting next.",
-    "Quantum layer responsive. What's up? Ready to process structural data sets."
+    "Hey! How can I assist your workflow today?",
+    "Hello there! What extraordinary problem are we decoding together?",
+    "Yo! Drop your queries, let's build something optimized.",
+    "Hey! Ready to spin up some elite answers?",
+    "Hello! Tell me what you're plotting next.",
+    "What's up? Ready to process structural data sets.",
+    "Whats on your mind today? Let's get to work!"
   ];
   return coolGreetings[Math.floor(Math.random() * coolGreetings.length)];
 }
@@ -1175,6 +1176,7 @@ function renderMessages() {
 
   if (!chat || chat.messages.length === 0) {
     const currentRandomPrompts = getRandomPromptSet();
+    const dynamicGreeting = generateCoolUniqueGreeting();
 
     container.innerHTML = `
       <div class="flex-1 flex flex-col justify-center items-center text-center py-6 md:py-10 max-w-2xl mx-auto">
@@ -1182,10 +1184,10 @@ function renderMessages() {
           <img src="logo.png" alt="Central Logo" class="w-full h-full object-cover" />
         </div>
         <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white font-heading">
-          Welcome to <span class="text-emerald-400">MR7 ai</span>
+          <span class="text-emerald-400">${dynamicGreeting}</span>
         </h2>
         <p class="text-gray-400 text-xs md:text-sm mt-3 leading-relaxed max-w-md font-sans">
-          Safely write files, design programs, and analyze systems with absolute privacy.
+          Welcome to MR7 AI workspace. Safely write files, design programs, and analyze systems with absolute privacy.
         </p>
 
         <div class="grid grid-cols-1 gap-2 w-full mt-8 px-4">
@@ -1465,12 +1467,6 @@ async function sendMessage() {
       payloadHistory[payloadHistory.length - 1].content = processedPromptContent;
     }
 
-    // Checking if first message to apply custom random unique greeting securely
-    let customInitialPrefix = "";
-    if (chat.messages.length === 2) { 
-      customInitialPrefix = generateCoolUniqueGreeting() + "\n\n";
-    }
-
     let currentCallEngine = activeEngine;
     if (activeAttachedFileData && activeAttachedFileData.type === "image") {
        currentCallEngine = "gemini"; 
@@ -1482,7 +1478,8 @@ async function sendMessage() {
       responseText = await triggerVelocityTextAPI(payloadHistory);
     }
     
-    chat.messages[chat.messages.length - 1].content = customInitialPrefix + responseText;
+    // Yahan se faltu prefix strings ko permanently hata diya gaya hai simple clean answers ke liye.
+    chat.messages[chat.messages.length - 1].content = responseText;
   } catch (err) {
     console.error("Main API Flow Error: ", err);
     chat.messages[chat.messages.length - 1].content = `⚠️ **Transmission Error:** Core routing nodes failed. Please verify API connections.`;
