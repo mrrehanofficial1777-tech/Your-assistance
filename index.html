@@ -26,13 +26,13 @@
 
 <style>
   :root {
-    --accent: #10a37f;
-    --accent-glow: rgba(16, 163, 127, 0.15);
-    --bg-dark: #060608;
-    --panel-dark: #0c0c10;
-    --border-dark: rgba(255, 255, 255, 0.05);
-    --text-dark: #f3f4f6;
-    --text-muted: #8e939e;
+    --accent: #6ED987;
+    --accent-glow: rgba(110, 217, 135, 0.15);
+    --bg-dark: #ebebec;
+    --panel-dark: #fafafa;
+    --border-dark: rgba(0, 0, 0, 0.06);
+    --text-dark: #1f2937;
+    --text-muted: #6b7280;
   }
 
   body {
@@ -50,14 +50,13 @@
   .color-accent { color: var(--accent); }
   .bg-accent { background-color: var(--accent); }
   .border-accent { border-color: var(--accent); }
-  .shadow-accent-glow { box-shadow: 0 0 25px var(--accent-glow); }
 
   #bg-canvas {
     position: fixed;
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    opacity: 0.85;
+    opacity: 0.9;
     transition: opacity 0.5s;
   }
 
@@ -76,7 +75,7 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.08);
     border-radius: 99px;
   }
   ::-webkit-scrollbar-thumb:hover {
@@ -88,25 +87,13 @@
   }
 
   .prose pre {
-    background-color: #010103 !important;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background-color: #111827 !important;
+    border: 1px solid rgba(0, 0, 0, 0.05);
     border-radius: 0.75rem;
     padding: 1rem;
     position: relative;
     margin-top: 0px !important;
     margin-bottom: 0.75rem;
-  }
-
-  @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-  }
-  .shimmer-text {
-    background: linear-gradient(90deg, rgba(255,255,255,0.1) 25%, var(--accent) 50%, rgba(255,255,255,0.1) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.6s infinite linear;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
   }
 
   .typing-cursor::after {
@@ -123,7 +110,7 @@
     animation: inputBreathe 3s infinite ease-in-out;
   }
   @keyframes inputBreathe {
-    0%, 100% { border-color: rgba(255, 255, 255, 0.05); box-shadow: none; }
+    0%, 100% { border-color: rgba(0, 0, 0, 0.06); box-shadow: none; }
     50% { border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
   }
 
@@ -132,7 +119,7 @@
   }
 
   #sidebarOverlay {
-    background: rgba(0, 0, 0, 0.5) !important;
+    background: rgba(0, 0, 0, 0.2) !important;
     backdrop-filter: blur(4px) !important;
     -webkit-backdrop-filter: blur(4px) !important;
   }
@@ -165,27 +152,18 @@
     transform: translateY(-100%);
     transition: transform 0.1s ease;
     z-index: 50;
-    background: linear-gradient(to bottom, rgba(6,6,8,0.95), transparent);
+    background: linear-gradient(to bottom, rgba(235,235,236,0.95), transparent);
   }
 
   @keyframes futuristicReveal {
     0% { transform: scale(0.85); opacity: 0; filter: blur(10px) brightness(0.5); }
-    20% { transform: scale(1); opacity: 1; filter: blur(0px) brightness(1.2) drop-shadow(0 0 35px rgba(16, 163, 127, 0.6)); }
-    85% { transform: scale(1.02); opacity: 1; filter: blur(0px) brightness(1) drop-shadow(0 0 25px rgba(16, 163, 127, 0.4)); }
+    20% { transform: scale(1); opacity: 1; filter: blur(0px) brightness(1.2); }
+    85% { transform: scale(1.02); opacity: 1; filter: blur(0px) brightness(1); }
     100% { transform: scale(1.15); opacity: 0; filter: blur(12px) brightness(0); }
   }
   
-  @keyframes microGlowPulse {
-    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 15px rgba(16, 163, 127, 0.3)); }
-    50% { transform: scale(1.03); filter: drop-shadow(0 0 40px rgba(16, 163, 127, 0.7)); }
-  }
-
   .animate-portal-splash {
     animation: futuristicReveal 4.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-  }
-
-  .logo-pulse-glow {
-    animation: microGlowPulse 2.1s infinite ease-in-out;
   }
 
   @media (max-width: 767px) {
@@ -241,120 +219,120 @@
 </head>
 <body class="relative h-screen w-screen overflow-hidden flex flex-col" style="height:100dvh">
 
-<div id="appCinematicPortalLayer" class="fixed inset-0 bg-[#040406] z-[9999] flex flex-col items-center justify-center pointer-events-none transition-opacity duration-700">
+<div id="appCinematicPortalLayer" class="fixed inset-0 bg-[#fafafa] z-[9999] flex flex-col items-center justify-center pointer-events-none transition-opacity duration-700">
   <div class="flex flex-col items-center max-w-[85%] text-center animate-portal-splash">
-    <div class="relative p-2 rounded-3xl bg-black/40 border border-white/5 backdrop-blur-md mb-4 logo-pulse-glow">
+    <div class="relative p-2 rounded-3xl bg-white border border-gray-200 shadow-sm mb-4">
       <img src="logo.png" alt="MR7 Core" class="w-28 h-28 md:w-36 md:h-36 object-contain">
     </div>
-    <div class="h-[2px] w-24 bg-gradient-to-r from-transparent via-emerald-500 to-transparent mb-3 opacity-80"></div>
-    <p class="text-[10px] md:text-xs font-mono tracking-[0.3em] uppercase text-emerald-400 font-bold shimmer-text">INITIALIZING QUANTUM LAYER</p>
+    <div class="h-[2px] w-24 bg-gradient-to-r from-transparent via-[#6ED987] to-transparent mb-3 opacity-80"></div>
+    <p class="text-[10px] md:text-xs font-mono tracking-[0.3em] uppercase text-[#1BC237] font-bold">INITIALIZING QUANTUM LAYER</p>
   </div>
 </div>
 
 <canvas id="bg-canvas"></canvas>
 
-<input type="file" id="userWorkspaceUploaderInput" style="display: none !important; visibility: hidden !important;" accept="image/*, .pdf, .txt, .json" onchange="handleWorkspaceFileUpload(event)">
-<input type="file" id="importChatLogsInput" style="display: none !important; visibility: hidden !important;" accept=".json" onchange="importChatMatrixLogs(event)">
+<input type="file" id="userWorkspaceUploaderInput" class="hidden" accept="image/*, .pdf, .txt, .json" onchange="handleWorkspaceFileUpload(event)">
+<input type="file" id="importChatLogsInput" class="hidden" accept=".json" onchange="importChatMatrixLogs(event)">
 
 <div id="pull-indicator" class="pointer-events-none">
-  <div class="flex items-center gap-2 text-xs font-mono text-emerald-400">
+  <div class="flex items-center gap-2 text-xs font-mono text-emerald-600">
     <i class="fas fa-sync-alt animate-spin" id="pull-icon"></i>
     <span id="pull-text">Pull down to open a new chat</span>
   </div>
 </div>
 
-<div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 bg-gray-950/95 border border-white/10 text-white px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-md z-50 flex items-center gap-3 transition-all duration-300 pointer-events-none opacity-0 scale-95 max-w-[90%] text-center">
-  <span id="toast-icon" class="text-emerald-400 text-lg"><i class="fas fa-check-circle"></i></span>
+<div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 bg-white border border-gray-200 text-gray-900 {{ 'text-dark' }} px-5 py-3 rounded-2xl shadow-xl backdrop-blur-md z-50 flex items-center gap-3 transition-all duration-300 pointer-events-none opacity-0 scale-95 max-w-[90%] text-center">
+  <span id="toast-icon" class="text-emerald-500 text-lg"><i class="fas fa-check-circle"></i></span>
   <span id="toast-msg" class="text-xs md:text-sm font-medium">System Aligned!</span>
 </div>
 
-<div id="sidebarOverlay" class="fixed inset-0 z-45 hidden opacity-0"></div>
+<div id="sidebarOverlay" class="fixed inset-0 z-45 hidden opacity-0" onclick="toggleSidebar()"></div>
 
 <div class="relative z-10 flex h-full w-full overflow-hidden">
   
-  <aside id="sidebar" class="fixed md:relative inset-y-0 left-0 w-72 md:w-80 bg-zinc-950 md:bg-black/55 backdrop-blur-2xl border-r border-white/5 flex flex-col justify-between transition-transform duration-300 transform -translate-x-full md:translate-x-0 z-50">
+  <aside id="sidebar" class="fixed md:relative inset-y-0 left-0 w-72 md:w-80 bg-white backdrop-blur-2xl border-r border-gray-200 flex flex-col justify-between transition-transform duration-300 transform -translate-x-full md:translate-x-0 z-50">
     <div class="flex flex-col flex-1 min-h-0">
-      <div class="p-5 border-b border-white/5 items-center justify-between flex shrink-0">
+      <div class="p-5 border-b border-gray-100 items-center justify-between flex shrink-0">
         <div class="flex items-center gap-3">
-          <div class="w-11 h-11 rounded-[14px] overflow-hidden flex items-center justify-center border border-white/10 shrink-0" id="brandLogo">
+          <div class="w-11 h-11 rounded-[14px] overflow-hidden flex items-center justify-center border border-gray-200 shadow-sm shrink-0" id="brandLogo">
             <img src="logo.png" alt="Logo" class="w-full h-full object-cover">
           </div>
           <div>
-            <h1 class="text-lg font-bold tracking-tight"><span class="brandTextPrimary">MR7</span> <span class="text-emerald-400 brandTextSecondary">ai</span></h1>
-            <p class="text-[9px] text-gray-500 font-mono tracking-wider uppercase">Enterprise Core</p>
+            <h1 class="text-lg font-bold tracking-tight text-gray-900"><span class="brandTextPrimary">MR7</span> <span class="text-[#1BC237] brandTextSecondary">ai</span></h1>
+            <p class="text-[9px] text-gray-400 font-mono tracking-wider uppercase">Enterprise Core</p>
           </div>
         </div>
-        <button onclick="toggleSidebar()" class="md:hidden text-gray-400 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-xl">
+        <button onclick="toggleSidebar()" class="md:hidden text-gray-500 hover:text-gray-900 transition-colors p-2 hover:bg-gray-100 rounded-xl">
           <i class="fas fa-times text-sm"></i>
         </button>
       </div>
 
       <div class="p-4 shrink-0">
-        <button onclick="newChat(); toggleSidebarIfMobile();" class="w-full bg-white/5 hover:bg-white/10 border border-white/5 text-white rounded-2xl py-3 px-4 flex items-center justify-center gap-2 font-medium transition-all group hover:shadow-lg text-sm">
-          <i class="fas fa-plus text-xs text-emerald-400 group-hover:rotate-90 transition-transform"></i>
+        <button onclick="newChat(); toggleSidebarIfMobile();" class="w-full bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 rounded-2xl py-3 px-4 flex items-center justify-center gap-2 font-medium transition-all group hover:shadow-sm text-sm">
+          <i class="fas fa-plus text-xs text-[#6ED987] group-hover:rotate-90 transition-transform"></i>
           <span>New Conversation</span>
         </button>
       </div>
 
       <div class="px-4 mb-3 shrink-0">
         <div class="relative">
-          <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
-          <input type="text" id="chatSearch" placeholder="Search conversations..." oninput="filterChats(this.value)" class="w-full bg-white/5 border border-white/5 rounded-xl py-2.5 pl-9 pr-4 text-xs text-white focus:outline-none focus:border-emerald-500/50 transition-colors">
+          <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+          <input type="text" id="chatSearch" placeholder="Search conversations..." oninput="filterChats(this.value)" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 pl-9 pr-4 text-xs text-gray-900 focus:outline-none focus:border-emerald-500/50 transition-colors">
         </div>
       </div>
 
       <div class="flex-1 overflow-y-auto px-2 space-y-1 max-h-[40vh]" id="chatList"></div>
 
-      <div class="px-4 py-2 mt-2 shrink-0 border-t border-white/5">
-        <div class="bg-gradient-to-br from-zinc-900 to-black rounded-xl p-3 border border-emerald-500/10 flex flex-col gap-2">
-          <div class="flex items-center gap-1.5 text-xs text-emerald-400 font-bold font-heading">
+      <div class="px-4 py-2 mt-2 shrink-0 border-t border-gray-100">
+        <div class="bg-gradient-to-br from-gray-50 to-white rounded-xl p-3 border border-gray-200 flex flex-col gap-2">
+          <div class="flex items-center gap-1.5 text-xs text-emerald-600 font-bold font-heading">
             <i class="fas fa-brain"></i> <span>BRAIN MIRROR ANALYTICS</span>
           </div>
-          <div id="brainMirrorLoader" class="text-[9px] text-gray-500 font-mono">Awaiting conversation metrics...</div>
-          <div id="brainMirrorStats" class="hidden text-[10px] font-mono flex flex-col gap-1 text-gray-300">
-            <div><span class="text-gray-500">STYLE:</span> <span id="bmStyle" class="text-emerald-400 font-bold"></span></div>
-            <div><span class="text-gray-500">FOCUS:</span> <span id="bmFocus"></span></div>
-            <div><span class="text-gray-500">STRENGTH:</span> <span id="bmStrength" class="text-teal-400"></span></div>
+          <div id="brainMirrorLoader" class="text-[9px] text-gray-400 font-mono">Awaiting conversation metrics...</div>
+          <div id="brainMirrorStats" class="hidden text-[10px] font-mono flex flex-col gap-1 text-gray-600">
+            <div><span class="text-gray-400">STYLE:</span> <span id="bmStyle" class="text-emerald-600 font-bold"></span></div>
+            <div><span class="text-gray-400">FOCUS:</span> <span id="bmFocus"></span></div>
+            <div><span class="text-gray-400">STRENGTH:</span> <span id="bmStrength" class="text-emerald-500"></span></div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="p-4 border-t border-white/5 bg-black/20 flex flex-col gap-3 shrink-0">
-      <div class="bg-black/40 rounded-xl p-3 border border-white/5 flex flex-col gap-1.5 text-[9px] font-mono text-gray-500">
-        <div class="flex justify-between items-center text-gray-400 font-semibold border-b border-white/5 pb-1 mb-1">
+    <div class="p-4 border-t border-gray-100 bg-gray-50/50 flex flex-col gap-3 shrink-0">
+      <div class="bg-white rounded-xl p-3 border border-gray-200 flex flex-col gap-1.5 text-[9px] font-mono text-gray-400">
+        <div class="flex justify-between items-center text-gray-700 font-semibold border-b border-gray-100 pb-1 mb-1">
           <span>DIAGNOSTIC TELEMETRY</span>
-          <span class="text-emerald-400 text-[8px] animate-pulse">● LIVE</span>
+          <span class="text-emerald-600 text-[8px] animate-pulse">● LIVE</span>
         </div>
         <div class="flex justify-between">
           <span>LATENCY MATRIX:</span>
-          <span class="text-emerald-400" id="liveLatency">6ms</span>
+          <span class="text-emerald-600" id="liveLatency">6ms</span>
         </div>
         <div class="flex justify-between">
           <span>CPU THREADS:</span>
-          <span class="text-gray-300" id="liveCpu">NODE_02: 5.2%</span>
+          <span class="text-gray-600" id="liveCpu">NODE_02: 5.2%</span>
         </div>
         <div class="flex justify-between">
           <span>SYSTEM STATE:</span>
-          <span class="text-emerald-500 font-semibold">NOMINAL CORE</span>
+          <span class="text-emerald-600 font-semibold">NOMINAL CORE</span>
         </div>
         <div class="flex justify-between">
           <span>CREATORS:</span>
-          <span class="text-emerald-400">MR7 TEAM</span>
+          <span class="text-emerald-600">MR7 TEAM</span>
         </div>
       </div>
 
-      <div class="flex items-center justify-between gap-2 p-2.5 bg-white/5 rounded-2xl border border-white/5">
+      <div class="flex items-center justify-between gap-2 p-2.5 bg-white rounded-2xl border border-gray-200 shadow-sm">
         <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400" id="bottom-icon">
+          <div class="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center text-[#1BC237]" id="bottom-icon">
             <i class="fas fa-bolt"></i>
           </div>
           <div>
-            <p class="text-xs font-semibold" id="activeEngineLabel">MR7 Velocity Core</p>
-            <p class="text-[9px] text-emerald-400 font-mono" id="activeEngineSub">Continuous Transmission</p>
+            <p class="text-xs font-semibold text-gray-800" id="activeEngineLabel">MR7 Velocity Core</p>
+            <p class="text-[9px] text-[#1BC237] font-mono" id="activeEngineSub">Continuous Transmission</p>
           </div>
         </div>
-        <button onclick="openSettings()" class="text-gray-400 hover:text-white p-2.5 hover:bg-white/5 rounded-xl transition-colors" title="Settings Center">
+        <button onclick="openSettings()" class="text-gray-400 hover:text-gray-600 p-2.5 hover:bg-gray-50 rounded-xl transition-colors" title="Settings Center">
           <i class="fas fa-sliders-h"></i>
         </button>
       </div>
@@ -363,20 +341,20 @@
 
   <main class="flex-1 flex flex-col min-w-0 bg-transparent relative z-10">
     
-    <header id="mainHeader" class="fixed top-0 left-0 right-0 h-16 border-b border-white/5 flex items-center justify-between px-4 bg-black/10 backdrop-blur-md z-30 w-full">
+    <header id="mainHeader" class="fixed top-0 left-0 right-0 h-16 border-b border-gray-200 flex items-center justify-between px-4 bg-white/70 backdrop-blur-md z-30 w-full">
       <div class="flex items-center gap-2">
-        <button id="sidebarToggle" onclick="toggleSidebar()" class="text-gray-400 hover:text-white p-2.5 hover:bg-white/5 rounded-xl mr-1">
+        <button id="sidebarToggle" onclick="toggleSidebar()" class="text-gray-500 hover:text-gray-800 p-2.5 hover:bg-gray-100 rounded-xl mr-1">
           <i class="fas fa-bars"></i>
         </button>
         <div class="flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" id="top-pulse"></span>
-          <span class="text-[11px] md:text-xs font-semibold text-gray-300 font-mono tracking-wider uppercase truncate max-w-[140px] md:max-w-none" id="activePersonaHeader">😊 Adaptive Mode Enacted</span>
+          <span class="text-[11px] md:text-xs font-semibold text-gray-600 font-mono tracking-wider uppercase truncate max-w-[140px] md:max-w-none" id="activePersonaHeader">😊 Adaptive Mode Enacted</span>
         </div>
       </div>
 
       <div class="flex items-center">
-        <button onclick="toggleVisuals()" id="visualToggleBtn" class="text-gray-300 hover:text-white bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-md tracking-wide">
-          <i class="fas fa-robot text-emerald-400" id="visualToggleIcon"></i>
+        <button onclick="toggleVisuals()" id="visualToggleBtn" class="text-gray-700 hover:text-gray-900 bg-white border border-gray-200 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-sm tracking-wide">
+          <i class="fas fa-robot text-[#1BC237]" id="visualToggleIcon"></i>
           <span id="visualToggleText">3D On</span>
         </button>
       </div>
@@ -385,117 +363,117 @@
     <div class="flex-1 overflow-y-auto px-4 md:px-12 pt-20 pb-6 flex flex-col gap-5" id="messages"></div>
 
     <div id="scrollToBottomWrap" class="fixed bottom-24 right-6 z-20 hidden">
-      <button onclick="scrollToBottomDirect()" class="w-9 h-9 rounded-full bg-zinc-900/90 border border-white/10 text-emerald-400 flex items-center justify-center shadow-2xl active:scale-90 transition-transform">
+      <button onclick="scrollToBottomDirect()" class="w-9 h-9 rounded-full bg-white border border-gray-200 text-emerald-600 flex items-center justify-center shadow-lg active:scale-90 transition-transform">
         <i class="fas fa-arrow-down text-sm"></i>
       </button>
     </div>
 
-    <div id="fileAttachmentPreviewBanner" class="hidden mx-4 md:mx-12 max-w-4xl px-4 py-2 bg-emerald-950/40 border border-emerald-500/20 rounded-xl flex items-center justify-between text-xs text-emerald-400 font-mono">
+    <div id="fileAttachmentPreviewBanner" class="hidden mx-4 md:mx-12 max-w-4xl px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-xs text-emerald-700 font-mono shadow-sm">
       <span class="flex items-center gap-2 truncate">
         <i class="fas fa-paperclip animate-pulse"></i>
         <span id="attachedFileNameText">No file uploaded</span>
       </span>
-      <button onclick="clearAttachedWorkspaceDocument()" class="hover:text-white p-1"><i class="fas fa-times"></i></button>
+      <button onclick="clearAttachedWorkspaceDocument()" class="hover:text-emerald-900 p-1"><i class="fas fa-times"></i></button>
     </div>
 
     <div class="px-4 md:px-12" id="contextualSuggestionsWrap">
       <div class="max-w-4xl mx-auto flex flex-wrap gap-2 py-1.5 overflow-x-auto no-scrollbar" id="contextSuggestions"></div>
     </div>
 
-    <div class="p-3 md:p-6 bg-gradient-to-t from-black/80 to-transparent">
+    <div class="p-3 md:p-6 bg-gradient-to-t from-gray-100 to-transparent">
       <div class="max-w-4xl mx-auto">
-        <div id="inputContainer" class="bg-zinc-900/90 border border-white/5 rounded-2xl p-2 md:p-3 shadow-2xl backdrop-blur-xl relative breathing-glow-input">
+        <div id="inputContainer" class="bg-white border border-gray-200 rounded-2xl p-2 md:p-3 shadow-xl backdrop-blur-xl relative breathing-glow-input">
           
-          <div id="personaMenu" class="bg-zinc-950 border-t md:border border-white/10 p-4 md:p-3 shadow-2xl rounded-t-3xl md:rounded-2xl flex flex-col gap-2.5 pointer-events-none opacity-0 md:opacity-0 transition-all duration-300">
-            <div class="flex items-center justify-between border-b border-white/5 pb-2 md:hidden">
+          <div id="personaMenu" class="bg-white border border-gray-200 p-4 md:p-3 shadow-xl rounded-t-3xl md:rounded-2xl flex flex-col gap-2.5 pointer-events-none opacity-0 md:opacity-0 transition-all duration-300">
+            <div class="flex items-center justify-between border-b border-gray-100 pb-2 md:hidden">
               <div class="flex items-center gap-2">
-                <div class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></div>
-                <span class="text-[10px] font-bold text-gray-400 font-mono tracking-wider">CHOOSE CORE PERSONA</span>
+                <div class="w-1.5 h-1.5 rounded-full bg-[#1BC237] animate-ping"></div>
+                <span class="text-[10px] font-bold text-gray-500 font-mono tracking-wider">CHOOSE CORE PERSONA</span>
               </div>
-              <button onclick="closePersonaMenu()" class="text-gray-400 hover:text-white p-1 text-sm">
+              <button onclick="closePersonaMenu()" class="text-gray-500 hover:text-gray-900 p-1 text-sm">
                 <i class="fas fa-times"></i>
               </button>
             </div>
-            <div class="text-[9px] font-semibold text-gray-500 uppercase tracking-widest px-1 hidden md:block">
+            <div class="text-[9px] font-semibold text-gray-400 uppercase tracking-widest px-1 hidden md:block">
               Operational Persona Core
             </div>
             <div class="flex flex-col gap-1">
-              <button onclick="selectPersonaMenu('friendly')" id="pm-friendly" class="w-full p-2.5 rounded-xl border border-white/5 text-left flex items-start gap-3 hover:bg-white/5 transition-all">
+              <button onclick="selectPersonaMenu('friendly')" id="pm-friendly" class="w-full p-2.5 rounded-xl border border-gray-100 text-left flex items-start gap-3 hover:bg-gray-50 transition-all">
                 <span class="text-lg shrink-0">😊</span>
                 <div class="min-w-0">
-                  <span class="text-xs font-bold text-white block leading-tight">Adaptive Mode</span>
-                  <span class="text-[9px] text-gray-400 line-clamp-1">Adapts tone to mirror your typing style perfectly.</span>
+                  <span class="text-xs font-bold text-gray-900 block leading-tight">Adaptive Mode</span>
+                  <span class="text-[9px] text-gray-500 line-clamp-1">Adapts tone to mirror your typing style perfectly.</span>
                 </div>
               </button>
-              <button onclick="selectPersonaMenu('coder')" id="pm-coder" class="w-full p-2.5 rounded-xl border border-white/5 text-left flex items-start gap-3 hover:bg-white/5 transition-all">
+              <button onclick="selectPersonaMenu('coder')" id="pm-coder" class="w-full p-2.5 rounded-xl border border-gray-100 text-left flex items-start gap-3 hover:bg-gray-50 transition-all">
                 <span class="text-lg shrink-0">💻</span>
                 <div class="min-w-0">
-                  <span class="text-xs font-bold text-white block leading-tight">Software Architect</span>
-                  <span class="text-[9px] text-gray-400 line-clamp-1">Focuses on generating clean, bug-free, and optimized code.</span>
+                  <span class="text-xs font-bold text-gray-900 block leading-tight">Software Architect</span>
+                  <span class="text-[9px] text-gray-500 line-clamp-1">Focuses on generating clean, bug-free, and optimized code.</span>
                 </div>
               </button>
-              <button onclick="selectPersonaMenu('writer')" id="pm-writer" class="w-full p-2.5 rounded-xl border border-white/5 text-left flex items-start gap-3 hover:bg-white/5 transition-all">
+              <button onclick="selectPersonaMenu('writer')" id="pm-writer" class="w-full p-2.5 rounded-xl border border-gray-100 text-left flex items-start gap-3 hover:bg-gray-50 transition-all">
                 <span class="text-lg shrink-0">✍️</span>
                 <div class="min-w-0">
-                  <span class="text-xs font-bold text-white block leading-tight">Creative Matrix</span>
-                  <span class="text-[9px] text-gray-400 line-clamp-1">Ideal for stories, blogs, and creative texts.</span>
+                  <span class="text-xs font-bold text-gray-900 block leading-tight">Creative Matrix</span>
+                  <span class="text-[9px] text-gray-500 line-clamp-1">Ideal for stories, blogs, and creative texts.</span>
                 </div>
               </button>
-              <button onclick="selectPersonaMenu('expert')" id="pm-expert" class="w-full p-2.5 rounded-xl border border-white/5 text-left flex items-start gap-3 hover:bg-white/5 transition-all">
+              <button onclick="selectPersonaMenu('expert')" id="pm-expert" class="w-full p-2.5 rounded-xl border border-gray-100 text-left flex items-start gap-3 hover:bg-gray-50 transition-all">
                 <span class="text-lg shrink-0">🎓</span>
                 <div class="min-w-0">
-                  <span class="text-xs font-bold text-white block leading-tight">System Analyst</span>
-                  <span class="text-[9px] text-gray-400 line-clamp-1">Highly analytical logic, research, and deep insights.</span>
+                  <span class="text-xs font-bold text-gray-900 block leading-tight">System Analyst</span>
+                  <span class="text-[9px] text-gray-500 line-clamp-1">Highly analytical logic, research, and deep insights.</span>
                 </div>
               </button>
             </div>
           </div>
 
-          <div id="radialMenu" class="absolute bottom-16 left-3 bg-zinc-950/95 border border-white/10 p-2 rounded-2xl shadow-2xl flex flex-col gap-2 scale-0 opacity-0 origin-bottom-left transition-all duration-200 z-40 min-w-[190px]">
-            <button onclick="triggerWorkspaceUpload()" class="w-full p-2.5 rounded-xl hover:bg-white/5 text-left text-gray-300 flex items-center gap-3 transition-colors">
-              <i class="fas fa-file-upload text-emerald-400 w-4"></i>
+          <div id="radialMenu" class="absolute bottom-16 left-3 bg-white border border-gray-200 p-2 rounded-2xl shadow-xl flex flex-col gap-2 scale-0 opacity-0 origin-bottom-left transition-all duration-200 z-[99] min-w-[190px]">
+            <button onclick="triggerWorkspaceUpload()" class="w-full p-2.5 rounded-xl hover:bg-gray-50 text-left text-gray-700 flex items-center gap-3 transition-colors">
+              <i class="fas fa-file-upload text-[#1BC237] w-4"></i>
               <span class="text-xs font-semibold">Upload Photo / PDF / Text</span>
             </button>
-            <button onclick="toggleWebSearchMatrix()" id="webSearchBtnToggle" class="w-full p-2.5 rounded-xl hover:bg-white/5 text-left text-gray-300 flex items-center gap-3 transition-colors">
-              <i id="webSearchIcon" class="fas fa-globe text-emerald-400"></i>
+            <button onclick="toggleWebSearchMatrix()" id="webSearchBtnToggle" class="w-full p-2.5 rounded-xl hover:bg-gray-50 text-left text-gray-700 flex items-center gap-3 transition-colors">
+              <i id="webSearchIcon" class="fas fa-globe text-[#1BC237]"></i>
               <span id="webSearchText" class="text-xs font-semibold">Search OFF</span>
             </button>
           </div>
 
-          <div class="flex items-end gap-2 md:gap-3">
-            <button id="quickActionDot" onclick="toggleRadialMenu(event)" class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-emerald-400 flex items-center justify-center transition-all shrink-0 active:scale-95">
+          <div class="flex items-end gap-2 md:gap-3 relative z-10">
+            <button id="quickActionDot" onclick="toggleRadialMenu(event)" class="w-10 h-10 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-500 hover:text-[#1BC237] flex items-center justify-center transition-all shrink-0 active:scale-95">
               <i class="fas fa-ellipsis-v text-sm transition-transform" id="actionDotIcon"></i>
             </button>
 
             <textarea id="input" rows="1" placeholder="Type a message, ask questions, or process PDFs..." 
               onkeydown="handleTextareaKey(event)"
               oninput="autoGrow(this);" 
-              class="flex-1 bg-transparent border-0 text-white placeholder-gray-500 focus:ring-0 focus:outline-none text-sm md:text-[15px] resize-none max-h-36 min-h-[24px] py-2 pl-2"></textarea>
+              class="flex-1 bg-transparent border-0 text-gray-900 placeholder-gray-400 focus:ring-0 focus:outline-none text-sm md:text-[15px] resize-none max-h-36 min-h-[24px] py-2 pl-2"></textarea>
             
             <div class="flex items-center gap-1 pr-1">
-              <button onclick="clearInput()" class="w-8 h-8 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white flex items-center justify-center transition-colors" title="Clear Entry">
+              <button onclick="clearInput()" class="w-8 h-8 rounded-lg hover:bg-gray-50 text-gray-400 hover:text-gray-600 flex items-center justify-center transition-colors" title="Clear Entry">
                 <i class="fas fa-trash-alt text-xs"></i>
               </button>
-              <button id="sendBtn" onclick="sendMessage()" class="w-10 h-10 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black flex items-center justify-center transition-all shadow-lg shadow-emerald-500/10">
+              <button id="sendBtn" onclick="sendMessage()" class="w-10 h-10 rounded-xl bg-[#6ED987] hover:bg-[#5bc273] text-gray-950 flex items-center justify-center transition-all shadow-md shadow-emerald-200">
                 <i class="fas fa-paper-plane text-sm"></i>
               </button>
             </div>
           </div>
         </div>
-        <p class="text-center text-[8px] md:text-[9px] text-gray-500 mt-2 font-mono uppercase tracking-wider brandFooterText">MR7 AI · PROPRIETARY INTELLIGENCE SYSTEM · CREATED BY MR7 TEAM</p>
+        <p class="text-center text-[8px] md:text-[9px] text-gray-400 mt-2 font-mono uppercase tracking-wider brandFooterText">MR7 AI · PROPRIETARY INTELLIGENCE SYSTEM · CREATED BY MR7 TEAM</p>
       </div>
     </div>
   </main>
 </div>
 
-<div id="settingsModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
-  <div id="settingsModalCard" class="bg-zinc-950 border border-white/10 rounded-3xl w-full max-w-lg p-5 md:p-6 m-4 shadow-2xl transform scale-95 transition-all duration-300 flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
-    <div class="flex items-center justify-between border-b border-white/10 pb-3">
-      <div class="flex items-center gap-2 text-emerald-400">
+<div id="settingsModal" class="fixed inset-0 bg-gray-900/40 backdrop-blur-md z-50 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
+  <div id="settingsModalCard" class="bg-white border border-gray-200 rounded-3xl w-full max-w-lg p-5 md:p-6 m-4 shadow-2xl transform scale-95 transition-all duration-300 flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+      <div class="flex items-center gap-2 text-[#1BC237]">
         <i class="fas fa-sliders-h text-base md:text-lg"></i>
-        <h2 class="text-base md:text-lg font-bold font-heading">MR7 Configuration Matrix</h2>
+        <h2 class="text-base md:text-lg font-bold font-heading text-gray-900">MR7 Configuration Matrix</h2>
       </div>
-      <button onclick="closeSettings()" class="text-gray-400 hover:text-white hover:bg-white/10 w-8 h-8 rounded-full flex items-center justify-center transition-all">
+      <button onclick="closeSettings()" class="text-gray-400 hover:text-gray-600 hover:bg-gray-50 w-8 h-8 rounded-full flex items-center justify-center transition-all">
         <i class="fas fa-times text-sm"></i>
       </button>
     </div>
@@ -503,50 +481,50 @@
     <div class="flex flex-col gap-3 md:gap-4">
       
       <div>
-        <label class="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5 font-mono">
+        <label class="block text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5 font-mono">
           <i class="fas fa-server mr-1"></i> Native Engine Pipeline
         </label>
-        <select id="apiEngine" class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-xs md:text-sm text-white focus:outline-none focus:border-emerald-500 font-sans">
-          <option value="gemini" class="bg-zinc-950">MR7 Quantum Engine (Google Gemini 3.5 Flash)</option>
-          <option value="groq" class="bg-zinc-950">MR7 Velocity Engine (Instant Llama Speed)</option>
+        <select id="apiEngine" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 text-xs md:text-sm text-gray-900 focus:outline-none focus:border-emerald-500 font-sans">
+          <option value="gemini" class="bg-white">MR7 Quantum Engine (Google Gemini 3.5 Flash)</option>
+          <option value="groq" class="bg-white">MR7 Velocity Engine (Instant Llama Speed)</option>
         </select>
       </div>
 
       <div>
         <div class="flex justify-between items-center mb-1">
-          <label class="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider font-mono">
+          <label class="block text-[10px] font-semibold text-gray-500 uppercase tracking-wider font-mono">
             <i class="fas fa-microchip mr-1"></i> LLM Temperature Matrix
           </label>
-          <span id="tempValueDisplay" class="text-[10px] text-emerald-400 font-mono font-bold">0.7</span>
+          <span id="tempValueDisplay" class="text-[10px] text-emerald-600 font-mono font-bold">0.7</span>
         </div>
         <input type="range" id="apiTemperature" min="0.0" max="1.2" step="0.1" value="0.7" 
           oninput="document.getElementById('tempValueDisplay').textContent = this.value"
-          class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+          class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-500">
       </div>
 
       <div>
-        <label class="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5 font-mono">
+        <label class="block text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5 font-mono">
           <i class="fas fa-volume-up mr-1"></i> Built-In Reader Synthesis Accent
         </label>
-        <select id="ttsAccent" class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono">
-          <option value="en-US-female" class="bg-zinc-950">English 👩 (US Accent - Female Style)</option>
-          <option value="en-US-male" class="bg-zinc-950">English 👨 (US Accent - Male Style)</option>
-          <option value="en-GB-female" class="bg-zinc-950">English 👩 (UK Accent - Female Style)</option>
-          <option value="en-GB-male" class="bg-zinc-950">English 👨 (UK Accent - Male Style)</option>
-          <option value="en-IN-female" class="bg-zinc-950">English 👩 (Indian Accent - Female Style)</option>
-          <option value="en-IN-male" class="bg-zinc-950">English 👨 (Indian Accent - Male Style)</option>
-          <option value="hi-IN-female" class="bg-zinc-950">Hindi 👩 (Native Accent - Female Style)</option>
-          <option value="hi-IN-male" class="bg-zinc-950">Hindi 👨 (Native Accent - Male Style)</option>
+        <select id="ttsAccent" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 text-xs text-gray-900 focus:outline-none focus:border-emerald-500 font-mono">
+          <option value="en-US-female" class="bg-white">English 👩 (US Accent - Female Style)</option>
+          <option value="en-US-male" class="bg-white">English 👨 (US Accent - Male Style)</option>
+          <option value="en-GB-female" class="bg-white">English 👩 (UK Accent - Female Style)</option>
+          <option value="en-GB-male" class="bg-white">English 👨 (UK Accent - Male Style)</option>
+          <option value="en-IN-female" class="bg-white">English 👩 (Indian Accent - Female Style)</option>
+          <option value="en-IN-male" class="bg-white">English 👨 (Indian Accent - Male Style)</option>
+          <option value="hi-IN-female" class="bg-white">Hindi 👩 (Native Accent - Female Style)</option>
+          <option value="hi-IN-male" class="bg-white">Hindi 👨 (Native Accent - Male Style)</option>
         </select>
       </div>
 
     </div>
 
-    <div class="flex gap-3 mt-3 pt-3 border-t border-white/10">
-      <button onclick="resetSettings()" class="flex-1 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl py-2.5 text-xs font-semibold text-gray-400 transition-colors">
+    <div class="flex gap-3 mt-3 pt-3 border-t border-gray-100">
+      <button onclick="resetSettings()" class="flex-1 bg-gray-50 hover:bg-gray-100 rounded-xl py-2.5 text-xs font-semibold text-gray-500 transition-colors">
         Restore Defaults
       </button>
-      <button onclick="saveAllSettings()" class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-black rounded-xl py-2.5 text-xs font-bold shadow-lg">
+      <button onclick="saveAllSettings()" class="flex-1 bg-[#6ED987] hover:bg-[#5bc273] text-gray-950 rounded-xl py-2.5 text-xs font-bold shadow-md">
         Sync Settings
       </button>
     </div>
@@ -566,8 +544,8 @@ function getSecureVL() { return DIRECT_GROQ_KEY; }
 let chats = JSON.parse(localStorage.getItem("mr7_v5_chats") || "{}");
 let currentChatId = localStorage.getItem("mr7_v5_current") || null;
 let currentPersona = localStorage.getItem("mr7_v5_persona") || "friendly";
-let currentAccent = localStorage.getItem("mr7_v5_accent") || "#10a37f";
-let currentAccentGlow = localStorage.getItem("mr7_v5_accent_glow") || "rgba(16,163,127,0.15)";
+let currentAccent = localStorage.getItem("mr7_v5_accent") || "#6ED987";
+let currentAccentGlow = localStorage.getItem("mr7_v5_accent_glow") || "rgba(110,217,135,0.15)";
 let activeVoiceAccent = localStorage.getItem("mr7_v5_voice_accent") || "en-US-female";
 let activeEngine = localStorage.getItem("mr7_v5_engine") || "gemini"; 
 let currentTemperature = parseFloat(localStorage.getItem("mr7_v5_temp") || "0.7");
@@ -629,7 +607,7 @@ function showToastMatrix(msg, isSuccess = true) {
   const toastIcon = document.getElementById("toast-icon");
   if(!toast) return;
   toastMsg.textContent = msg;
-  toastIcon.innerHTML = isSuccess ? `<i class="fas fa-check-circle text-emerald-400"></i>` : `<i class="fas fa-exclamation-triangle text-red-500"></i>`;
+  toastIcon.innerHTML = isSuccess ? `<i class="fas fa-check-circle text-emerald-500"></i>` : `<i class="fas fa-exclamation-triangle text-red-500"></i>`;
   toast.style.opacity = "1";
   toast.style.transform = "translateX(-50%) scale(1)";
   setTimeout(() => {
@@ -670,7 +648,7 @@ function ttsSpeak(btn, messageIndex) {
 
   activeSpeakerBtn = btn;
   label.textContent = "Speaking...";
-  icon.className = "fas fa-stop-circle text-emerald-400 animate-pulse";
+  icon.className = "fas fa-stop-circle text-emerald-600 animate-pulse";
 
   speechUtterance = new SpeechSynthesisUtterance(plainText);
   
@@ -707,7 +685,7 @@ function ttsSpeak(btn, messageIndex) {
 function resetActiveSpeaker() {
   if (activeSpeakerBtn) {
     activeSpeakerBtn.querySelector("span").textContent = "Read Aloud";
-    activeSpeakerBtn.querySelector("i").className = "fas fa-volume-up text-xs text-emerald-400";
+    activeSpeakerBtn.querySelector("i").className = "fas fa-volume-up text-xs text-emerald-500";
     activeSpeakerBtn = null;
   }
 }
@@ -753,11 +731,11 @@ window.addEventListener("load", () => {
   if (!is3DActive) {
     document.getElementById("bg-canvas").style.opacity = "0";
     btn.querySelector("span").textContent = "3D Off";
-    icon.className = "fas fa-robot text-gray-500";
+    icon.className = "fas fa-robot text-gray-400";
   } else {
-    document.getElementById("bg-canvas").style.opacity = "0.85";
+    document.getElementById("bg-canvas").style.opacity = "0.9";
     btn.querySelector("span").textContent = "3D On";
-    icon.className = "fas fa-robot text-emerald-400";
+    icon.className = "fas fa-robot text-emerald-500";
   }
 
   window.addEventListener("click", (e) => {
@@ -890,10 +868,7 @@ function closeRadialMenu() {
 
 function triggerWorkspaceUpload() {
   closeRadialMenu();
-  const inputEl = document.getElementById("userWorkspaceUploaderInput");
-  if(inputEl) {
-    inputEl.click();
-  }
+  document.getElementById("userWorkspaceUploaderInput").click();
 }
 
 function handleWorkspaceFileUpload(event) {
@@ -972,13 +947,13 @@ function updateWebSearchUI() {
   const txt = document.getElementById("webSearchText");
 
   if (isWebSearchEnabled) {
-    if(icon) icon.className = "fas fa-globe text-emerald-400 animate-spin";
+    if(icon) icon.className = "fas fa-globe text-emerald-600 animate-spin";
     if(txt) {
       txt.textContent = "Search ON";
-      txt.className = "text-emerald-400 font-bold text-xs font-semibold";
+      txt.className = "text-emerald-600 font-bold text-xs font-semibold";
     }
   } else {
-    if(icon) icon.className = "fas fa-globe text-gray-500";
+    if(icon) icon.className = "fas fa-globe text-gray-400";
     if(txt) {
       txt.textContent = "Search OFF";
       txt.className = "text-gray-400 text-xs font-semibold";
@@ -1051,6 +1026,7 @@ function handleTextareaKey(e) {
   }
 }
 
+// PERSONA SELECTION LOGIC
 function selectPersonaMenu(personaKey) {
   currentPersona = personaKey;
   localStorage.setItem("mr7_v5_persona", currentPersona);
@@ -1095,7 +1071,6 @@ function newChat() {
   if (inp) inp.focus();
 }
 
-// DROPPED HINGLISH WELCOME LABELS OVERRIDE WITH MATTE TEXT COLOR PRESETS
 function switchChat(id) {
   currentChatId = id;
   localStorage.setItem("mr7_v5_current", id);
@@ -1162,7 +1137,6 @@ function initSwipeToDelete(elementId) {
   });
 }
 
-// SAVING STATE PIPELINES
 function saveChatsToLocal() {
   localStorage.setItem("mr7_v5_chats", JSON.stringify(chats));
   localStorage.setItem("mr7_v5_current", currentChatId);
@@ -1197,12 +1171,12 @@ function renderChatList(customIdArray = null) {
     if (persona === "expert") icon = "fa-graduation-cap";
 
     return `
-      <div id="item-log-${id}" class="swipe-chat-item group flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all ${isSel ? 'bg-white/10 border border-white/5 shadow-sm font-semibold' : 'hover:bg-white/5 border border-transparent'}" onclick="switchChat('${id}')">
+      <div id="item-log-${id}" class="swipe-chat-item group flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all ${isSel ? 'bg-black/5 border border-black/5 shadow-sm font-semibold' : 'hover:bg-black/5 border border-transparent'}" onclick="switchChat('${id}')">
         <div class="flex items-center gap-3 min-w-0">
-          <span class="text-xs ${isSel ? 'text-emerald-400' : 'text-gray-500'}" id="chat-icon-${id}"><i class="fas ${icon}"></i></span>
-          <span class="text-xs text-gray-300 truncate pr-2 max-w-[140px] block">${escapeHtml(title)}</span>
+          <span class="text-xs ${isSel ? 'text-emerald-500' : 'text-gray-400'}" id="chat-icon-${id}"><i class="fas ${icon}"></i></span>
+          <span class="text-xs text-gray-700 truncate pr-2 max-w-[140px] block">${escapeHtml(title)}</span>
         </div>
-        <button onclick="deleteChat('${id}', event)" data-confirm="false" class="p-2 rounded hover:bg-white/10 text-gray-400 hover:text-red-400 transition-all text-xs" title="Delete Log">
+        <button onclick="deleteChat('${id}', event)" data-confirm="false" class="p-2 rounded hover:bg-black/10 text-gray-400 hover:text-red-500 transition-all text-xs" title="Delete Log">
           <i class="fas fa-trash"></i>
         </button>
       </div>
@@ -1222,10 +1196,10 @@ function renderMessages() {
 
     container.innerHTML = `
       <div class="flex-1 flex flex-col justify-center items-center text-center py-6 md:py-10 max-w-2xl mx-auto z-10 relative">
-        <div class="w-16 h-16 rounded-[20px] overflow-hidden flex items-center justify-center border border-white/10 mb-6" id="welcomeGlow">
-          <img src="logo.png" alt="Central Logo" class="w-full h-full object-cover" />
+        <div class="w-16 h-16 rounded-[24px] overflow-hidden flex items-center justify-center border border-gray-200/80 shadow-md mb-6 bg-white" id="welcomeGlow">
+          <img src="logo.png" alt="Central Logo" class="w-11 h-11 object-cover" />
         </div>
-        <h2 class="text-xl md:text-2xl font-bold tracking-tight text-white font-heading px-4">
+        <h2 class="text-xl md:text-2xl font-bold tracking-tight text-gray-900 font-heading px-4">
           <span>${dynamicGreeting}</span>
         </h2>
         <p class="text-gray-400 text-xs mt-2 leading-relaxed max-w-md px-6">
@@ -1234,9 +1208,9 @@ function renderMessages() {
 
         <div class="grid grid-cols-1 gap-2 w-full mt-6 px-4 max-w-md">
           ${currentRandomPrompts.map(s => `
-            <button onclick="useSuggestion('${s}')" class="p-3 bg-zinc-900/60 hover:bg-white/10 border border-white/5 rounded-xl text-left text-[11px] font-semibold text-gray-300 hover:text-white transition-all flex items-center justify-between group">
+            <button onclick="useSuggestion('${s}')" class="p-3 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm rounded-xl text-left text-[11px] font-semibold text-gray-600 hover:text-gray-900 transition-all flex items-center justify-between group">
               <span class="truncate pr-2">${s}</span>
-              <i class="fas fa-arrow-right text-[10px] text-emerald-400 opacity-0 group-hover:opacity-100 transition-all shrink-0"></i>
+              <i class="fas fa-arrow-right text-[10px] text-emerald-500 opacity-0 group-hover:opacity-100 transition-all shrink-0"></i>
             </button>
           `).join("")}
         </div>
@@ -1260,9 +1234,9 @@ function parseCustomMarkdown(content) {
     let trimmed = line.trim();
     let listMatch = trimmed.match(/^(\d+)\.\s+(.*)/);
     if (listMatch) {
-      return `<div class="bg-zinc-900/60 border border-white/5 rounded-xl p-3 my-2 font-medium flex items-start gap-3 shadow-sm hover:border-emerald-500/20 transition-all">
-                <span class="bg-emerald-500/10 text-emerald-400 text-xs font-bold rounded-lg w-6 h-6 flex items-center justify-center shrink-0 font-mono">${listMatch[1]}</span>
-                <span class="text-gray-200 text-sm leading-relaxed pt-0.5">${marked.parseInline(listMatch[2])}</span>
+      return `<div class="bg-white border border-gray-200 rounded-xl p-3 my-2 font-medium flex items-start gap-3 shadow-sm hover:border-emerald-500/20 transition-all">
+                <span class="bg-[#DBE5DD] text-gray-700 text-xs font-bold rounded-lg w-6 h-6 flex items-center justify-center shrink-0 font-mono">${listMatch[1]}</span>
+                <span class="text-gray-800 text-sm leading-relaxed pt-0.5">${marked.parseInline(listMatch[2])}</span>
               </div>`;
     }
     return marked.parse(line);
@@ -1277,27 +1251,27 @@ function renderMessageBubble(m, idx) {
     : parseCustomMarkdown(m.content || "");
 
   const actionControls = !isUser ? `
-    <div class="flex items-center gap-2 mt-3 pt-2.5 border-t border-white/5 font-sans">
-      <button onclick="ttsSpeak(this, ${idx})" class="px-2 py-0.5 rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-[10px] font-semibold flex items-center gap-1.5 transition-colors">
-        <i class="fas fa-volume-up text-xs text-emerald-400"></i> <span class="audio-label">Read Aloud</span>
+    <div class="flex items-center gap-2 mt-3 pt-2.5 border-t border-gray-100 font-sans">
+      <button onclick="ttsSpeak(this, ${idx})" class="px-2 py-0.5 rounded bg-gray-50 hover:bg-gray-100 text-gray-500 hover:text-gray-900 text-[10px] font-semibold flex items-center gap-1.5 transition-colors">
+        <i class="fas fa-volume-up text-xs text-emerald-500"></i> <span class="audio-label">Read Aloud</span>
       </button>
-      <button onclick="copyToClipboard(this, ${idx})" class="px-2 py-0.5 rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-[10px] font-semibold flex items-center gap-1.5 transition-colors">
-        <i class="fas fa-plus text-xs text-emerald-400"></i> <span>Copy Text</span>
+      <button onclick="copyToClipboard(this, ${idx})" class="px-2 py-0.5 rounded bg-gray-50 hover:bg-gray-100 text-gray-500 hover:text-gray-900 text-[10px] font-semibold flex items-center gap-1.5 transition-colors">
+        <i class="fas fa-plus text-xs text-emerald-500"></i> <span>Copy Text</span>
       </button>
     </div>
   ` : "";
 
   return `
-    <div class="w-full ${isUser ? 'bg-transparent' : 'bg-black/40 border-y border-white/[0.02]'} py-4 px-3 md:px-6 rounded-2xl backdrop-blur-xs">
+    <div class="w-full ${isUser ? 'bg-transparent' : 'bg-white border-y border-gray-200/50'} py-4 px-3 md:px-6 rounded-2xl">
       <div class="max-w-4xl mx-auto flex gap-3 md:gap-5 items-start">
-        <div class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold shrink-0 ${isUser ? 'bg-[#3b82f6]/20 text-[#3b82f6]' : 'bg-emerald-500/20 text-emerald-400'}">
+        <div class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold shrink-0 ${isUser ? 'bg-blue-500/10 text-blue-600' : 'bg-[#DBE5DD] text-gray-700'}">
           ${isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-brain"></i>'}
         </div>
         <div class="flex-1 min-w-0">
-          <p class="text-[9px] font-mono font-bold uppercase tracking-wider text-gray-500 mb-1">
+          <p class="text-[9px] font-mono font-bold uppercase tracking-wider text-gray-400 mb-1">
             ${isUser ? 'User Terminal' : 'MR7 Core'}
           </p>
-          <div class="prose prose-invert max-w-none text-gray-200 text-xs md:text-sm leading-relaxed">
+          <div class="prose max-w-none text-gray-800 text-xs md:text-sm leading-relaxed">
             ${content}
           </div>
           ${actionControls}
@@ -1324,13 +1298,13 @@ function processRenderedCodeBlocks(rootElement) {
     }
 
     const headerElement = document.createElement('div');
-    headerElement.className = "code-block-header-bar flex items-center justify-between bg-zinc-900 border-t border-x border-white/5 px-4 py-2 rounded-t-xl text-[10px] text-gray-400 font-mono tracking-wide mt-3";
+    headerElement.className = "code-block-header-bar flex items-center justify-between bg-gray-50 border-t border-x border-gray-200 px-4 py-2 rounded-t-xl text-[10px] text-gray-500 font-mono tracking-wide mt-3";
     headerElement.innerHTML = `
-      <span class="flex items-center gap-1.5 font-bold text-gray-300">
-        <i class="fas fa-code text-emerald-400 text-[11px]"></i> ${identifiedLanguage}
+      <span class="flex items-center gap-1.5 font-bold text-gray-600">
+        <i class="fas fa-code text-emerald-500 text-[11px]"></i> ${identifiedLanguage}
       </span>
-      <button onclick="copySnippetDirect(this)" class="hover:text-white flex items-center gap-1.5 px-2 py-0.5 rounded hover:bg-white/5 transition-all">
-        <i class="fas fa-plus text-[10px] text-emerald-400"></i> <span>Copy</span>
+      <button onclick="copySnippetDirect(this)" class="hover:text-gray-900 flex items-center gap-1.5 px-2 py-0.5 rounded hover:bg-gray-100 transition-all">
+        <i class="fas fa-plus text-[10px] text-emerald-500"></i> <span>Copy</span>
       </button>
     `;
 
@@ -1349,10 +1323,10 @@ function copySnippetDirect(button) {
   
   navigator.clipboard.writeText(codeBlockNode.innerText).then(() => {
     originalLabel.textContent = "Copied!";
-    originalIcon.className = "fas fa-check text-emerald-400";
+    originalIcon.className = "fas fa-check text-emerald-500";
     setTimeout(() => {
       originalLabel.textContent = "Copy";
-      originalIcon.className = "fas fa-plus text-[10px] text-emerald-400";
+      originalIcon.className = "fas fa-plus text-[10px] text-emerald-500";
     }, 2000);
   });
 }
@@ -1363,9 +1337,9 @@ function copyToClipboard(btn, index) {
   
   const text = chat.messages[index].content;
   navigator.clipboard.writeText(text).then(() => {
-    btn.innerHTML = `<i class="fas fa-check text-emerald-400"></i> <span>Copied!</span>`;
+    btn.innerHTML = `<i class="fas fa-check text-emerald-500"></i> <span>Copied!</span>`;
     setTimeout(() => {
-      btn.innerHTML = `<i class="fas fa-plus text-xs text-emerald-400"></i> <span>Copy Text</span>`;
+      btn.innerHTML = `<i class="fas fa-plus text-xs text-emerald-500"></i> <span>Copy Text</span>`;
     }, 2000);
   }).catch(() => {});
 }
@@ -1381,7 +1355,7 @@ function startDynamicTypingAnimation(targetBubble) {
   }
   targetBubble.innerHTML = `
     <div class="flex flex-col gap-2 py-1">
-      <span id="liveDynamicLoadingText" class="typing-cursor font-bold text-emerald-400 font-mono text-xs tracking-wider uppercase shimmer-text">
+      <span id="liveDynamicLoadingText" class="typing-cursor font-bold text-emerald-600 font-mono text-xs tracking-wider uppercase shimmer-text">
         ${loaderMessage}
       </span>
     </div>
@@ -1447,7 +1421,6 @@ function inspectAndHarvestUserMemory(text) {
   localStorage.setItem("mr7_v5_memory_matrix", JSON.stringify(systemMemoryProfile));
 }
 
-// 🌐 Advanced Free Puter JS Execution Logic Integration
 async function sendMessage() {
   if (isGenerating) return;
 
@@ -1501,19 +1474,16 @@ async function sendMessage() {
     let responseText = "";
     
     if (activeEngine === "gemini" || (activeAttachedFileData && activeAttachedFileData.type === "image")) {
-      // 🚀 Free Puter Google Gemini execution module
       let puterModel = 'google/gemini-3.5-flash';
       let puterPrompt = getSystemInstructionText() + "\n\nUser Input Context:\n" + processedPromptContent;
       
       if (activeAttachedFileData && activeAttachedFileData.type === "image") {
-        // Image parsing matrix pipeline via Puter base64 configuration object
         let rawDataUrl = `data:${activeAttachedFileData.mimeType};base64,${activeAttachedFileData.base64}`;
         responseText = await puter.ai.chat(puterPrompt, rawDataUrl, { model: puterModel, temperature: currentTemperature });
       } else {
         responseText = await puter.ai.chat(puterPrompt, { model: puterModel, temperature: currentTemperature });
       }
     } else {
-      // Direct backup system fallback connection pipeline
       let payloadHistory = JSON.parse(JSON.stringify(chat.messages.slice(0, -1)));
       responseText = await triggerVelocityTextAPI(payloadHistory);
     }
@@ -1577,7 +1547,7 @@ function saveAllSettings() {
 }
 
 function resetSettings() {
-  setAccent('#10a37f', 'rgba(16,163,127,0.15)');
+  setAccent('#6ED987', 'rgba(110,217,135,0.15)');
   activeVoiceAccent = "en-US-female";
   activeEngine = "gemini";
   currentTemperature = 0.7;
@@ -1604,17 +1574,17 @@ function updateEngineUI() {
 function toggleVisuals() {
   is3DActive = !is3DActive;
   localStorage.setItem("mr7_v5_3d", is3DActive);
-  document.getElementById("bg-canvas").style.opacity = is3DActive ? "0.85" : "0";
+  document.getElementById("bg-canvas").style.opacity = is3DActive ? "0.9" : "0";
   
   const btnText = document.getElementById("visualToggleText");
   const btnIcon = document.getElementById("visualToggleIcon");
   
   if (is3DActive) {
     btnText.textContent = "3D On";
-    btnIcon.className = "fas fa-robot text-emerald-400";
+    btnIcon.className = "fas fa-robot text-[#1BC237]";
   } else {
     btnText.textContent = "3D Off";
-    btnIcon.className = "fas fa-robot text-gray-500";
+    btnIcon.className = "fas fa-robot text-gray-400";
   }
 }
 
@@ -1631,7 +1601,7 @@ function escapeHtml(s) {
   return (s || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
-// 🤖 Premium Ultra 3D Robot Generation Engine Setup (Image Reference Match)
+// 🤖 Fixed 3D Space & Eyes Mesh Tracking Pipelines
 function init3DSpace() {
   const canvas = document.getElementById("bg-canvas");
   renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
@@ -1642,15 +1612,11 @@ function init3DSpace() {
   camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.set(0, 4, 38);
 
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
   scene.add(ambientLight);
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 1.4);
   directionalLight.position.set(10, 25, 20);
   scene.add(directionalLight);
-
-  const keyGlow = new THREE.DirectionalLight(0x10a37f, 1);
-  keyGlow.position.set(-10, -10, 10);
-  scene.add(keyGlow);
 
   avatarGroup = new THREE.Group();
 
@@ -1666,7 +1632,7 @@ function init3DSpace() {
   outerBodyMesh.position.y = 1;
   avatarGroup.add(outerBodyMesh);
 
-  // Inset Grey Chest Plate Contour Matching Image
+  // Inset Grey Chest Plate Contour
   const innerPlateGeom = new THREE.SphereGeometry(3.2, 16, 16, 0, Math.PI, 0, Math.PI);
   const innerPlateMat = new THREE.MeshStandardMaterial({ 
     color: 0xadadb5, 
@@ -1678,7 +1644,7 @@ function init3DSpace() {
   innerPlateMesh.rotation.y = -Math.PI / 2;
   avatarGroup.add(innerPlateMesh);
 
-  // Large Smooth Spherical Head Structure
+  // Spherical Head Structure
   const headGeom = new THREE.SphereGeometry(3.3, 32, 32);
   const headMat = new THREE.MeshStandardMaterial({ 
     color: 0xefedf0, 
@@ -1689,7 +1655,7 @@ function init3DSpace() {
   headMesh.position.y = 6.0;
   avatarGroup.add(headMesh);
 
-  // Iconic Dark Visor Face Screen Mask Panel
+  // Face Screen Visor Panel
   const visorGeom = new THREE.SphereGeometry(2.8, 32, 16, 0, Math.PI * 2, 0.5, Math.PI / 2.5);
   const visorMat = new THREE.MeshStandardMaterial({ 
     color: 0x070b12, 
@@ -1701,25 +1667,20 @@ function init3DSpace() {
   visorMesh.scale.set(1, 0.65, 1);
   avatarGroup.add(visorMesh);
 
-  // Fixed Flat Digital Glow Eyes Configuration (Visible Mesh Mapping)
-  const eyeGeomLeft = new THREE.PlaneGeometry(0.8, 0.3);
-  const eyeGeomRight = new THREE.PlaneGeometry(0.8, 0.3);
-  const eyeMat = new THREE.MeshBasicMaterial({ 
-    color: 0x5cd6ff, 
-    side: THREE.DoubleSide,
-    transparent: true,
-    opacity: 0.95
-  });
+  // 👁️ Re-Calculated Flat Eye Geometries brought forward onto the visor surface layer to secure visibility
+  const eyeGeomLeft = new THREE.SphereGeometry(0.35, 16, 16);
+  const eyeGeomRight = new THREE.SphereGeometry(0.35, 16, 16);
+  const eyeMat = new THREE.MeshBasicMaterial({ color: 0x00d2ff });
   
   leftEye = new THREE.Mesh(eyeGeomLeft, eyeMat);
-  leftEye.position.set(-0.8, 6.15, 3.52);
+  leftEye.position.set(-0.8, 6.3, 3.25);
   avatarGroup.add(leftEye);
 
   rightEye = new THREE.Mesh(eyeGeomRight, eyeMat);
-  rightEye.position.set(0.8, 6.15, 3.52);
+  rightEye.position.set(0.8, 6.3, 3.25);
   avatarGroup.add(rightEye);
 
-  // Horizontally Outstretched Mechanical Arms
+  // Outstretched Arms
   const shoulderGeomLeft = new THREE.SphereGeometry(0.7, 16, 16);
   const shoulderGeomRight = new THREE.SphereGeometry(0.7, 16, 16);
   const jointMat = new THREE.MeshStandardMaterial({ color: 0x5a5a63, roughness: 0.4 });
@@ -1745,7 +1706,7 @@ function init3DSpace() {
   rightArm.rotation.z = -Math.PI / 2;
   avatarGroup.add(rightArm);
 
-  // Detailed Segmented Curved Upper Thigh Joints & Leg Pods
+  // Thigh Joints & Leg Pods
   const hipJointLeft = new THREE.SphereGeometry(0.6, 16, 16);
   const hipJointRight = new THREE.SphereGeometry(0.6, 16, 16);
   
@@ -1796,7 +1757,6 @@ function init3DSpace() {
     targetX += (mouseX - targetX) * 0.08;
     targetY += (mouseY - targetY) * 0.08;
 
-    // Elegant stabilization and hovering float paths
     avatarGroup.position.y = -0.5 + Math.sin(elapsedTime * 1.5) * 0.5;
     avatarGroup.rotation.y = targetX * 0.2 + Math.sin(elapsedTime * 0.2) * 0.03;
 
@@ -1808,13 +1768,12 @@ function init3DSpace() {
     visorMesh.rotation.y = targetX * 0.2;
     visorMesh.rotation.x = targetY * 0.1;
 
-    // Fixed Flat Plane tracking positioning loop alignment
-    leftEye.position.x = -0.8 + (targetX * 0.12);
-    leftEye.position.y = 6.15 - (targetY * 0.08);
-    rightEye.position.x = 0.8 + (targetX * 0.12);
-    rightEye.position.y = 6.15 - (targetY * 0.08);
+    // Secure custom look-at coordinate synchronization tracking lines
+    leftEye.position.x = -0.85 + (targetX * 0.15);
+    leftEye.position.y = 6.3 - (targetY * 0.1);
+    rightEye.position.x = 0.85 + (targetX * 0.15);
+    rightEye.position.y = 6.3 - (targetY * 0.1);
 
-    // Visor eye blinking cycles
     let blink = Math.floor(elapsedTime) % 6 === 0 && Math.sin(elapsedTime * 25) > 0.7;
     if (blink) {
       leftEye.scale.y = 0.05;
