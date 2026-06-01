@@ -1644,88 +1644,130 @@ function init3DSpace() {
   camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.set(0, 4, 38);
 
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
   scene.add(ambientLight);
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 1.8);
-  directionalLight.position.set(12, 30, 25);
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+  directionalLight.position.set(10, 25, 20);
   scene.add(directionalLight);
 
-  const softGlowBack = new THREE.DirectionalLight(0x10a37f, 0.8);
-  softGlowBack.position.set(-12, -15, 12);
-  scene.add(softGlowBack);
+  const keyGlow = new THREE.DirectionalLight(0x10a37f, 1);
+  keyGlow.position.set(-10, -10, 10);
+  scene.add(keyGlow);
 
   avatarGroup = new THREE.Group();
 
-  // Polished Capsule Torso Design Structure
-  const bodyGeom = new THREE.CylinderGeometry(3.4, 4.0, 7.0, 32);
-  const bodyMat = new THREE.MeshStandardMaterial({ color: 0xdddddd, roughness: 0.25, metalness: 0.35 });
-  const bodyMesh = new THREE.Mesh(bodyGeom, bodyMat);
-  bodyMesh.position.y = 1;
-  avatarGroup.add(bodyMesh);
+  // Torso White Outer Shell
+  const outerBodyGeom = new THREE.SphereGeometry(3.6, 32, 32);
+  const outerBodyMat = new THREE.MeshStandardMaterial({ 
+    color: 0xefedf0, 
+    roughness: 0.18, 
+    metalness: 0.1 
+  });
+  const outerBodyMesh = new THREE.Mesh(outerBodyGeom, outerBodyMat);
+  outerBodyMesh.scale.set(1, 1.2, 1);
+  outerBodyMesh.position.y = 1;
+  avatarGroup.add(outerBodyMesh);
 
-  // Curved Chest Plate Armor overlay implementation
-  const plateGeom = new THREE.CylinderGeometry(2.2, 2.7, 4.2, 16, 1, false, 0, Math.PI);
-  const plateMat = new THREE.MeshStandardMaterial({ color: 0xf3f4f6, roughness: 0.15, metalness: 0.5 });
-  const plateMesh = new THREE.Mesh(plateGeom, plateMat);
-  plateMesh.position.set(0, 1, 1.7);
-  plateMesh.rotation.y = Math.PI / 2;
-  avatarGroup.add(plateMesh);
+  // Inset Grey Chest Plate Contour Matching Image
+  const innerPlateGeom = new THREE.SphereGeometry(3.2, 16, 16, 0, Math.PI, 0, Math.PI);
+  const innerPlateMat = new THREE.MeshStandardMaterial({ 
+    color: 0xadadb5, 
+    roughness: 0.25, 
+    metalness: 0.4 
+  });
+  const innerPlateMesh = new THREE.Mesh(innerPlateGeom, innerPlateMat);
+  innerPlateMesh.position.set(0, 0.8, 0.6);
+  innerPlateMesh.rotation.y = -Math.PI / 2;
+  avatarGroup.add(innerPlateMesh);
 
-  // Large Smooth Head Architecture
-  const headGeom = new THREE.SphereGeometry(3.4, 32, 32);
-  const headMat = new THREE.MeshStandardMaterial({ color: 0xe5e7eb, roughness: 0.2, metalness: 0.25 });
+  // Large Smooth Spherical Head Structure
+  const headGeom = new THREE.SphereGeometry(3.3, 32, 32);
+  const headMat = new THREE.MeshStandardMaterial({ 
+    color: 0xefedf0, 
+    roughness: 0.18, 
+    metalness: 0.1 
+  });
   headMesh = new THREE.Mesh(headGeom, headMat);
-  headMesh.position.y = 6.2;
+  headMesh.position.y = 6.0;
   avatarGroup.add(headMesh);
 
-  // High-End Cyber Glass Visor Screen Backdrop
+  // Iconic Dark Visor Face Screen Mask Panel
   const visorGeom = new THREE.SphereGeometry(2.8, 32, 16, 0, Math.PI * 2, 0.5, Math.PI / 2.5);
-  const visorMat = new THREE.MeshStandardMaterial({ color: 0x0b0f19, roughness: 0.05, metalness: 0.95 });
-  const visorMesh = new THREE.Mesh(visorGeom, visorMat);
-  visorMesh.position.set(0, 6.4, 1.0);
-  visorMesh.scale.set(1, 0.68, 1);
+  const visorMat = new THREE.MeshStandardMaterial({ 
+    color: 0x070b12, 
+    roughness: 0.05, 
+    metalness: 0.9 
+  });
+  visorMesh = new THREE.Mesh(visorGeom, visorMat);
+  visorMesh.position.set(0, 6.1, 0.9);
+  visorMesh.scale.set(1, 0.65, 1);
   avatarGroup.add(visorMesh);
 
-  // Bright Blue Cyber Eyes
-  const eyeGeomLeft = new THREE.SphereGeometry(0.38, 16, 16);
-  const eyeGeomRight = new THREE.SphereGeometry(0.38, 16, 16);
-  const eyeMat = new THREE.MeshBasicMaterial({ color: 0x00d2ff });
+  // Bright Arc-shaped Digital Soft Glowing Eyes
+  const eyeGeomLeft = new THREE.CylinderGeometry(0.4, 0.4, 0.15, 16);
+  const eyeGeomRight = new THREE.CylinderGeometry(0.4, 0.4, 0.15, 16);
+  const eyeMat = new THREE.MeshBasicMaterial({ color: 0x5cd6ff });
   
   leftEye = new THREE.Mesh(eyeGeomLeft, eyeMat);
-  leftEye.position.set(-0.85, 6.4, 3.2);
+  leftEye.position.set(-0.8, 6.2, 3.2);
+  leftEye.rotation.x = Math.PI / 2;
   avatarGroup.add(leftEye);
 
   rightEye = new THREE.Mesh(eyeGeomRight, eyeMat);
-  rightEye.position.set(0.85, 6.4, 3.2);
+  rightEye.position.set(0.8, 6.2, 3.2);
+  rightEye.rotation.x = Math.PI / 2;
   avatarGroup.add(rightEye);
 
-  // Outstretched Side Dynamic Arms Setup
-  const armGeom = new THREE.CylinderGeometry(0.65, 0.5, 4.8, 16);
-  const armMat = new THREE.MeshStandardMaterial({ color: 0xe5e7eb, roughness: 0.35 });
+  // Horizontally Outstretched Mechanical Arms
+  const shoulderGeomLeft = new THREE.SphereGeometry(0.7, 16, 16);
+  const shoulderGeomRight = new THREE.SphereGeometry(0.7, 16, 16);
+  const jointMat = new THREE.MeshStandardMaterial({ color: 0x5a5a63, roughness: 0.4 });
+  
+  const shLeft = new THREE.Mesh(shoulderGeomLeft, jointMat);
+  shLeft.position.set(-3.7, 2.2, 0);
+  avatarGroup.add(shLeft);
+
+  const shRight = new THREE.Mesh(shoulderGeomRight, jointMat);
+  shRight.position.set(3.7, 2.2, 0);
+  avatarGroup.add(shRight);
+
+  const armGeom = new THREE.CylinderGeometry(0.5, 0.4, 3.8, 16);
+  const armMat = new THREE.MeshStandardMaterial({ color: 0xadadb5, roughness: 0.3 });
   
   leftArm = new THREE.Mesh(armGeom, armMat);
-  leftArm.position.set(-5.1, 2.8, 0);
-  leftArm.rotation.z = Math.PI / 2.1;
+  leftArm.position.set(-5.6, 2.2, 0);
+  leftArm.rotation.z = Math.PI / 2;
   avatarGroup.add(leftArm);
 
   rightArm = new THREE.Mesh(armGeom, armMat);
-  rightArm.position.set(5.1, 2.8, 0);
-  rightArm.rotation.z = -Math.PI / 2.1;
+  rightArm.position.set(5.6, 2.2, 0);
+  rightArm.rotation.z = -Math.PI / 2;
   avatarGroup.add(rightArm);
 
-  // Heavy Base Lower Leg Pods
-  const legGeom = new THREE.CylinderGeometry(1.0, 1.2, 3.2, 16);
-  const legMat = new THREE.MeshStandardMaterial({ color: 0xa1a1aa, roughness: 0.35 });
+  // Detailed Segmented Curved Upper Thigh Joints & Leg Pods
+  const hipJointLeft = new THREE.SphereGeometry(0.6, 16, 16);
+  const hipJointRight = new THREE.SphereGeometry(0.6, 16, 16);
+  
+  const hjLeft = new THREE.Mesh(hipJointLeft, jointMat);
+  hjLeft.position.set(-1.5, -2.8, 0);
+  avatarGroup.add(hjLeft);
+
+  const hjRight = new THREE.Mesh(hipJointRight, jointMat);
+  hjRight.position.set(1.5, -2.8, 0);
+  avatarGroup.add(hjRight);
+
+  const legGeom = new THREE.CylinderGeometry(0.7, 1.1, 3.4, 16);
+  const legMat = new THREE.MeshStandardMaterial({ color: 0xefedf0, roughness: 0.2 });
   
   const leftLeg = new THREE.Mesh(legGeom, legMat);
-  leftLeg.position.set(-1.5, -3.4, 0);
+  leftLeg.position.set(-1.6, -4.5, 0.2);
   avatarGroup.add(leftLeg);
 
   const rightLeg = new THREE.Mesh(legGeom, legMat);
-  rightLeg.position.set(1.5, -3.4, 0);
+  rightLeg.position.set(1.6, -4.5, 0.2);
   avatarGroup.add(rightLeg);
 
-  avatarGroup.position.set(0, -1.8, 0);
+  avatarGroup.position.set(0, -0.5, 0);
   scene.add(avatarGroup);
 
   let mouseX = 0, mouseY = 0;
@@ -1753,26 +1795,26 @@ function init3DSpace() {
     targetX += (mouseX - targetX) * 0.08;
     targetY += (mouseY - targetY) * 0.08;
 
-    // Fluid rhythmic dynamic floating cycle
-    avatarGroup.position.y = -1.8 + Math.sin(elapsedTime * 1.6) * 0.6;
-    avatarGroup.rotation.y = targetX * 0.22 + Math.sin(elapsedTime * 0.3) * 0.04;
+    // Elegant stabilization and hovering float paths
+    avatarGroup.position.y = -0.5 + Math.sin(elapsedTime * 1.5) * 0.5;
+    avatarGroup.rotation.y = targetX * 0.2 + Math.sin(elapsedTime * 0.2) * 0.03;
 
-    leftArm.rotation.x = Math.sin(elapsedTime * 2.2) * 0.12;
-    rightArm.rotation.x = Math.cos(elapsedTime * 2.2) * 0.12;
+    leftArm.rotation.x = Math.sin(elapsedTime * 2) * 0.08;
+    rightArm.rotation.x = Math.cos(elapsedTime * 2) * 0.08;
 
-    headMesh.rotation.y = targetX * 0.25;
-    headMesh.rotation.x = targetY * 0.12;
-    visorMesh.rotation.y = targetX * 0.25;
-    visorMesh.rotation.x = targetY * 0.12;
+    headMesh.rotation.y = targetX * 0.2;
+    headMesh.rotation.x = targetY * 0.1;
+    visorMesh.rotation.y = targetX * 0.2;
+    visorMesh.rotation.x = targetY * 0.1;
 
-    // Symmetric automatic blink loop execution
-    let blink = Math.floor(elapsedTime) % 5 === 0 && Math.sin(elapsedTime * 22) > 0.6;
+    // Visor eye blinking cycles
+    let blink = Math.floor(elapsedTime) % 6 === 0 && Math.sin(elapsedTime * 25) > 0.7;
     if (blink) {
-      leftEye.scale.y = 0.08;
-      rightEye.scale.y = 0.08;
+      leftEye.scale.x = 0.05;
+      rightEye.scale.x = 0.05;
     } else {
-      leftEye.scale.y = 1.0;
-      rightEye.scale.y = 1.0;
+      leftEye.scale.x = 1.0;
+      rightEye.scale.x = 1.0;
     }
 
     renderer.render(scene, camera);
