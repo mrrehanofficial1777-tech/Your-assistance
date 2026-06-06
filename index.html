@@ -895,6 +895,15 @@ function toggleRadialMenu(e) {
   }
 }
 
+// Function to clear input field text securely
+function clearInput() {
+  const inp = document.getElementById("input");
+  if (inp) {
+    inp.value = "";
+    inp.style.height = "auto";
+  }
+}
+
 function closeRadialMenu() {
   const menu = document.getElementById("radialMenu");
   const icon = document.getElementById("actionDotIcon");
@@ -1150,6 +1159,7 @@ function toggleSidebarIfMobile() {
   }
 }
 
+// Event parser routing matrix shortcut routing
 function handleTextareaKey(e) {
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
@@ -1294,7 +1304,6 @@ function renderChatList(customIdArray = null) {
   });
 }
 
-// Welcome view matrix layer transparent rewrite to prevent blocking the robot setup
 function renderMessages() {
   const container = document.getElementById("messages");
   const chat = chats[currentChatId];
