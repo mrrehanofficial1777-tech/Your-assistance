@@ -252,7 +252,7 @@
       </div>
 
       <div class="p-4 shrink-0">
-        <button onclick="newChat(); toggleSidebarIfMobile();" class="w-full bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 rounded-2xl py-3 px-4 flex items-center justify-center gap-2 font-medium transition-all group hover:shadow-xs text-sm">
+        <button onclick="newChat();" class="w-full bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 rounded-2xl py-3 px-4 flex items-center justify-center gap-2 font-medium transition-all group hover:shadow-xs text-sm">
           <i class="fas fa-plus text-xs text-[#6ED987] group-hover:rotate-90 transition-transform"></i>
           <span>New Conversation</span>
         </button>
@@ -360,11 +360,11 @@
       <button onclick="clearAttachedWorkspaceDocument()" class="hover:text-emerald-900 p-1"><i class="fas fa-times"></i></button>
     </div>
 
-    <div class="px-4 md:px-12" id="contextualSuggestionsWrap">
+    <div class="px-4 md:px-12 relative z-30" id="contextualSuggestionsWrap">
       <div class="max-w-4xl mx-auto flex flex-wrap gap-2 py-1.5 overflow-x-auto no-scrollbar" id="contextSuggestions"></div>
     </div>
 
-    <div class="p-3 md:p-6 bg-gradient-to-t from-gray-100 to-transparent">
+    <div class="p-3 md:p-6 bg-gradient-to-t from-gray-100 to-transparent relative z-30">
       <div class="max-w-4xl mx-auto">
         <div id="inputContainer" class="bg-white border border-gray-200 rounded-2xl p-2 md:p-3 shadow-xl backdrop-blur-xl relative breathing-glow-input">
           
@@ -419,7 +419,7 @@
               <span class="text-xs font-semibold">Upload Photo / PDF / Text</span>
             </button>
             <button onclick="toggleWebSearchMatrix()" id="webSearchBtnToggle" class="w-full p-2.5 rounded-xl hover:bg-gray-50 text-left text-gray-700 flex items-center gap-3 transition-colors">
-              <i id="webSearchIcon" class="fas fa-globe text-[#1BC237]"></i>
+              <i id="webSearchIcon" class="fas fa-globe text-gray-400"></i>
               <span id="webSearchText" class="text-xs font-semibold">Search OFF</span>
             </button>
           </div>
@@ -453,7 +453,7 @@
 <div id="settingsModal" class="fixed inset-0 bg-gray-900/40 backdrop-blur-md z-50 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
   <div id="settingsModalCard" class="bg-white border border-gray-200 rounded-3xl w-full max-w-lg p-5 md:p-6 m-4 shadow-2xl transform scale-95 transition-all duration-300 flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between border-b border-gray-100 pb-3">
-      <div class="flex items-center gap-2 text-[#1BC237]">
+      <div class="flex items-center gap-2 text-[#1BC237]" id="settingsHeaderIcon">
         <i class="fas fa-sliders-h text-base md:text-lg"></i>
         <h2 class="text-base md:text-lg font-bold font-heading text-gray-900">MR7 Configuration Matrix</h2>
       </div>
@@ -463,7 +463,17 @@
     </div>
 
     <div class="flex flex-col gap-3 md:gap-4">
-      
+      <div>
+        <label class="block text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5 font-mono">
+          <i class="fas fa-palette mr-1"></i> Global Core Theme Accent
+        </label>
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="applyGlobalThemePreset('#6ED987', 'rgba(110,217,135,0.12)')" class="p-2.5 text-xs rounded-xl border border-gray-200 text-center font-bold font-heading text-emerald-600 hover:bg-gray-50 bg-white transition-all">Emerald Core</button>
+          <button onclick="applyGlobalThemePreset('#3b82f6', 'rgba(59,130,246,0.12)')" class="p-2.5 text-xs rounded-xl border border-gray-200 text-center font-bold font-heading text-blue-600 hover:bg-gray-50 bg-white transition-all">Cyber Blue</button>
+          <button onclick="applyGlobalThemePreset('#f97316', 'rgba(249,115,22,0.12)')" class="p-2.5 text-xs rounded-xl border border-gray-200 text-center font-bold font-heading text-orange-500 hover:bg-gray-50 bg-white transition-all">Apex Flame</button>
+        </div>
+      </div>
+
       <div>
         <label class="block text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5 font-mono">
           <i class="fas fa-server mr-1"></i> Native Engine Pipeline
@@ -501,13 +511,18 @@
         </select>
       </div>
 
+      <div class="pt-2">
+        <button onclick="exportChatLogsToJSON()" class="w-full py-2.5 text-xs bg-gray-900 hover:bg-gray-800 text-white font-mono font-bold rounded-xl flex items-center justify-center gap-2 transition-all">
+          <i class="fas fa-download"></i> <span>Export Conversations Matrix (.json)</span>
+        </button>
+      </div>
     </div>
 
     <div class="flex gap-3 mt-3 pt-3 border-t border-gray-100">
       <button onclick="resetSettings()" class="flex-1 bg-gray-50 hover:bg-gray-100 rounded-xl py-2.5 text-xs font-semibold text-gray-500 transition-colors">
         Restore Defaults
       </button>
-      <button onclick="saveAllSettings()" class="flex-1 bg-[#6ED987] hover:bg-[#5bc273] text-gray-950 rounded-xl py-2.5 text-xs font-bold shadow-md">
+      <button onclick="saveAllSettings()" class="flex-1 bg-[#6ED987] hover:bg-[#5bc273] text-gray-950 rounded-xl py-2.5 text-xs font-bold shadow-md" id="syncBtnModal">
         Sync Settings
       </button>
     </div>
@@ -520,7 +535,7 @@ const BRAND_ACCENT = "ai";
 
 const EM_QA_KEY_B64 = "QVEuQWI4Uk42TGpiWk5lZUwwM0hGbmUyb3otT3hNSTBDT0NMQ3FEQ0o0RXdpMEtuQXJra3c="; 
 const DIRECT_GROQ_KEY = "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"; 
-const TAVILY_API_KEY = "YOUR_TAVILY_API_KEY"; // Real Web Search ke liye apni Tavily API key yahan dalein
+const TAVILY_API_KEY = "tvly-uYVbK6mK868mKzKzKzKzKzKzKzKzKzKz"; // Input valid Tavily Engine token here
 
 function getSecureQA() { return atob(EM_QA_KEY_B64); }
 function getSecureVL() { return DIRECT_GROQ_KEY; }
@@ -575,7 +590,7 @@ function getSystemInstructionText() {
 
   return `You are ${BRAND_NAME} Core, created by the "MR7 Team" (co-founded by "Md Rehan"). Today's exact current baseline date context is strictly: ${dateString}, Time: ${timeString}.${memoryPromptString}
   
-  CRITICAL REAL-TIME TRUTH VALIDATION (YEAR 2026): You are strictly operating live in the year 2026. You MUST provide updated 2026 facts. Lionel Messi plays for Inter Miami in MLS (NOT PSG). Cristiano Ronaldo plays for Al Nasr. The top 3 football players globally in 2026 are Kylian Mbappé (Real Madrid), Vinícius Júnior (Real Madrid), and Erling Haaland (Manchester City). Never state outdated facts or training cut-off errors.
+  CRITICAL REAL-TIME TRUTH VALIDATION (YEAR 2026): You are strictly operating live in the year 2026. You MUST provide updated 2026 facts. Lionel Messi plays for Inter Miami in MLS (NOT PSG). Cristiano Ronaldo plays for Al Nassr. The top 3 football players globally in 2026 are Kylian Mbappé (Real Madrid), Vinícius Júnior (Real Madrid), and Erling Haaland (Manchester City). Never state outdated facts or training cut-off errors.
   
   CRITICAL LANGUAGE REQUIREMENT: You MUST reply in the EXACT SAME language, dialect, or combination (e.g. Hinglish) that the user used to write or speak their query. If the user writes in Hinglish (Roman script Hindi), you MUST respond in natural, short Hinglish. Perfect parity with the user's spoken vernacular script is mandatory.
   
@@ -585,7 +600,7 @@ function getSystemInstructionText() {
 let speechUtterance = null;
 let activeSpeakerBtn = null;
 let lastScrollTop = 0;
-let renderer, scene, camera, avatarGroup, headMesh, visorMesh, leftEye, rightEye, leftArm, rightArm;
+let renderer, scene, camera, avatarGroup, headMesh, visorMesh, leftEye, rightEye, leftArm, rightArm, cyberHaloRing;
 
 window.addEventListener("online", () => {
   showToastMatrix("System Re-Aligned: Connection Secured", true);
@@ -593,6 +608,57 @@ window.addEventListener("online", () => {
 window.addEventListener("offline", () => {
   showToastMatrix("⚠️ ACCESS DENIED: Connection Lost. Please check your network/data pipeline.", false);
 });
+
+// Setup Pro shortcuts matrix
+window.addEventListener("keydown", (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+    e.preventDefault();
+    newChat();
+    showToastMatrix("New Transmission Channel Initialized", true);
+  }
+  if (e.key === 'Escape') {
+    closeSettings();
+    closePersonaMenu();
+    closeRadialMenu();
+  }
+});
+
+function exportChatLogsToJSON() {
+  try {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(chats, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `MR7_AI_Matrix_Backup_${Date.now()}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+    showToastMatrix("Conversations Log Matrix Exported Successfully!", true);
+  } catch (err) {
+    showToastMatrix("Failed to export chat logs structure.", false);
+  }
+}
+
+function applyGlobalThemePreset(hexColor, glowColor) {
+  currentAccent = hexColor;
+  currentAccentGlow = glowColor;
+  localStorage.setItem("mr7_v5_accent", hexColor);
+  localStorage.setItem("mr7_v5_accent_glow", glowColor);
+  
+  document.documentElement.style.setProperty('--accent', hexColor);
+  document.documentElement.style.setProperty('--accent-glow', glowColor);
+  
+  const syncBtn = document.getElementById("syncBtnModal");
+  if(syncBtn) syncBtn.style.backgroundColor = hexColor;
+  
+  const settingsIcon = document.getElementById("settingsHeaderIcon");
+  if(settingsIcon) settingsIcon.style.color = hexColor;
+
+  if (leftEye && leftEye.material) {
+    leftEye.material.emissive.setHex(parseInt(hexColor.replace("#", "0x")));
+    rightEye.material.emissive.setHex(parseInt(hexColor.replace("#", "0x")));
+  }
+  showToastMatrix(`System Theme Accent Aligned to ${hexColor}`, true);
+}
 
 function showToastMatrix(msg, isSuccess = true) {
   const toast = document.getElementById("toast");
@@ -1159,6 +1225,7 @@ function newChat() {
   saveChatsToLocal();
   renderChatList();
   renderMessages();
+  toggleSidebarIfMobile();
   
   const inp = document.getElementById("input");
   if (inp) inp.focus();
@@ -1263,23 +1330,25 @@ function renderMessages() {
 
     container.innerHTML = `
       <div class="flex-1 flex flex-col justify-center items-center text-center py-6 md:py-10 max-w-2xl mx-auto z-10 relative">
-        <div class="w-16 h-16 rounded-[24px] overflow-hidden flex items-center justify-center border border-gray-200/80 shadow-md mb-6 bg-white" id="welcomeGlow">
-          <img src="logo.png" alt="Central Logo" class="w-11 h-11 object-cover" />
-        </div>
-        <h2 class="text-xl md:text-2xl font-bold tracking-tight text-gray-900 font-heading px-4">
-          <span>${dynamicGreeting}</span>
-        </h2>
-        <p class="text-gray-400 text-xs mt-2 leading-relaxed max-w-md px-6">
-          MR7 Autonomous Workspace Layer active.
-        </p>
+        <div class="backdrop-blur-xl bg-white/80 border border-white/40 p-6 md:p-8 rounded-[32px] shadow-2xl flex flex-col items-center">
+          <div class="w-16 h-16 rounded-[24px] overflow-hidden flex items-center justify-center border border-gray-200/80 shadow-md mb-6 bg-white" id="welcomeGlow">
+            <img src="logo.png" alt="Central Logo" class="w-11 h-11 object-cover" />
+          </div>
+          <h2 class="text-xl md:text-2xl font-bold tracking-tight text-gray-900 font-heading px-4 leading-tight">
+            <span>${dynamicGreeting}</span>
+          </h2>
+          <p class="text-gray-500 text-xs mt-2 font-medium max-w-md px-6">
+            MR7 Autonomous Workspace Layer active.
+          </p>
 
-        <div class="grid grid-cols-1 gap-2 w-full mt-6 px-4 max-w-md">
-          ${currentRandomPrompts.map(s => `
-            <button onclick="useSuggestion('${s}')" class="p-3 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm rounded-xl text-left text-[11px] font-semibold text-gray-600 hover:text-gray-900 transition-all flex items-center justify-between group">
-              <span class="truncate pr-2">${s}</span>
-              <i class="fas fa-arrow-right text-[10px] text-emerald-500 opacity-0 group-hover:opacity-100 transition-all shrink-0"></i>
-            </button>
-          `).join("")}
+          <div class="grid grid-cols-1 gap-2.5 w-full mt-6 max-w-md">
+            ${currentRandomPrompts.map(s => `
+              <button onclick="useSuggestion('${s}')" class="p-3 bg-white/90 hover:bg-gray-50 border border-gray-200/80 shadow-sm rounded-xl text-left text-[11px] font-bold text-gray-600 hover:text-gray-900 transition-all flex items-center justify-between group">
+                <span class="truncate pr-2">${s}</span>
+                <i class="fas fa-arrow-right text-[10px] text-[#1BC237] opacity-0 group-hover:opacity-100 transition-all shrink-0"></i>
+              </button>
+            `).join("")}
+          </div>
         </div>
       </div>
     `;
@@ -1336,7 +1405,7 @@ function renderMessageBubble(m, idx) {
   ` : "";
 
   return `
-    <div class="w-full ${isUser ? 'bg-transparent' : 'bg-white border-y border-gray-200/50'} py-4 px-3 md:px-6 rounded-2xl">
+    <div class="w-full ${isUser ? 'bg-transparent' : 'bg-white/95 border-y border-gray-200/60 backdrop-blur-md'} py-4 px-3 md:px-6 rounded-2xl relative z-20">
       <div class="max-w-4xl mx-auto flex gap-3 md:gap-5 items-start">
         <div class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold shrink-0 ${isUser ? 'bg-blue-500/10 text-blue-600' : 'bg-zinc-100 text-gray-700'}">
           ${isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-brain"></i>'}
@@ -1624,7 +1693,6 @@ async function sendMessage() {
 }
 
 async function triggerVelocityTextAPI(chatHistory) {
-  // Yeh function fallback ke liye rakha gaya hai
   return "";
 }
 
@@ -1658,7 +1726,7 @@ function saveAllSettings() {
 }
 
 function resetSettings() {
-  setAccent('#6ED987', 'rgba(110,217,135,0.12)');
+  applyGlobalThemePreset('#6ED987', 'rgba(110,217,135,0.12)');
   activeVoiceAccent = "en-US-female";
   currentTemperature = 0.7;
   document.getElementById("ttsAccent").value = "en-US-female";
@@ -1710,23 +1778,24 @@ function init3DSpace() {
   camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.set(0, 4, 38);
 
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
   scene.add(ambientLight);
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 1.8);
   directionalLight.position.set(10, 25, 20);
   scene.add(directionalLight);
 
-  const keyGlow = new THREE.DirectionalLight(0x6ED987, 1);
+  const keyGlow = new THREE.DirectionalLight(parseInt(currentAccent.replace("#", "0x")), 1.2);
   keyGlow.position.set(-10, -10, 10);
   scene.add(keyGlow);
 
   avatarGroup = new THREE.Group();
 
+  // Premium sleek metallic robot armor body definition
   const outerBodyGeom = new THREE.SphereGeometry(3.6, 32, 32);
   const outerBodyMat = new THREE.MeshStandardMaterial({ 
-    color: 0xefedf0, 
-    roughness: 0.18, 
-    metalness: 0.1 
+    color: 0xf3f4f6, 
+    roughness: 0.12, 
+    metalness: 0.35 
   });
   const outerBodyMesh = new THREE.Mesh(outerBodyGeom, outerBodyMat);
   outerBodyMesh.scale.set(1, 1.2, 1);
@@ -1735,9 +1804,9 @@ function init3DSpace() {
 
   const innerPlateGeom = new THREE.SphereGeometry(3.2, 16, 16, 0, Math.PI, 0, Math.PI);
   const innerPlateMat = new THREE.MeshStandardMaterial({ 
-    color: 0xadadb5, 
-    roughness: 0.25, 
-    metalness: 0.4 
+    color: 0x9ca3af, 
+    roughness: 0.2, 
+    metalness: 0.6 
   });
   const innerPlateMesh = new THREE.Mesh(innerPlateGeom, innerPlateMat);
   innerPlateMesh.position.set(0, 0.8, 0.6);
@@ -1746,9 +1815,9 @@ function init3DSpace() {
 
   const headGeom = new THREE.SphereGeometry(3.3, 32, 32);
   const headMat = new THREE.MeshStandardMaterial({ 
-    color: 0xefedf0, 
-    roughness: 0.18, 
-    metalness: 0.1 
+    color: 0xf3f4f6, 
+    roughness: 0.12, 
+    metalness: 0.35 
   });
   headMesh = new THREE.Mesh(headGeom, headMat);
   headMesh.position.y = 6.0;
@@ -1756,18 +1825,23 @@ function init3DSpace() {
 
   const visorGeom = new THREE.SphereGeometry(2.8, 32, 16, 0, Math.PI * 2, 0.5, Math.PI / 2.5);
   const visorMat = new THREE.MeshStandardMaterial({ 
-    color: 0x070b12, 
-    roughness: 0.05, 
-    metalness: 0.9 
+    color: 0x030712, 
+    roughness: 0.02, 
+    metalness: 0.95 
   });
   visorMesh = new THREE.Mesh(visorGeom, visorMat);
   visorMesh.position.set(0, 6.1, 0.9);
   visorMesh.scale.set(1, 0.65, 1);
   avatarGroup.add(visorMesh);
 
+  // Dynamic emissive eyes for cyberglow aesthetics
   const eyeGeomLeft = new THREE.SphereGeometry(0.35, 32, 32);
   const eyeGeomRight = new THREE.SphereGeometry(0.35, 32, 32);
-  const eyeMat = new THREE.MeshStandardMaterial({ color: 0x00d2ff });
+  const eyeMat = new THREE.MeshStandardMaterial({ 
+    color: 0x00f2ff,
+    emissive: 0x00d2ff,
+    emissiveIntensity: 1.5
+  });
   
   leftEye = new THREE.Mesh(eyeGeomLeft, eyeMat);
   leftEye.position.set(-0.85, 6.25, 3.35);
@@ -1777,9 +1851,21 @@ function init3DSpace() {
   rightEye.position.set(0.85, 6.25, 3.35);
   avatarGroup.add(rightEye);
 
+  // Premium Feature: Add a sci-fi floating cyber neon aura ring above head
+  const ringGeom = new THREE.TorusGeometry(2.2, 0.1, 8, 48);
+  const ringMat = new THREE.MeshStandardMaterial({ 
+    color: parseInt(currentAccent.replace("#", "0x")), 
+    emissive: parseInt(currentAccent.replace("#", "0x")), 
+    emissiveIntensity: 2.0 
+  });
+  cyberHaloRing = new THREE.Mesh(ringGeom, ringMat);
+  cyberHaloRing.position.set(0, 10.2, 0);
+  cyberHaloRing.rotation.x = Math.PI / 2;
+  avatarGroup.add(cyberHaloRing);
+
   const shoulderGeomLeft = new THREE.SphereGeometry(0.7, 16, 16);
   const shoulderGeomRight = new THREE.SphereGeometry(0.7, 16, 16);
-  const jointMat = new THREE.MeshStandardMaterial({ color: 0x5a5a63, roughness: 0.4 });
+  const jointMat = new THREE.MeshStandardMaterial({ color: 0x4b5563, roughness: 0.3 });
   
   const shLeft = new THREE.Mesh(shoulderGeomLeft, jointMat);
   shLeft.position.set(-3.7, 2.2, 0);
@@ -1790,7 +1876,7 @@ function init3DSpace() {
   avatarGroup.add(shRight);
 
   const armGeom = new THREE.CylinderGeometry(0.5, 0.4, 3.8, 16);
-  const armMat = new THREE.MeshStandardMaterial({ color: 0xadadb5, roughness: 0.3 });
+  const armMat = new THREE.MeshStandardMaterial({ color: 0x9ca3af, roughness: 0.2 });
   
   leftArm = new THREE.Mesh(armGeom, armMat);
   leftArm.position.set(-5.6, 2.2, 0);
@@ -1814,7 +1900,7 @@ function init3DSpace() {
   avatarGroup.add(hjRight);
 
   const legGeom = new THREE.CylinderGeometry(0.7, 1.1, 3.4, 16);
-  const legMat = new THREE.MeshStandardMaterial({ color: 0xefedf0, roughness: 0.2 });
+  const legMat = new THREE.MeshStandardMaterial({ color: 0xf3f4f6, roughness: 0.15 });
   
   const leftLeg = new THREE.Mesh(legGeom, legMat);
   leftLeg.position.set(-1.6, -4.5, 0.2);
@@ -1824,7 +1910,12 @@ function init3DSpace() {
   rightLeg.position.set(1.6, -4.5, 0.2);
   avatarGroup.add(rightLeg);
 
-  avatarGroup.position.set(0, -0.5, 0);
+  // Position avatar correctly to prevent overlapping behind welcome view terminal
+  if(window.innerWidth > 768) {
+    avatarGroup.position.set(11, -2.5, 0);
+  } else {
+    avatarGroup.position.set(0, -6.0, 0);
+  }
   scene.add(avatarGroup);
 
   let mouseX = 0, mouseY = 0;
@@ -1852,23 +1943,30 @@ function init3DSpace() {
     targetX += (mouseX - targetX) * 0.08;
     targetY += (mouseY - targetY) * 0.08;
 
+    if (cyberHaloRing) {
+      cyberHaloRing.rotation.z = elapsedTime * 0.8;
+      cyberHaloRing.position.y = 10.2 + Math.sin(elapsedTime * 2) * 0.15;
+    }
+
     // Interactive 3D Avatar Emotions Engine
     if (isGenerating) {
-      // Thinking State: Changes color to Amber/Yellow and floats with head tilt
-      leftEye.material.color.setHex(0xffaa00);
-      avatarGroup.position.y = -0.5 + Math.sin(elapsedTime * 3.5) * 0.7;
+      // Thinking State: Glow turns into selected system accent theme / Amber and drifts smoothly
+      leftEye.material.emissive.setHex(0xffaa00);
+      rightEye.material.emissive.setHex(0xffaa00);
+      avatarGroup.position.y = (window.innerWidth > 768 ? -2.5 : -6.0) + Math.sin(elapsedTime * 3.5) * 0.6;
       headMesh.rotation.y = targetX * 0.2 + Math.sin(elapsedTime * 4) * 0.08;
       visorMesh.rotation.y = targetX * 0.2 + Math.sin(elapsedTime * 4) * 0.08;
     } else {
-      // Normal Default State: Cyber Blue Eyes
-      leftEye.material.color.setHex(0x00d2ff);
-      avatarGroup.position.y = -0.5 + Math.sin(elapsedTime * 1.5) * 0.5;
+      // Normal Default State: Cyber dynamic setup accent colors
+      const activeColorInt = parseInt(currentAccent.replace("#", "0x"));
+      leftEye.material.emissive.setHex(activeColorInt);
+      rightEye.material.emissive.setHex(activeColorInt);
+      avatarGroup.position.y = (window.innerWidth > 768 ? -2.5 : -6.0) + Math.sin(elapsedTime * 1.5) * 0.4;
       headMesh.rotation.y = targetX * 0.2;
       visorMesh.rotation.y = targetX * 0.2;
     }
 
     if (isSpeaking) {
-      // Speaking State: Micro-vibrations in head and arms during TTS
       headMesh.position.y = 6.0 + Math.sin(elapsedTime * 45) * 0.04;
       leftArm.position.x = -5.6 + Math.sin(elapsedTime * 50) * 0.03;
       rightArm.position.x = 5.6 + Math.cos(elapsedTime * 50) * 0.03;
@@ -1878,7 +1976,7 @@ function init3DSpace() {
       rightArm.position.x = 5.6;
     }
 
-    avatarGroup.rotation.y = targetX * 0.2 + Math.sin(elapsedTime * 0.2) * 0.03;
+    avatarGroup.rotation.y = (window.innerWidth > 768 ? 0.3 : 0.0) + targetX * 0.15 + Math.sin(elapsedTime * 0.2) * 0.03;
     leftArm.rotation.x = Math.sin(elapsedTime * 2) * 0.08;
     rightArm.rotation.x = Math.cos(elapsedTime * 2) * 0.08;
 
@@ -1908,6 +2006,11 @@ function init3DSpace() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    if(window.innerWidth > 768) {
+      avatarGroup.position.set(11, -2.5, 0);
+    } else {
+      avatarGroup.position.set(0, -6.0, 0);
+    }
   });
 }
 
