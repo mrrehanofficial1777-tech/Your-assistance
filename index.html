@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700;800&family=Space+Grotesk:wght=400;500;600;700&family=Fira+Code:wght=400;500&display=swap" rel="stylesheet">
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-dark.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-dark.min.css">
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -418,10 +418,6 @@
               <i class="fas fa-file-upload text-[#1BC237] w-4"></i>
               <span class="text-xs font-semibold">Upload Photo / PDF / Text</span>
             </button>
-            <button onclick="toggleVoiceInput()" id="voiceInputBtnToggle" class="w-full p-2.5 rounded-xl hover:bg-gray-50 text-left text-gray-700 flex items-center gap-3 transition-colors">
-              <i id="voiceMicIcon" class="fas fa-microphone text-[#1BC237]"></i>
-              <span id="voiceInputText" class="text-xs font-semibold">Voice Input OFF</span>
-            </button>
             <button onclick="toggleWebSearchMatrix()" id="webSearchBtnToggle" class="w-full p-2.5 rounded-xl hover:bg-gray-50 text-left text-gray-700 flex items-center gap-3 transition-colors">
               <i id="webSearchIcon" class="fas fa-globe text-[#1BC237]"></i>
               <span id="webSearchText" class="text-xs font-semibold">Search OFF</span>
@@ -438,9 +434,9 @@
               oninput="autoGrow(this);" 
               class="flex-1 bg-transparent border-0 text-gray-900 placeholder-gray-400 focus:ring-0 focus:outline-none text-sm md:text-[15px] resize-none max-h-36 min-h-[24px] py-2 pl-2"></textarea>
             
-            <div class="flex items-center gap-1 pr-1">
-              <button onclick="clearInput()" class="w-8 h-8 rounded-lg hover:bg-gray-50 text-gray-400 hover:text-gray-600 flex items-center justify-center transition-colors" title="Clear Entry">
-                <i class="fas fa-trash-alt text-xs"></i>
+            <div class="flex items-center gap-1.5 pr-1">
+              <button id="mainVoiceBtn" onclick="toggleVoiceInput()" class="w-8 h-8 rounded-lg hover:bg-gray-50 text-gray-400 hover:text-[#1BC237] flex items-center justify-center transition-all active:scale-90" title="Voice Input (Bolkar likhein)">
+                <i id="voiceMicIcon" class="fas fa-microphone text-sm"></i>
               </button>
               <button id="sendBtn" onclick="sendMessage()" class="w-10 h-10 rounded-xl bg-[#6ED987] hover:bg-[#5bc273] text-gray-950 flex items-center justify-center transition-all shadow-md shadow-emerald-100">
                 <i class="fas fa-paper-plane text-sm"></i>
@@ -523,7 +519,7 @@ const BRAND_NAME = "MR7 AI";
 const BRAND_ACCENT = "ai"; 
 
 const EM_QA_KEY_B64 = "QVEuQWI4Uk42TGpiWk5lZUwwM0hGbmUyb3otT3hNSTBDT0NMQ3FEQ0o0RXdpMEtuQXJra3c="; 
-const DIRECT_GROQ_KEY = "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"; 
+const DIRECT_GROQ_KEY = "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"; 
 
 function getSecureQA() { return atob(EM_QA_KEY_B64); }
 function getSecureVL() { return DIRECT_GROQ_KEY; }
@@ -868,7 +864,7 @@ function toggleVoiceInput() {
   }
 
   const micIcon = document.getElementById("voiceMicIcon");
-  const voiceText = document.getElementById("voiceInputText");
+  const voiceBtn = document.getElementById("mainVoiceBtn");
 
   if (!recognition) {
     recognition = new SpeechRecognition();
@@ -879,7 +875,7 @@ function toggleVoiceInput() {
     recognition.onstart = () => {
       isListening = true;
       if (micIcon) micIcon.className = "fas fa-microphone text-red-500 animate-pulse";
-      if (voiceText) voiceText.textContent = "Listening...";
+      if (voiceBtn) voiceBtn.classList.add("bg-red-50", "border-red-200");
       showToastMatrix("🎙️ Microphone active. Speak now...", true);
     };
 
@@ -904,7 +900,6 @@ function toggleVoiceInput() {
   }
 
   if (!isListening) {
-    closeRadialMenu();
     try {
       recognition.start();
     } catch(e) {
@@ -918,9 +913,9 @@ function toggleVoiceInput() {
 function stopListeningUI() {
   isListening = false;
   const micIcon = document.getElementById("voiceMicIcon");
-  const voiceText = document.getElementById("voiceInputText");
-  if (micIcon) micIcon.className = "fas fa-microphone text-[#1BC237]";
-  if (voiceText) voiceText.textContent = "Voice Input OFF";
+  const voiceBtn = document.getElementById("mainVoiceBtn");
+  if (micIcon) micIcon.className = "fas fa-microphone text-sm";
+  if (voiceBtn) voiceBtn.classList.remove("bg-red-50", "border-red-200");
 }
 
 function handleWorkspaceFileUpload(event) {
@@ -1089,7 +1084,6 @@ function selectPersonaMenu(personaKey) {
   renderMessages();
 }
 
-// System dynamic menu state validation
 function closePersonaMenu() {
   const pMenu = document.getElementById("personaMenu");
   if(pMenu) {
@@ -1372,6 +1366,7 @@ function copySnippetDirect(button) {
   });
 }
 
+// Global Clipboard validation handler 
 function copyToClipboard(btn, index) {
   const chat = chats[currentChatId];
   if (!chat || !chat.messages[index]) return;
