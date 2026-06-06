@@ -520,6 +520,7 @@ const BRAND_ACCENT = "ai";
 
 const EM_QA_KEY_B64 = "QVEuQWI4Uk42TGpiWk5lZUwwM0hGbmUyb3otT3hNSTBDT0NMQ3FEQ0o0RXdpMEtuQXJra3c="; 
 const DIRECT_GROQ_KEY = "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"; 
+const TAVILY_API_KEY = "YOUR_TAVILY_API_KEY"; // Real Web Search ke liye apni Tavily API key yahan dalein
 
 function getSecureQA() { return atob(EM_QA_KEY_B64); }
 function getSecureVL() { return DIRECT_GROQ_KEY; }
@@ -533,6 +534,7 @@ let activeVoiceAccent = localStorage.getItem("mr7_v5_voice_accent") || "en-US-fe
 let activeEngine = localStorage.getItem("mr7_v5_engine") || "groq"; 
 let currentTemperature = parseFloat(localStorage.getItem("mr7_v5_temp") || "0.7");
 let isGenerating = false;
+let isSpeaking = false;
 let is3DActive = localStorage.getItem("mr7_v5_3d") !== "false";
 let isPersonaMenuOpen = false;
 let isRadialOpen = false;
@@ -573,7 +575,7 @@ function getSystemInstructionText() {
 
   return `You are ${BRAND_NAME} Core, created by the "MR7 Team" (co-founded by "Md Rehan"). Today's exact current baseline date context is strictly: ${dateString}, Time: ${timeString}.${memoryPromptString}
   
-  CRITICAL REAL-TIME TRUTH VALIDATION (YEAR 2026): You are strictly operating live in the year 2026. You MUST provide updated 2026 facts. Lionel Messi plays for Inter Miami in MLS (NOT PSG). Cristiano Ronaldo plays for Al Nassr. The top 3 football players globally in 2026 are Kylian Mbappé (Real Madrid), Vinícius Júnior (Real Madrid), and Erling Haaland (Manchester City). Never state outdated facts or training cut-off errors.
+  CRITICAL REAL-TIME TRUTH VALIDATION (YEAR 2026): You are strictly operating live in the year 2026. You MUST provide updated 2026 facts. Lionel Messi plays for Inter Miami in MLS (NOT PSG). Cristiano Ronaldo plays for Al Nasr. The top 3 football players globally in 2026 are Kylian Mbappé (Real Madrid), Vinícius Júnior (Real Madrid), and Erling Haaland (Manchester City). Never state outdated facts or training cut-off errors.
   
   CRITICAL LANGUAGE REQUIREMENT: You MUST reply in the EXACT SAME language, dialect, or combination (e.g. Hinglish) that the user used to write or speak their query. If the user writes in Hinglish (Roman script Hindi), you MUST respond in natural, short Hinglish. Perfect parity with the user's spoken vernacular script is mandatory.
   
@@ -667,8 +669,9 @@ function ttsSpeak(btn, messageIndex) {
 
   speechUtterance.rate = 1.0;
 
-  speechUtterance.onend = () => { resetActiveSpeaker(); };
-  speechUtterance.onerror = () => { resetActiveSpeaker(); };
+  speechUtterance.onstart = () => { isSpeaking = true; };
+  speechUtterance.onend = () => { isSpeaking = false; resetActiveSpeaker(); };
+  speechUtterance.onerror = () => { isSpeaking = false; resetActiveSpeaker(); };
 
   window.speechSynthesis.speak(speechUtterance);
 }
@@ -679,6 +682,7 @@ function resetActiveSpeaker() {
     activeSpeakerBtn.querySelector("i").className = "fas fa-volume-up text-xs text-emerald-500";
     activeSpeakerBtn = null;
   }
+  isSpeaking = false;
 }
 
 window.addEventListener("load", () => {
@@ -1011,6 +1015,35 @@ function updateWebSearchUI() {
       txt.textContent = "Search OFF";
       txt.className = "text-gray-400 text-xs font-semibold";
     }
+  }
+}
+
+async function fetchWebSearchMatrix(query) {
+  if (!TAVILY_API_KEY || TAVILY_API_KEY === "YOUR_TAVILY_API_KEY") {
+    return "\n\n[System Note: Web Search enabled but real TAVILY_API_KEY is missing in core configuration.]";
+  }
+  try {
+    const response = await fetch("https://api.tavily.com/search", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        api_key: TAVILY_API_KEY,
+        query: query,
+        search_depth: "basic",
+        max_results: 3
+      })
+    });
+    const data = await response.json();
+    if (data.results && data.results.length > 0) {
+      let context = "\n\n[REAL-TIME WEB SEARCH MATRIX RETRIEVED - YEAR 2026]:\n";
+      data.results.forEach((res, i) => {
+        context += `${i + 1}. Title: ${res.title} (URL: ${res.url})\nSnippet: ${res.content}\n`;
+      });
+      return context;
+    }
+    return "\n\n[Web Search yielded no active results.]";
+  } catch (err) {
+    return `\n\n[Web Search pipeline interruption: ${err.message}]`;
   }
 }
 
@@ -1467,7 +1500,6 @@ function extractSmartConversationTitle(text) {
   let words = cleaned.split(/\s+/);
   if (words.length <= 5) return cleaned;
   
-  // Semantic clean phrase generation logic
   let keyPhrase = words.slice(0, 4).join(" ");
   return keyPhrase + "...";
 }
@@ -1503,6 +1535,11 @@ async function sendMessage() {
     }
   }
 
+  if (isWebSearchEnabled) {
+    const webResults = await fetchWebSearchMatrix(text);
+    processedPromptContent += webResults;
+  }
+
   chat.messages.push({ role: "user", content: text });
   if (chat.messages.length === 1) {
     chat.title = extractSmartConversationTitle(text);
@@ -1529,8 +1566,51 @@ async function sendMessage() {
         payloadHistory[payloadHistory.length - 1].content = processedPromptContent;
     }
     
-    let responseText = await triggerVelocityTextAPI(payloadHistory);
-    chat.messages[chat.messages.length - 1].content = responseText;
+    const systemPrompt = getSystemInstructionText();
+    const messages = [{ role: "system", content: systemPrompt }, ...payloadHistory.map(m => ({ role: m.role === "user" ? "user" : "assistant", content: m.content }))];
+    
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getSecureVL()}` },
+      body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: messages, temperature: currentTemperature, stream: true })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Pipeline HTTP Error: ${response.status}`);
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let partialLine = "";
+    let accumulatedText = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      partialLine += decoder.decode(value, { stream: true });
+      const lines = partialLine.split("\n");
+      partialLine = lines.pop();
+
+      for (const line of lines) {
+        const cleaned = line.trim();
+        if (!cleaned) continue;
+        if (cleaned === "data: [DONE]") break;
+        if (cleaned.startsWith("data: ")) {
+          try {
+            const json = JSON.parse(cleaned.slice(6));
+            const content = json.choices?.[0]?.delta?.content || "";
+            if (content) {
+              accumulatedText += content;
+              chat.messages[chat.messages.length - 1].content = accumulatedText;
+              targetBubble.innerHTML = parseCustomMarkdown(accumulatedText);
+              processRenderedCodeBlocks(document.getElementById("messages"));
+              scrollToBottomDirect();
+            }
+          } catch (e) {}
+        }
+      }
+    }
   } catch (err) {
     chat.messages[chat.messages.length - 1].content = `⚠️ System Engine Pipeline disconnected. Retry request transmission. Error: ${err.message}`;
   } finally {
@@ -1544,24 +1624,8 @@ async function sendMessage() {
 }
 
 async function triggerVelocityTextAPI(chatHistory) {
-  const systemPrompt = getSystemInstructionText();
-  const messages = [{ role: "system", content: systemPrompt }, ...chatHistory.map(m => ({ role: m.role === "user" ? "user" : "assistant", content: m.content }))];
-  
-  try {
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getSecureVL()}` },
-      body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: messages, temperature: currentTemperature })
-    });
-    
-    const result = await response.json();
-    if (result.error) {
-      return `⚠️ **Groq API Error Matrix:** ${result.error.message || "Invalid payload token configuration."}`;
-    }
-    return result.choices?.[0]?.message?.content || "*(Empty response pipeline validation loss)*";
-  } catch(error) {
-    return `⚠️ **Transmission Pipeline Interrupted:** ${error.message}`;
-  }
+  // Yeh function fallback ke liye rakha gaya hai
+  return "";
 }
 
 function openSettings() {
@@ -1788,15 +1852,37 @@ function init3DSpace() {
     targetX += (mouseX - targetX) * 0.08;
     targetY += (mouseY - targetY) * 0.08;
 
-    avatarGroup.position.y = -0.5 + Math.sin(elapsedTime * 1.5) * 0.5;
-    avatarGroup.rotation.y = targetX * 0.2 + Math.sin(elapsedTime * 0.2) * 0.03;
+    // Interactive 3D Avatar Emotions Engine
+    if (isGenerating) {
+      // Thinking State: Changes color to Amber/Yellow and floats with head tilt
+      leftEye.material.color.setHex(0xffaa00);
+      avatarGroup.position.y = -0.5 + Math.sin(elapsedTime * 3.5) * 0.7;
+      headMesh.rotation.y = targetX * 0.2 + Math.sin(elapsedTime * 4) * 0.08;
+      visorMesh.rotation.y = targetX * 0.2 + Math.sin(elapsedTime * 4) * 0.08;
+    } else {
+      // Normal Default State: Cyber Blue Eyes
+      leftEye.material.color.setHex(0x00d2ff);
+      avatarGroup.position.y = -0.5 + Math.sin(elapsedTime * 1.5) * 0.5;
+      headMesh.rotation.y = targetX * 0.2;
+      visorMesh.rotation.y = targetX * 0.2;
+    }
 
+    if (isSpeaking) {
+      // Speaking State: Micro-vibrations in head and arms during TTS
+      headMesh.position.y = 6.0 + Math.sin(elapsedTime * 45) * 0.04;
+      leftArm.position.x = -5.6 + Math.sin(elapsedTime * 50) * 0.03;
+      rightArm.position.x = 5.6 + Math.cos(elapsedTime * 50) * 0.03;
+    } else {
+      headMesh.position.y = 6.0;
+      leftArm.position.x = -5.6;
+      rightArm.position.x = 5.6;
+    }
+
+    avatarGroup.rotation.y = targetX * 0.2 + Math.sin(elapsedTime * 0.2) * 0.03;
     leftArm.rotation.x = Math.sin(elapsedTime * 2) * 0.08;
     rightArm.rotation.x = Math.cos(elapsedTime * 2) * 0.08;
 
-    headMesh.rotation.y = targetX * 0.2;
     headMesh.rotation.x = targetY * 0.1;
-    visorMesh.rotation.y = targetX * 0.2;
     visorMesh.rotation.x = targetY * 0.1;
 
     leftEye.position.x = -0.85 + (targetX * 0.15);
