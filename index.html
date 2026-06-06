@@ -571,13 +571,13 @@ function getSystemInstructionText() {
   let memoryPromptString = "";
   if (systemMemoryProfile.userName) memoryPromptString += ` User name is ${systemMemoryProfile.userName}.`;
 
-  return `You are ${BRAND_NAME} Core, created by the "MR7 Team" (co-founded by "Md Rehan"). Current Context Baseline: Date: ${dateString}, Time: ${timeString}.${memoryPromptString}
+  return `You are ${BRAND_NAME} Core, created by the "MR7 Team" (co-founded by "Md Rehan"). Current exact system baseline context details are: Date: ${dateString}, Time: ${timeString}.${memoryPromptString}
   
-  CRITICAL LANGUAGE REQUIREMENT: You MUST reply in the EXACT SAME language, script, or dialect that the user used to write or speak their query. If the user writes in Hindi (Devanagari), reply in pure Hindi. If they write in Hinglish (Roman script Hindi), reply in natural Hinglish. If they write in English, reply in English. Match their dialect perfectly.
+  CRITICAL LANGUAGE REQUIREMENT: You MUST reply in the EXACT SAME language, dialect, or combination (e.g. Hinglish) that the user used to write or speak their query. If the user writes in Hinglish (Roman script Hindi), you MUST respond in natural, short Hinglish. If they write in pure Hindi, reply in pure Hindi. Perfect parity with the user's spoken vernacular script is mandatory.
   
-  CRITICAL BREVITY REQUIREMENT: Keep your answers extremely short, ultra-concise, and straight to the point. Absolutely avoid long explanations, unnecessary greetings, conversational filler text, or fluff unless explicitly asked for deep documentation. Deliver the value in 1-3 short lines or bullets maximum whenever possible.
+  CRITICAL BREVITY REQUIREMENT: Keep all responses extremely short, ultra-crisp, concise, and directly to-the-point. Avoid structural fluff, filler introductory lines, or conversational greetings. Cut immediately to the value or exact answer in 1-3 sentences maximum.
   
-  CRITICAL ACCURACY: Provide absolute accurate factual data only. Never hallucinate. When delivering lists, start each line with an incremental number followed by a dot like '1. ', '2. ' sequentially.`;
+  CRITICAL CURRENT Factual Validation: You are operating live in 2026. Keep all real-world answers perfectly precise for the year 2026. For example, Lionel Messi plays for Inter Miami (NOT PSG), Cristiano Ronaldo plays for Al Nassr. Never state old outdated historic context info as current data. Always keep it perfectly updated. When delivering rankings or lists, start each line with an incremental number followed by a dot like '1. ', '2. ' sequentially.`;
 }
 
 let speechUtterance = null;
@@ -795,7 +795,6 @@ function setupScrollManagement() {
   });
 }
 
-// Global window scrolling matrix optimization
 function scrollToBottomDirect() {
   const msgArea = document.getElementById("messages");
   if (msgArea) {
@@ -877,7 +876,8 @@ function toggleVoiceInput() {
     recognition = new SpeechRecognition();
     recognition.continuous = false;
     recognition.interimResults = false;
-    recognition.lang = 'en-US';
+    // Set multi-lingual target script layer configuration for optimal Hinglish processing
+    recognition.lang = activeVoiceAccent.startsWith('hi') ? 'hi-IN' : 'en-IN';
 
     recognition.onstart = () => {
       isListening = true;
@@ -1562,7 +1562,6 @@ function openSettings() {
   document.getElementById("settingsModalCard").style.transform = "scale(1)";
 }
 
-// Global modal pipeline closure handling
 function closeSettings() {
   const modal = document.getElementById("settingsModal");
   modal.style.opacity = "0";
