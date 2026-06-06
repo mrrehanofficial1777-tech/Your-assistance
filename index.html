@@ -1098,7 +1098,6 @@ function closePersonaMenu() {
   isPersonaMenuOpen = false;
 }
 
-// Sidebar interface layer state setup
 function updatePersonaUI() {
   const titles = { friendly: `😊 Adaptive Mode Enacted`, coder: `💻 Architect Mode Enacted`, writer: `✍️ Writer Matrix Enacted`, expert: `🎓 Technical Core Enacted` };
   document.getElementById("activePersonaHeader").textContent = titles[currentPersona] || titles.friendly;
@@ -1463,6 +1462,16 @@ function inspectAndHarvestUserMemory(text) {
   localStorage.setItem("mr7_v5_memory_matrix", JSON.stringify(systemMemoryProfile));
 }
 
+function extractSmartConversationTitle(text) {
+  let cleaned = text.replace(/[\[\]\(\)\{\}\#\*\-\+_]/g, "").trim();
+  let words = cleaned.split(/\s+/);
+  if (words.length <= 5) return cleaned;
+  
+  // Semantic clean phrase generation logic
+  let keyPhrase = words.slice(0, 4).join(" ");
+  return keyPhrase + "...";
+}
+
 async function sendMessage() {
   if (isGenerating) return;
 
@@ -1496,7 +1505,7 @@ async function sendMessage() {
 
   chat.messages.push({ role: "user", content: text });
   if (chat.messages.length === 1) {
-    chat.title = text.length > 20 ? text.slice(0, 18) + "..." : text;
+    chat.title = extractSmartConversationTitle(text);
   }
 
   clearInput();
@@ -1584,7 +1593,6 @@ function saveAllSettings() {
   closeSettings();
 }
 
-// Diagnostics settings default state tracking matrix
 function resetSettings() {
   setAccent('#6ED987', 'rgba(110,217,135,0.12)');
   activeVoiceAccent = "en-US-female";
