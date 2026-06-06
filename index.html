@@ -418,6 +418,10 @@
               <i class="fas fa-file-upload text-[#1BC237] w-4"></i>
               <span class="text-xs font-semibold">Upload Photo / PDF / Text</span>
             </button>
+            <button onclick="toggleVoiceInput()" id="voiceInputBtnToggle" class="w-full p-2.5 rounded-xl hover:bg-gray-50 text-left text-gray-700 flex items-center gap-3 transition-colors">
+              <i id="voiceMicIcon" class="fas fa-microphone text-[#1BC237]"></i>
+              <span id="voiceInputText" class="text-xs font-semibold">Voice Input OFF</span>
+            </button>
             <button onclick="toggleWebSearchMatrix()" id="webSearchBtnToggle" class="w-full p-2.5 rounded-xl hover:bg-gray-50 text-left text-gray-700 flex items-center gap-3 transition-colors">
               <i id="webSearchIcon" class="fas fa-globe text-[#1BC237]"></i>
               <span id="webSearchText" class="text-xs font-semibold">Search OFF</span>
@@ -536,6 +540,8 @@ let isGenerating = false;
 let is3DActive = localStorage.getItem("mr7_v5_3d") !== "false";
 let isPersonaMenuOpen = false;
 let isRadialOpen = false;
+let recognition = null;
+let isListening = false;
 
 let isWebSearchEnabled = localStorage.getItem("mr7_v5_websearch") === "true";
 let activeAttachedFileData = null; 
@@ -838,7 +844,6 @@ function toggleRadialMenu(e) {
   }
 }
 
-// STACK AND EVENT CONTROL FIX FOR MOBILE ACCESSIBILITY
 function closeRadialMenu() {
   const menu = document.getElementById("radialMenu");
   const icon = document.getElementById("actionDotIcon");
@@ -853,6 +858,69 @@ function closeRadialMenu() {
 function triggerWorkspaceUpload() {
   closeRadialMenu();
   document.getElementById("userWorkspaceUploaderInput").click();
+}
+
+function toggleVoiceInput() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    showToastMatrix("❌ Speech Recognition not supported in this browser.", false);
+    return;
+  }
+
+  const micIcon = document.getElementById("voiceMicIcon");
+  const voiceText = document.getElementById("voiceInputText");
+
+  if (!recognition) {
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => {
+      isListening = true;
+      if (micIcon) micIcon.className = "fas fa-microphone text-red-500 animate-pulse";
+      if (voiceText) voiceText.textContent = "Listening...";
+      showToastMatrix("🎙️ Microphone active. Speak now...", true);
+    };
+
+    recognition.onresult = (event) => {
+      const resultText = event.results[0][0].transcript;
+      const inputEl = document.getElementById("input");
+      if (inputEl) {
+        inputEl.value = (inputEl.value + " " + resultText).trim();
+        autoGrow(inputEl);
+      }
+      showToastMatrix("✅ Voice captured successfully!", true);
+    };
+
+    recognition.onerror = (event) => {
+      showToastMatrix(`⚠️ Voice Error: ${event.error}`, false);
+      stopListeningUI();
+    };
+
+    recognition.onend = () => {
+      stopListeningUI();
+    };
+  }
+
+  if (!isListening) {
+    closeRadialMenu();
+    try {
+      recognition.start();
+    } catch(e) {
+      showToastMatrix("🎙️ Mic already capturing connection.", false);
+    }
+  } else {
+    recognition.stop();
+  }
+}
+
+function stopListeningUI() {
+  isListening = false;
+  const micIcon = document.getElementById("voiceMicIcon");
+  const voiceText = document.getElementById("voiceInputText");
+  if (micIcon) micIcon.className = "fas fa-microphone text-[#1BC237]";
+  if (voiceText) voiceText.textContent = "Voice Input OFF";
 }
 
 function handleWorkspaceFileUpload(event) {
@@ -1021,6 +1089,15 @@ function selectPersonaMenu(personaKey) {
   renderMessages();
 }
 
+// System dynamic menu state validation
+function closePersonaMenu() {
+  const pMenu = document.getElementById("personaMenu");
+  if(pMenu) {
+    pMenu.classList.add("opacity-0", "pointer-events-none");
+  }
+  isPersonaMenuOpen = false;
+}
+
 function updatePersonaUI() {
   const titles = { friendly: `😊 Adaptive Mode Enacted`, coder: `💻 Architect Mode Enacted`, writer: `✍️ Writer Matrix Enacted`, expert: `🎓 Technical Core Enacted` };
   document.getElementById("activePersonaHeader").textContent = titles[currentPersona] || titles.friendly;
@@ -1066,7 +1143,6 @@ function switchChat(id) {
   renderMessages();
 }
 
-// Clean functional delete process mapping
 function deleteChat(id, e) {
   e.stopPropagation();
   e.preventDefault();
@@ -1081,34 +1157,6 @@ function deleteChat(id, e) {
   renderChatList();
   renderMessages();
   calculateBrainMirrorMatrix();
-}
-
-function initSwipeToDelete(elementId) {
-  const el = document.getElementById(elementId);
-  if (!el) return;
-  let startX = 0, dist = 0;
-
-  el.addEventListener("touchstart", (e) => {
-    startX = e.touches[0].clientX;
-  }, {passive:true});
-
-  el.addEventListener("touchmove", (e) => {
-    dist = e.touches[0].clientX - startX;
-    if (dist > 0 && dist < 120) {
-      el.style.transform = `translateX(${dist}px)`;
-    }
-  }, {passive:true});
-
-  el.addEventListener("touchend", () => {
-    if (dist > 85) {
-      el.style.transform = `translateX(30px)`;
-      const delBtn = el.querySelector("button");
-      if (delBtn) delBtn.click();
-    } else {
-      el.style.transform = "translateX(0px)";
-    }
-    dist = 0;
-  });
 }
 
 function saveChatsToLocal() {
@@ -1223,6 +1271,13 @@ function parseCustomMarkdown(content) {
       return `<div class="bg-white border border-gray-200 rounded-xl p-3 my-2 font-medium flex items-start gap-3 shadow-sm hover:border-emerald-500/20 transition-all">
                 <span class="bg-[#DBE5DD] text-gray-700 text-xs font-bold rounded-lg w-6 h-6 flex items-center justify-center shrink-0 font-mono">${listMatch[1]}</span>
                 <span class="text-gray-800 text-sm leading-relaxed pt-0.5">${marked.parseInline(listMatch[2])}</span>
+              </div>`;
+    }
+    let bulletMatch = trimmed.match(/^[\*\-\+]\s+(.*)/);
+    if (bulletMatch) {
+      return `<div class="flex items-start gap-2.5 my-1.5 pl-2">
+                <span class="text-[#1BC237] text-xs pt-0.5">•</span>
+                <span class="text-gray-700 text-sm leading-relaxed">${marked.parseInline(bulletMatch[1])}</span>
               </div>`;
     }
     return marked.parse(line);
@@ -1407,7 +1462,6 @@ function inspectAndHarvestUserMemory(text) {
   localStorage.setItem("mr7_v5_memory_matrix", JSON.stringify(systemMemoryProfile));
 }
 
-// 🌐 Pure Free Custom Processing Connection Module (No Puter Library Calls for Messaging)
 async function sendMessage() {
   if (isGenerating) return;
 
@@ -1465,11 +1519,10 @@ async function sendMessage() {
         payloadHistory[payloadHistory.length - 1].content = processedPromptContent;
     }
     
-    // Completely routed to back-end server endpoint to bypass Puter authorization popups 
     let responseText = await triggerVelocityTextAPI(payloadHistory);
     chat.messages[chat.messages.length - 1].content = responseText;
   } catch (err) {
-    chat.messages[chat.messages.length - 1].content = `⚠️ System Engine Pipeline disconnected. Retry request transmission.`;
+    chat.messages[chat.messages.length - 1].content = `⚠️ System Engine Pipeline disconnected. Retry request transmission. Error: ${err.message}`;
   } finally {
     isGenerating = false;
     document.getElementById("sendBtn").disabled = false;
@@ -1484,13 +1537,21 @@ async function triggerVelocityTextAPI(chatHistory) {
   const systemPrompt = getSystemInstructionText();
   const messages = [{ role: "system", content: systemPrompt }, ...chatHistory.map(m => ({ role: m.role === "user" ? "user" : "assistant", content: m.content }))];
   
-  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getSecureVL()}` },
-    body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: messages, temperature: currentTemperature })
-  });
-  const result = await response.json();
-  return result.choices?.[0]?.message?.content || "*(Empty response pipeline)*";
+  try {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getSecureVL()}` },
+      body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: messages, temperature: currentTemperature })
+    });
+    
+    const result = await response.json();
+    if (result.error) {
+      return `⚠️ **Groq API Error Matrix:** ${result.error.message || "Invalid payload token configuration."}`;
+    }
+    return result.choices?.[0]?.message?.content || "*(Empty response pipeline validation loss)*";
+  } catch(error) {
+    return `⚠️ **Transmission Pipeline Interrupted:** ${error.message}`;
+  }
 }
 
 function openSettings() {
@@ -1565,7 +1626,6 @@ function useSuggestion(text) {
   }
 }
 
-// 🤖 Premium Ultra 3D Robot Generation Engine Setup (Image Reference Match)
 function init3DSpace() {
   const canvas = document.getElementById("bg-canvas");
   renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
@@ -1588,7 +1648,6 @@ function init3DSpace() {
 
   avatarGroup = new THREE.Group();
 
-  // Torso White Outer Shell Mesh
   const outerBodyGeom = new THREE.SphereGeometry(3.6, 32, 32);
   const outerBodyMat = new THREE.MeshStandardMaterial({ 
     color: 0xefedf0, 
@@ -1600,7 +1659,6 @@ function init3DSpace() {
   outerBodyMesh.position.y = 1;
   avatarGroup.add(outerBodyMesh);
 
-  // Inset Grey Chest Plate Contour Matching Image Template
   const innerPlateGeom = new THREE.SphereGeometry(3.2, 16, 16, 0, Math.PI, 0, Math.PI);
   const innerPlateMat = new THREE.MeshStandardMaterial({ 
     color: 0xadadb5, 
@@ -1612,7 +1670,6 @@ function init3DSpace() {
   innerPlateMesh.rotation.y = -Math.PI / 2;
   avatarGroup.add(innerPlateMesh);
 
-  // Large Smooth Spherical Head Structure
   const headGeom = new THREE.SphereGeometry(3.3, 32, 32);
   const headMat = new THREE.MeshStandardMaterial({ 
     color: 0xefedf0, 
@@ -1623,7 +1680,6 @@ function init3DSpace() {
   headMesh.position.y = 6.0;
   avatarGroup.add(headMesh);
 
-  // Iconic Dark Visor Face Screen Mask Panel
   const visorGeom = new THREE.SphereGeometry(2.8, 32, 16, 0, Math.PI * 2, 0.5, Math.PI / 2.5);
   const visorMat = new THREE.MeshStandardMaterial({ 
     color: 0x070b12, 
@@ -1635,7 +1691,6 @@ function init3DSpace() {
   visorMesh.scale.set(1, 0.65, 1);
   avatarGroup.add(visorMesh);
 
-  // 👁️ Bright Blue Cyber Eyes (Repositioned for Perfect Depth Integrity)
   const eyeGeomLeft = new THREE.SphereGeometry(0.35, 32, 32);
   const eyeGeomRight = new THREE.SphereGeometry(0.35, 32, 32);
   const eyeMat = new THREE.MeshStandardMaterial({ color: 0x00d2ff });
@@ -1648,7 +1703,6 @@ function init3DSpace() {
   rightEye.position.set(0.85, 6.25, 3.35);
   avatarGroup.add(rightEye);
 
-  // Horizontally Outstretched Mechanical Arms
   const shoulderGeomLeft = new THREE.SphereGeometry(0.7, 16, 16);
   const shoulderGeomRight = new THREE.SphereGeometry(0.7, 16, 16);
   const jointMat = new THREE.MeshStandardMaterial({ color: 0x5a5a63, roughness: 0.4 });
@@ -1674,7 +1728,6 @@ function init3DSpace() {
   rightArm.rotation.z = -Math.PI / 2;
   avatarGroup.add(rightArm);
 
-  // Detailed Segmented Curved Upper Thigh Joints & Leg Pods
   const hipJointLeft = new THREE.SphereGeometry(0.6, 16, 16);
   const hipJointRight = new THREE.SphereGeometry(0.6, 16, 16);
   
