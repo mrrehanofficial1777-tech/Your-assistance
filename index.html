@@ -510,12 +510,6 @@
           <option value="hi-IN-male" class="bg-white">Hindi 👨 (Native Accent - Male Style)</option>
         </select>
       </div>
-
-      <div class="pt-2">
-        <button onclick="exportChatLogsToJSON()" class="w-full py-2.5 text-xs bg-gray-900 hover:bg-gray-800 text-white font-mono font-bold rounded-xl flex items-center justify-center gap-2 transition-all">
-          <i class="fas fa-download"></i> <span>Export Conversations Matrix (.json)</span>
-        </button>
-      </div>
     </div>
 
     <div class="flex gap-3 mt-3 pt-3 border-t border-gray-100">
@@ -535,7 +529,7 @@ const BRAND_ACCENT = "ai";
 
 const EM_QA_KEY_B64 = "QVEuQWI4Uk42TGpiWk5lZUwwM0hGbmUyb3otT3hNSTBDT0NMQ3FEQ0o0RXdpMEtuQXJra3c="; 
 const DIRECT_GROQ_KEY = "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"; 
-const TAVILY_API_KEY = "tvly-uYVbK6mK868mKzKzKzKzKzKzKzKzKzKz"; // Input valid Tavily Engine token here
+const TAVILY_API_KEY = "tvly-uYVbK6mK868mKzKzKzKzKzKzKzKzKzKz"; 
 
 function getSecureQA() { return atob(EM_QA_KEY_B64); }
 function getSecureVL() { return DIRECT_GROQ_KEY; }
@@ -590,7 +584,7 @@ function getSystemInstructionText() {
 
   return `You are ${BRAND_NAME} Core, created by the "MR7 Team" (co-founded by "Md Rehan"). Today's exact current baseline date context is strictly: ${dateString}, Time: ${timeString}.${memoryPromptString}
   
-  CRITICAL REAL-TIME TRUTH VALIDATION (YEAR 2026): You are strictly operating live in the year 2026. You MUST provide updated 2026 facts. Lionel Messi plays for Inter Miami in MLS (NOT PSG). Cristiano Ronaldo plays for Al Nassr. The top 3 football players globally in 2026 are Kylian Mbappé (Real Madrid), Vinícius Júnior (Real Madrid), and Erling Haaland (Manchester City). Never state outdated facts or training cut-off errors.
+  CRITICAL REAL-TIME TRUTH VALIDATION (YEAR 2026): You are strictly operating live in the year 2026. You MUST provide updated 2026 facts. Lionel Messi plays for Inter Miami in MLS (NOT PSG). Cristiano Ronaldo plays for Al Nasr. The top 3 football players globally in 2026 are Kylian Mbappé (Real Madrid), Vinícius Júnior (Real Madrid), and Erling Haaland (Manchester City). Never state outdated facts or training cut-off errors.
   
   CRITICAL LANGUAGE REQUIREMENT: You MUST reply in the EXACT SAME language, dialect, or combination (e.g. Hinglish) that the user used to write or speak their query. If the user writes in Hinglish (Roman script Hindi), you MUST respond in natural, short Hinglish. Perfect parity with the user's spoken vernacular script is mandatory.
   
@@ -622,21 +616,6 @@ window.addEventListener("keydown", (e) => {
     closeRadialMenu();
   }
 });
-
-function exportChatLogsToJSON() {
-  try {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(chats, null, 2));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `MR7_AI_Matrix_Backup_${Date.now()}.json`);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
-    showToastMatrix("Conversations Log Matrix Exported Successfully!", true);
-  } catch (err) {
-    showToastMatrix("Failed to export chat logs structure.", false);
-  }
-}
 
 function applyGlobalThemePreset(hexColor, glowColor) {
   currentAccent = hexColor;
@@ -1910,13 +1889,8 @@ function init3DSpace() {
   rightLeg.position.set(1.6, -4.5, 0.2);
   avatarGroup.add(rightLeg);
 
-  // Position avatar correctly to prevent overlapping behind welcome view terminal
-  if(window.innerWidth > 768) {
-    avatarGroup.position.set(11, -2.5, 0);
-  } else {
-    avatarGroup.position.set(0, -6.0, 0);
-  }
   scene.add(avatarGroup);
+  updateAvatarLayoutPosition();
 
   let mouseX = 0, mouseY = 0;
   let targetX = 0, targetY = 0;
@@ -1948,20 +1922,21 @@ function init3DSpace() {
       cyberHaloRing.position.y = 10.2 + Math.sin(elapsedTime * 2) * 0.15;
     }
 
+    // Dynamic floating translation
+    let baseOffset = (window.innerWidth > 768) ? -2.0 : 4.0;
+    avatarGroup.position.y = baseOffset + Math.sin(elapsedTime * 1.5) * 0.5;
+
     // Interactive 3D Avatar Emotions Engine
     if (isGenerating) {
-      // Thinking State: Glow turns into selected system accent theme / Amber and drifts smoothly
       leftEye.material.emissive.setHex(0xffaa00);
       rightEye.material.emissive.setHex(0xffaa00);
-      avatarGroup.position.y = (window.innerWidth > 768 ? -2.5 : -6.0) + Math.sin(elapsedTime * 3.5) * 0.6;
+      avatarGroup.position.y += Math.sin(elapsedTime * 4) * 0.3;
       headMesh.rotation.y = targetX * 0.2 + Math.sin(elapsedTime * 4) * 0.08;
       visorMesh.rotation.y = targetX * 0.2 + Math.sin(elapsedTime * 4) * 0.08;
     } else {
-      // Normal Default State: Cyber dynamic setup accent colors
       const activeColorInt = parseInt(currentAccent.replace("#", "0x"));
       leftEye.material.emissive.setHex(activeColorInt);
       rightEye.material.emissive.setHex(activeColorInt);
-      avatarGroup.position.y = (window.innerWidth > 768 ? -2.5 : -6.0) + Math.sin(elapsedTime * 1.5) * 0.4;
       headMesh.rotation.y = targetX * 0.2;
       visorMesh.rotation.y = targetX * 0.2;
     }
@@ -1976,7 +1951,9 @@ function init3DSpace() {
       rightArm.position.x = 5.6;
     }
 
-    avatarGroup.rotation.y = (window.innerWidth > 768 ? 0.3 : 0.0) + targetX * 0.15 + Math.sin(elapsedTime * 0.2) * 0.03;
+    let baseRotationY = (window.innerWidth > 768) ? 0.3 : 0.0;
+    avatarGroup.rotation.y = baseRotationY + targetX * 0.15 + Math.sin(elapsedTime * 0.2) * 0.03;
+    
     leftArm.rotation.x = Math.sin(elapsedTime * 2) * 0.08;
     rightArm.rotation.x = Math.cos(elapsedTime * 2) * 0.08;
 
@@ -2006,12 +1983,21 @@ function init3DSpace() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    if(window.innerWidth > 768) {
-      avatarGroup.position.set(11, -2.5, 0);
-    } else {
-      avatarGroup.position.set(0, -6.0, 0);
-    }
+    updateAvatarLayoutPosition();
   });
+}
+
+function updateAvatarLayoutPosition() {
+  if (!avatarGroup) return;
+  if (window.innerWidth > 768) {
+    // Desktop layout setup
+    avatarGroup.position.set(11, -2.0, 0);
+    avatarGroup.scale.set(1.0, 1.0, 1.0);
+  } else {
+    // Mobile viewport setup: Shift up and bring forward to keep fully visible above UI panels
+    avatarGroup.position.set(0, 4.0, 12);
+    avatarGroup.scale.set(0.75, 0.75, 0.75);
+  }
 }
 
 function escapeHtml(s) {
@@ -2020,3 +2006,4 @@ function escapeHtml(s) {
 </script>
 </body>
 </html>
+
